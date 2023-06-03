@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="210mm" height="297mm" version="1.1" viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient id="logod" x1="26.103" x2="-56.22" y1="235.3" y2="46.592" gradientTransform="matrix(-.56676 .11793 -.11665 -.57298 69.017 234.2)" gradientUnits="userSpaceOnUse" xlink:href="#logob"/>
+  <linearGradient id="logob" x1="26.103" x2="-56.22" y1="235.3" y2="46.592" gradientTransform="matrix(-.60477 .12425 -.12447 -.60371 92.697 240.92)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#2406e6" offset="0"/>
+   <stop stop-color="#f206e5" offset="1"/>
+  </linearGradient>
+  <linearGradient id="logoc" x1="136.13" x2="204.99" y1="88.479" y2="200.38" gradientTransform="translate(-30.692 6.8792)" gradientUnits="userSpaceOnUse" xlink:href="#logob"/>
+ </defs>
+ <g transform="matrix(1.3494 0 0 1.4047 -37.521 -83.482)">
+  <path d="m12.522 167.65a42.587 41.907 86.126 0 1 24.792-47.832 42.587 41.907 86.126 0 1 51.023 15.601 42.587 41.907 86.126 0 1-5.122 53.846 42.587 41.907 86.126 0 1-52.998 5.1573" fill="none" stroke="url(#logod)" stroke-linecap="round" stroke-width="20.876" style="paint-order:markers fill stroke"/>
+  <text x="105.22775" y="193.58121" fill="url(#logoc)" font-family="'Comic Sans MS'" font-size="70.556px" stroke-width=".26458" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve"><tspan x="105.22775" y="193.58121" dx="0 -6.7975345 -4.1830983" fill="url(#logoc)" font-family="'Comic Sans MS'" font-size="70.556px" stroke-width=".26458" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">dds</tspan></text>
+ </g>
+</svg>
