@@ -1,28 +1,25 @@
 import React from "react";
 
+const BetSlip = () => {
+  return <div>slip</div>;
+};
+
 function Index() {
   return (
     <div className="flex flex-col overflow-hidden items-center">
-      <div className="h-32 w-full rounded-b-[2rem] bg-slate-700/30">
-        <button>my betlist</button>
+      <div className="w-full flex items-end gap-12 justify-center pb-1.5 pt-16 bg-slate-700/20">
+        <button className="relative aft after:bottom-0 after:w">
+          my betlist
+        </button>
         <button>bet history</button>
       </div>
-      <span className="bg relative bg-gray-700/20 w-4/5 mt-6 h-32 ">
-        fish
-        <img
-          src="/ticket.svg"
-          className="absolute -top-1 h-[8.5rem] left-[82.3%] w-32"
-          alt=""
-        />
-      </span>
-      <span className="bg relative bg-gray-700/20 w-4/5 mt-6 h-32 ">
-        fish
-        <img
-          src="/ticket.svg"
-          className="absolute -top-1 h-[8.5rem] left-[82.3%] w-32"
-          alt=""
-        />
-      </span>
+      <div className="">
+        {Array(4)
+          .fill("")
+          .map((i, key) => (
+            <BetSlip key={key} />
+          ))}
+      </div>
     </div>
   );
 }
