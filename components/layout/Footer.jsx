@@ -24,7 +24,7 @@ function Footer() {
           {["About", "Terms & condition"].map((item, key) => (
             <motion.button
               key={key}
-              className="border-2 border-white/10 px-4 py-0.5 rounded-lg"
+              className="border-x-2 border-t-2 border-white/10 px-4 py-0.5 rounded-lg"
               whileTap={{ scale: 1.1 }}
             >
               {item}

@@ -126,10 +126,9 @@ const OverUnder = ({ values, setActive }) => {
         const locked = currentMkt.odds[curr] && currentMkt.odds[curr][key] > 1;
 
         return (
-          <>
+          <React.Fragment key={key}>
             {key === 0 ? (
               <button
-                key={key}
                 whileTap={{ scale: 1.1 }}
                 // disabled={!locked}
                 // onClick={() => addGame(currentMkt.name[key], key)}
@@ -147,7 +146,6 @@ const OverUnder = ({ values, setActive }) => {
               </button>
             ) : (
               <motion.button
-                key={key}
                 whileTap={{ scale: 1.1 }}
                 disabled={!locked}
                 onClick={() => addGame(currentMkt.name[key], key)}
@@ -174,7 +172,7 @@ const OverUnder = ({ values, setActive }) => {
                 )}
               </motion.button>
             )}
-          </>
+          </React.Fragment>
         );
       })}
     </>

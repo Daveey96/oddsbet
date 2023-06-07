@@ -1,0 +1,64 @@
+import { clientAsync } from "@/helpers/asyncHandler";
+import axios from "axios";
+
+const checkEmail = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signup", details, {
+      headers: { type: "check" },
+    });
+    return data;
+  });
+
+const verifyEmail = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signup", details, {
+      headers: { type: "verify" },
+    });
+    return data;
+  });
+
+const signup = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signup", details, {
+      headers: { type: "signup" },
+    });
+    return data;
+  });
+
+const signin = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signin", details);
+    return data;
+  });
+
+const resendCode = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signup", details, {
+      headers: { type: "resend" },
+    });
+    return data;
+  });
+
+const getStage = () =>
+  clientAsync(async () => {
+    const { data } = await axios.get("/api/user/signup", {
+      headers: { type: "stage" },
+    });
+    return data;
+  });
+
+const getUser = () =>
+  clientAsync(async () => {
+    const { data } = await axios.get("/api/user/signin");
+    return data;
+  });
+
+export const userService = {
+  checkEmail,
+  signup,
+  signin,
+  verifyEmail,
+  getStage,
+  getUser,
+  resendCode,
+};

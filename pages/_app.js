@@ -7,12 +7,8 @@ export default function App({ Component, pageProps }) {
   return (
     <Layout>
       <Head>
-        <title>odds</title>
-        <link
-          rel="shortcut icon"
-          href="/favicon.ico"
-          type="image/x-icon"
-        ></link>
+        <title>Odds Bet</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"></link>
       </Head>
       <Component {...pageProps} />
     </Layout>

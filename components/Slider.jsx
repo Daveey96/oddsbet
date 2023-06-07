@@ -63,7 +63,10 @@ function Slider() {
               ))}
               <div className="order-2 relative h-full overflow-visible justify-between flex items-center z-10 flex-1">
                 {[0, 1].map((key2) => (
-                  <span className={`text-3xl opacity-75 ${key2 && "order-3"}`}>
+                  <span
+                    key={key2}
+                    className={`text-3xl opacity-75 ${key2 && "order-3"}`}
+                  >
                     {key2 ? g.score2 : g.score1}
                   </span>
                 ))}

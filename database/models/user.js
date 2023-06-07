@@ -1,18 +1,16 @@
 import { Schema, model, models } from "mongoose";
 
 const userSchema = new Schema({
-  num: {
+  email: {
     type: String,
     required: true,
     unique: true,
   },
-  password: {
-    type: String,
-    required: true,
-  },
-  balance: {
-    type: Number,
-  },
+  password: String,
+  balance: Number,
+  verified: Boolean,
+  token: String,
+  currentStage: Number,
 });
 
 const User = models.User || model("User", userSchema);
