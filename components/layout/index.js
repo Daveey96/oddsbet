@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import Tab from "./Tab";
 import Nav from "./Nav";
-import { Alert } from "../services/Alert";
 import Footer from "./Footer";
 import { userService } from "@/services";
 import { ThemeProvider } from "next-themes";
@@ -25,7 +24,6 @@ export default function Layout({ children }) {
     <Context.Provider value={{ user, setUser, betList, setBetList }}>
       <ThemeProvider attribute="class">
         <Nav />
-        <Alert />
         {children}
         <Tab />
         <Footer />

@@ -11,6 +11,8 @@ module.exports = {
       colors: {
         c1: "#2406e6",
         c2: "#f206e5",
+        c3: "#00000b",
+        c4: "#040507",
       },
       borderRadius: {
         inh: "inherit",

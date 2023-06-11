@@ -20,7 +20,9 @@
 
 *,
 * > * {
-  font-family: "Comic Neue", cursive;
+  font-family: "Comic Neue", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
 }
 
 body {
@@ -39,6 +41,12 @@ a,
 input {
   font-size: inherit;
   background: transparent;
+}
+
+.isSticky {
+  padding-top: 56px !important;
+  background: black !important;
+  z-index: 22 !important;
 }
 
 input:focus {

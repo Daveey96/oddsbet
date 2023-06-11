@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-
 import { alertService } from "services";
 import { BiCheckCircle, BiXCircle } from "react-icons/bi";
-import Animated, { Variants } from "../Animated";
+import { motion } from "framer-motion";
 
-export { Alert };
-
-function Alert() {
-  const router = useRouter();
+export default function Alert({ onAlert }) {
   const [alert, setAlert] = useState(null);
 
   useEffect(() => {
@@ -22,8 +17,8 @@ function Alert() {
   }, []);
 
   useEffect(() => {
-    // clear alert on location change
     if (alert) {
+      onAlert(alert);
       setTimeout(() => {
         alertService.clear();
       }, 3000);
@@ -33,24 +28,23 @@ function Alert() {
   if (!alert) return null;
 
   return (
-    <div className="fixed top-1 z-50 fx w-full">
-      <Animated
-        state={alert}
-        init={{ y: -100, opacity: 0 }}
-        show={{ y: 0, opacity: 1 }}
-        className={`rounded-xl relative fx shadow gap-2 px-7 py-3 ${
-          alert.type === "success"
-            ? "bg-[#022502] shadow-[#022502]"
-            : "bg-[#200202] shadow-[#200202]"
+    <div className="fixed top-0 z-50 fx w-full">
+      <motion.span
+        initial={{ opacity: 0, y: "-100%" }}
+        animate={{ opacity: 1, y: "0%" }}
+        exit={{ opacity: 0, y: "-100%" }}
+        key={38373}
+        className={`rounded-b-xl whitespace-nowrap relative fx overflow-hidden gap-2 px-7 py-2.5 ${
+          alert.type === "success" ? "bg-[#022502]" : "bg-[#200202]"
         } `}
       >
         {alert.type === "success" ? (
-          <BiCheckCircle className="absolute scale-[2.5] left-4 text-green-700/50" />
+          <BiCheckCircle className="absolute text-5xl left-2 text-green-700/50" />
         ) : (
-          <BiXCircle className="absolute scale-[2.5] left-4 text-red-700/20      " />
+          <BiXCircle className="absolute text-5xl left-2 text-red-700/20      " />
         )}
         <span className="z-10">{alert.message}</span>
-      </Animated>
+      </motion.span>
     </div>
   );
 }

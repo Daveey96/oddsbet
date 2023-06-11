@@ -1,46 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
-import Animated from "../Animated";
-import {
-  BiChevronDownCircle,
-  BiCog,
-  BiDownArrow,
-  BiDownArrowAlt,
-  BiEditAlt,
-  BiFootball,
-  BiTrashAlt,
-  BiX,
-  BiXCircle,
-} from "react-icons/bi";
-import { Context } from ".";
-
-const variants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 10 },
-  transition: { ease: "easeInOut" },
-  init2: { opacity: 0 },
-  show2: { opacity: 1 },
-  exit2: { opacity: 0 },
-};
+import BetList, { BetListButton } from "../BetList";
 
 export default function Tab() {
   const { pathname, events } = useRouter();
   const [pathName, setPathName] = useState(pathname);
   const [toggle, setToggle] = useState(false);
-  const { betList, setBetList } = useContext(Context);
-  const totalOdds = useMemo(findTotalOdds, [betList]);
-
-  function findTotalOdds() {
-    let total = 0;
-    for (let i = 0; i < betList.length; i++)
-      total += parseFloat(betList[i].currentmkt);
-
-    return total.toFixed(2);
-  }
 
   const links = [
     {
@@ -94,7 +61,7 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed bottom-0 z-20 flex justify-center px-4 right-5 rounded-t-[4rem] left-5 pt-2.5 bg-black">
+      <div className="fixed bottom-0 z-[22] flex justify-center px-4 right-5 rounded-t-[4rem] left-5 pt-2.5 bg-black">
         {links.map((link, key) => (
           <motion.button
             key={key}
@@ -116,196 +83,11 @@ export default function Tab() {
           </motion.button>
         ))}
         <AnimatePresence>
-          {[0, 1].map((key) => {
-            let pick = key ? betList.length > 0 : betList.length === 0;
-            return (
-              !pick &&
-              !toggle && (
-                <motion.button
-                  key={key}
-                  variants={variants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  onClick={() => setToggle(true)}
-                  whileTap={{ scale: 1.1 }}
-                  className={`absolute fx rounded-xl z-20 ${
-                    key
-                      ? "h-[5px] w-12 bottom-[105%]"
-                      : "bottom-[110%] py-2 bg-black px-4 shadow shadow-black"
-                  }`}
-                >
-                  {key ? (
-                    <motion.span
-                      animate={{
-                        backgroundColor: ["#2406e6", "#f206e5"],
-                        transition: {
-                          duration: 5,
-                          repeatType: "mirror",
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        },
-                      }}
-                      className={"w-full rounded-xl h-full"}
-                    ></motion.span>
-                  ) : (
-                    <>
-                      <span className="flex border-r-2 border-c2 pr-3 mr-3">
-                        {betList.length}
-                      </span>
-                      <span className="text-c2">{totalOdds}</span>
-                    </>
-                  )}
-                </motion.button>
-              )
-            );
-          })}
+          <BetListButton toggle={toggle} setToggle={(t) => setToggle(t)} />
         </AnimatePresence>
       </div>
-      <Animated
-        variantKey="2"
-        state={toggle}
-        variants={variants}
-        className="fixed inset-0 z-30 bg-black/70"
-      >
-        <BetList
-          v={betList}
-          totalOdds={totalOdds}
-          setToggle={() => setToggle(false)}
-        />
-      </Animated>
+      <BetList toggle={toggle} setToggle={(t) => setToggle(t)} />
     </>
-  );
-}
-
-function BetList({ setToggle, v, totalOdds }) {
-  const [stake, setStake] = useState("");
-  const potWin = useMemo(calcWinPotential, [stake]);
-
-  function calcWinPotential() {
-    return (totalOdds * parseFloat(stake === "" ? 0 : stake)).toFixed(2);
-  }
-
-  const buttonClicked = (num, key) => {
-    if (key === 3) {
-      const s = stake.slice(0, -1);
-      setStake(s);
-    } else {
-      let s = parseInt(num.slice(1)) + parseFloat(stake === "" ? "0" : stake);
-      setStake(s.toString());
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ y: "200%", opacity: 0 }}
-      animate={{ y: "0%", opacity: 1, transition: { ease: "anticipate" } }}
-      exit={{ y: "200%", opacity: 0, transition: { ease: "easeInOut" } }}
-      className="absolute pt-4 overflow-hidden bottom-0 rounded-t-[50px] max-h-[80%] bg-gray-900 inset-x-0 fx flex-col"
-    >
-      {/* <div className="absolute px-16 flex justify-between py-5 z-10 rounded-3xl top-0 w-full h-52 bg-black/90">
-        <span>Cut</span>
-        <span>1</span>
-      </div> */}
-      <motion.button
-        onClick={setToggle}
-        whileTap={{ scale: 0.75 }}
-        className="h-2 w-12 z-20 absolute top-1 rounded-b-xl from-c1 to-c2 bg-gradient-to-r "
-      ></motion.button>
-      <header className="px-8 pt-5 pb-3 text-lg justify-between w-full flex">
-        <span>{v.length} bets</span>
-        <span className="flex gap-2 opacity-50">
-          <BiEditAlt />
-          <BiCog />
-          <BiTrashAlt />
-        </span>
-        <span className="fx gap-3">
-          <span>{totalOdds}</span>
-        </span>
-      </header>
-      <div className="flex-1 overflow-x-hidden overflow-y-scroll w-full">
-        {v.map((mv, key) => (
-          <motion.div
-            key={key}
-            drag="x"
-            dragSnapToOrigin
-            className="px-5 py-5 flex justify-between mb-1 w-full bg-gray-700/10"
-          >
-            <span className="flex flex-col gap-2 flex-1">
-              <span className="flex  justify-between w-full items-center text-c2">
-                <span className="fx">
-                  <BiFootball /> {mv.mkt}
-                  <span className="text-white ml-3 opacity-50">
-                    @{mv.currentmkt}
-                  </span>
-                </span>
-                <span className="">{mv.date_start}</span>
-              </span>
-              <span>
-                {mv.team1} <span className="text-c2">vs</span> {mv.team2}
-              </span>
-            </span>
-          </motion.div>
-        ))}
-      </div>
-      <div className="flex flex-col w-full-c bg-gray-900 pt-2">
-        <div className="flex justify-between px-5 mb-3 items-center">
-          <span className=" px-5 py-2 min-w-[100px] relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-[1px] border-r-[1px] border-r-c2 fx border-l-c1">
-            <span className="">{stake}</span>
-            {stake.length < 1 && (
-              <span className="opacity-20 absolute">min 10.00</span>
-            )}
-            <motion.span
-              animate={{ opacity: [0, 0.2] }}
-              transition={{ repeatType: "mirror", repeat: Infinity }}
-              className=""
-            >
-              _
-            </motion.span>
-          </span>
-          <span className="">
-            <span className="mr-3 opacity-30 text-sm">to Win</span>
-            <span className="text-c2 mr-2 text-xl ">{potWin}</span>
-          </span>
-        </div>
-        <div className="gap-1 flex flex-col justify-center mb-4">
-          <div className="flex justify-center gap-1">
-            {["+100", "+500", "+1000", <BiXCircle key={12} />].map(
-              (num, key) => (
-                <button
-                  key={key}
-                  className={`px-5 py-1.5 ${
-                    key === 3
-                      ? "bg-red-500/60 rounded-l-3xl rounded-r-lg relative aft after:w-1/2 after:left-0 after:bg-black/30 after:h-full after:top-0 after:rounded-l-3xl text-xl"
-                      : "bg-slate-600/10 rounded-lg"
-                  }`}
-                  onClick={() => buttonClicked(num, key)}
-                >
-                  {num}
-                </button>
-              )
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1 justify-center">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, ".", "00"].map((num, key) => (
-              <button
-                key={key}
-                className={`px-5 py-1.5 rounded-lg bg-slate-600/10`}
-                onClick={() => setStake(stake + num)}
-              >
-                {num}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="h-12 h-full-c px-3">
-          <button className="w-1/3">Book bet</button>
-          <button className="w-2/3 bg-gradient-to-r rounded-t-[25px] from-c1/70 to-c2/50">
-            Place bet
-          </button>
-        </div>
-      </div>
-    </motion.div>
   );
 }
 

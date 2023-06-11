@@ -1,4 +1,4 @@
-import { Naira } from "@/components/Auth";
+import { Naira } from "@/components/layout/Nav";
 import { userService } from "@/services";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";

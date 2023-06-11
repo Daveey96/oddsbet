@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export const DotLoader = () => {
   const [dots, setDots] = useState(0);
@@ -40,3 +40,34 @@ export const CircularLoader = ({ size = 14, className }) => {
     ></motion.span>
   );
 };
+
+export const SkeletonLoad = ({
+  className = "",
+  ngClass = "",
+  iClass = "",
+  children,
+  opacity,
+  state,
+  style,
+  tag = "span",
+  disabled,
+  onClick,
+}) => (
+  <>
+    {!state ? (
+      <span
+        className={`text-white/0 bg-white/5 opacity-50 rounded-md ${className} ${iClass}`}
+      >
+        |
+      </span>
+    ) : (
+      <>
+        {React.createElement(
+          tag,
+          { className: `${className} ${ngClass}`, style, disabled, onClick },
+          [children]
+        )}
+      </>
+    )}
+  </>
+);
