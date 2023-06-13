@@ -1,5 +1,4 @@
-import { cookies } from "@/database/cookies";
-import User from "@/database/models/user";
+import { User, cookies } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 
 const handler = (req, res) =>
