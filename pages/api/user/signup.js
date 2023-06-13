@@ -1,6 +1,4 @@
-import connectMongo from "@/database/connect";
-import { cookies } from "@/database/cookies";
-import User from "@/database/models/user";
+import { User, connectMongo, cookies } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";

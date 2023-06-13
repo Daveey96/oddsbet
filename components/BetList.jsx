@@ -14,8 +14,8 @@ import {
   BiFootball,
   BiTrashAlt,
   BiX,
-  BiXCircle,
 } from "react-icons/bi";
+import { alertService, appService } from "@/services";
 
 const variants = {
   initial: { opacity: 0, y: 10 },
@@ -25,6 +25,12 @@ const variants = {
   init2: { opacity: 0 },
   show2: { opacity: 1 },
   exit2: { opacity: 0 },
+};
+
+let childVariants = {
+  init2: { y: "200%", opacity: 0 },
+  show2: { y: "0%", opacity: 1, transition: { ease: "anticipate" } },
+  exit2: { y: "200%", opacity: 0, transition: { ease: "easeInOut" } },
 };
 
 function findTotalOdds(betList) {
@@ -99,7 +105,6 @@ const BetGame = ({ v, index, deleteGame }) => {
   const [dragStart, setDragStart] = useState(false);
 
   const dragEnded = (e, v) => {
-    // console.log(v.velocity);
     if (Math.abs(v.velocity.x) > 800) {
       animate(x, Math.sign(v.velocity.x) * e.view.outerWidth * 2, {
         duration: 0.5,
@@ -157,9 +162,11 @@ const BetGame = ({ v, index, deleteGame }) => {
 
 export default function BetList({ toggle, setToggle }) {
   const { betList, setBetList } = useContext(Context);
-  const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
+  const [placeBet, setPlaceBet] = useState(false);
+  const [buttonText, setbuttonText] = useState("Place bet?");
 
   const [stake, setStake] = useState("");
+  const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
   const potWin = useMemo(calcWinPotential, [stake]);
 
   function calcWinPotential() {
@@ -187,10 +194,28 @@ export default function BetList({ toggle, setToggle }) {
   ];
 
   const removeGame = (index) => {
-    console.log(index);
     let newBetList = betList.filter((v, key) => key !== index);
-    console.log(newBetList);
     setBetList(newBetList);
+  };
+
+  const submitBetSlip = async (e) => {
+    e.stopPropagation();
+    setbuttonText("Adding ticket");
+
+    let newBetList = [];
+    for (let i = 0; i < betList.length; i++)
+      newBetList.push(`${betList[i].id},${betList[i].mkt},${betList[i].name}`);
+
+    const data = await appService.placeBet({
+      slip: newBetList.join("|"),
+      odds: totalOdds,
+      stake,
+    });
+
+    if (data) {
+      console.log(data);
+      alertService.success(data.message);
+    }
   };
 
   return (
@@ -203,9 +228,7 @@ export default function BetList({ toggle, setToggle }) {
     >
       <motion.div
         layout
-        initial={{ y: "200%", opacity: 0 }}
-        animate={{ y: "0%", opacity: 1, transition: { ease: "anticipate" } }}
-        exit={{ y: "200%", opacity: 0, transition: { ease: "easeInOut" } }}
+        variants={childVariants}
         className="absolute overflow-hidden bottom-0 max-h-[85%] inset-x-0 fx flex-col"
       >
         {/* <div className="absolute px-16 flex justify-between py-5 z-10 rounded-3xl top-0 w-full h-52 bg-black/90">
@@ -297,27 +320,48 @@ export default function BetList({ toggle, setToggle }) {
           <div className="h-12 h-full-c">
             <button className="w-1/3">Book bet</button>
             <button
-              //   disabled
-              className="w-2/3 disabled:from-c4 disabled:to-c4 bg-gradient-to-r rounded-tl-[20px] from-c1/70 to-c2/50"
+              onClick={() => betList.length > 0 && setPlaceBet(true)}
+              disabled={betList.length < 1}
+              className="w-2/3 disabled:opacity-50 bg-gradient-to-r rounded-tl-[20px] from-c1/70 to-c2/50"
             >
               Place bet
             </button>
           </div>
         </div>
       </motion.div>
-      {/* <div className="inset-0 absolute z-10 bg-black/90 flex items-end justify-center">
-        <div className="fx flex-col mb-6 w-5/6 rounded-3xl bg-c4">
-          <span className="py-7">Place bet?</span>
+      <Animated
+        onClick={(e) => {
+          e.stopPropagation();
+          setPlaceBet(false);
+        }}
+        variants={variants}
+        state={placeBet}
+        variantKey="2"
+        className="inset-0 absolute z-10 flex items-end justify-center"
+      >
+        <motion.div
+          variants={childVariants}
+          className="fx flex-col w-full bg-black"
+        >
+          <span className="py-9 fx w-full" onClick={(e) => e.stopPropagation()}>
+            {buttonText}
+          </span>
           <div className="w-4/5 flex gap-2">
-            <button className="bg-red-700/30 text-red-500 flex-1 fx gap-0.5 py-2 rounded-t-2xl">
-              <BiX /> No
-            </button>
-            <button className="bg-green-700/30 text-green-500 flex-1 fx gap-0.5 py-2 rounded-t-2xl">
+            <button
+              onClick={submitBetSlip}
+              className="bg-green-700 text-green-200 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
+            >
               <BiCheck /> Yes
             </button>
+            <button
+              onClick={() => setPlaceBet(false)}
+              className="bg-red-700 text-red-200 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
+            >
+              <BiX /> No
+            </button>
           </div>
-        </div>
-      </div> */}
+        </motion.div>
+      </Animated>
     </Animated>
   );
 }

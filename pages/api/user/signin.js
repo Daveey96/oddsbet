@@ -1,10 +1,8 @@
-import connectMongo from "@/database/connect";
-import { cookies } from "@/database/cookies";
-import User from "@/database/models/user";
+import { cookies, connectMongo, User } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import bcrypt from "bcryptjs";
 
-const isLoggedIn = (req, res) =>
+const sessionCheck = (req, res) =>
   serverAsync(res, async () => {
     let id = cookies.getCookie(req, res, "__sid");
     if (id) {
@@ -44,5 +42,5 @@ export default async function handler(req, res) {
   if (req.method === "POST") return signin(req, res);
 
   // session check
-  if (req.method === "GET") return isLoggedIn(req, res);
+  if (req.method === "GET") return sessionCheck(req, res);
 }

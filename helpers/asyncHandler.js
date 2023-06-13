@@ -2,6 +2,7 @@ import { alertService } from "@/services";
 
 const clientAsync = (fn) =>
   fn().catch((error) => {
+    console.log(error);
     alertService.error(error?.response?.data?.message || "Network Error");
     return false;
   });

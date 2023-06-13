@@ -39,9 +39,9 @@ export default function Alert({ onAlert }) {
         } `}
       >
         {alert.type === "success" ? (
-          <BiCheckCircle className="absolute text-5xl left-2 text-green-700/50" />
+          <BiCheckCircle className="absolute text-3xl left-2 text-green-700/50" />
         ) : (
-          <BiXCircle className="absolute text-5xl left-2 text-red-700/20      " />
+          <BiXCircle className="absolute text-3xl left-2 text-red-700/20      " />
         )}
         <span className="z-10">{alert.message}</span>
       </motion.span>
