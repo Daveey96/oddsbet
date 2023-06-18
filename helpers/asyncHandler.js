@@ -2,13 +2,12 @@ import { alertService } from "@/services";
 
 const clientAsync = (fn) =>
   fn().catch((error) => {
-    console.log(error);
     alertService.error(error?.response?.data?.message || "Network Error");
     return false;
   });
 
 const serverAsync = (res, fn) =>
-  fn().catch((err) => {
+  fn().catch(async (err) => {
     res.status(400).json({ message: err.message });
   });
 

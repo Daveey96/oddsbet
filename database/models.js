@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import { Schema, models, model } from "mongoose";
 
 const userSchema = new Schema({
   email: {
@@ -11,7 +11,7 @@ const userSchema = new Schema({
   verified: Boolean,
   token: String,
   currentStage: Number,
-  betHistory: Array,
+  activebets: [],
 });
 
 const ticketSchema = new Schema({
@@ -20,11 +20,15 @@ const ticketSchema = new Schema({
     type: String,
     required: true,
   },
-  odds: String,
-  users: [
-    { stake: String, user: { type: Schema.Types.ObjectId, ref: "User" } },
-  ],
+  odds: Number,
+  users: [{ stake: String, id: String }],
 });
 
-export const Ticket = models.Ticket || model("Ticket", ticketSchema);
-export const User = models.User || model("User", userSchema);
+// const goatSchema = new Schema({
+//   fish: String,
+//   dead: Boolean,
+// });
+
+// export const Goat = models.Goat || model("Goat", goatSchema);
+export const User = models?.User || model("User", userSchema);
+export const Ticket = models?.Ticket || model("Ticket", ticketSchema);

@@ -155,7 +155,7 @@ export default function Auth({ backdrop, setBackdrop }) {
           initial={"initChild"}
           animate={"showChild"}
           exit={"exitChild"}
-          className="relative mt-3 w-full fx"
+          className="relative max-w-[480px] w-full mt-3 fx"
         >
           <Retry
             state={currentStage}
@@ -186,7 +186,7 @@ export default function Auth({ backdrop, setBackdrop }) {
                   exit={{ x: "-100%" }}
                   transition={{ duration: 0.3 }}
                   key={239283736}
-                  className="flex absolute top-0 w-full px-7 flex-col gap-1 mx- items-center"
+                  className="flex absolute top-0 w-full px-4 flex-col gap-1 mx- items-center"
                 >
                   <Input
                     value={email}
@@ -394,7 +394,7 @@ function Input({ v, disabled = false, value, setValue }) {
             e.preventDefault();
             setIsVisible(!isVisible);
           }}
-          className="text-xl w-14 pl-1"
+          className="text-xl absolute right-0 inset-y-0 w-14 pl-1"
         >
           {value.length > 0 ? isVisible ? <Bs.BsEye /> : <Bs.BsEyeSlash /> : ""}
         </button>

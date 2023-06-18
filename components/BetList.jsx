@@ -74,7 +74,7 @@ export const BetListButton = ({ toggle, setToggle }) => {
               {key ? (
                 <motion.span
                   animate={{
-                    backgroundColor: ["#2406e6", "#f206e5"],
+                    backgroundColor: ["#2406e6", "#06b6d4"],
                     transition: {
                       duration: 5,
                       repeatType: "mirror",
@@ -133,7 +133,7 @@ const BetGame = ({ v, index, deleteGame }) => {
         }}
         style={{ x }}
         onDragStart={() => setDragStart(true)}
-        className={`px-5 z-[1] absolute items-center h-[97%] flex justify-between w-full `}
+        className={`px-5 z-[1] absolute items-center h-full flex justify-between w-full `}
       >
         <span className="flex flex-col gap-2 flex-1">
           <span className="flex  justify-between w-full items-center text-c2">
@@ -188,7 +188,7 @@ export default function BetList({ toggle, setToggle }) {
     setStake(stake + button.toString());
   };
 
-  let buttonArray = [
+  const buttonArray = [
     ["+1000", "+500", "+100", ".", 0, "00"],
     Array(9).fill(""),
   ];
@@ -213,8 +213,13 @@ export default function BetList({ toggle, setToggle }) {
     });
 
     if (data) {
-      console.log(data);
       alertService.success(data.message);
+      setBetList([]);
+      setToggle(false);
+
+      setTimeout(() => {
+        setPlaceBet(false);
+      }, 500);
     }
   };
 

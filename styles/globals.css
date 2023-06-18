@@ -1,22 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
 
 *,
 * > * {
@@ -24,35 +9,19 @@
     "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
     sans-serif;
 }
-
-body {
-  /* color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
-  color: #fff;
-  background-color: #000;
-}
-
 a,
 input {
   font-size: inherit;
   background: transparent;
 }
-
 .isSticky {
   padding-top: 56px !important;
   background: black !important;
   z-index: 22 !important;
 }
-
 input:focus {
   outline: 0;
 }
-
 .flex-c > * {
   @apply flex-1;
 }

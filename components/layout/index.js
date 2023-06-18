@@ -24,9 +24,11 @@ export default function Layout({ children }) {
     <Context.Provider value={{ user, setUser, betList, setBetList }}>
       <ThemeProvider attribute="class">
         <Nav />
-        {children}
+        <main className="min-h-screen w-full-c flex flex-col items-center bg-white dark:bg-black text-black dark:text-white">
+          {children}
+          <Footer />
+        </main>
         <Tab />
-        <Footer />
       </ThemeProvider>
     </Context.Provider>
   );

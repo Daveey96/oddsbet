@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   BiCog,
+  BiLeftArrowAlt,
+  BiMoneyWithdraw,
   BiMoon,
   BiPowerOff,
   BiSun,
@@ -12,6 +14,7 @@ import {
   BiUserCircle,
 } from "react-icons/bi";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
+import Link from "next/link";
 
 const Theme = () => {
   const { theme, setTheme } = useTheme();
@@ -72,8 +75,8 @@ function Index() {
   return (
     <>
       {currentUser && (
-        <div className="min-h-[82vh]">
-          <div className="bg-gray-700/10 flex-1 flex flex-col items-start rounded-b-[50px]">
+        <>
+          <div className="bg-gray-700/10 h-[20vh] flex-1 flex flex-col items-start">
             <span className="fx sticky top-0 z-20 bg-[#000000] px-5 py-2 shadow-lg shadow-black/50 text-white/75 rounded-b-xl rounded-tr-xl content-start">
               <BiUserCircle className="mr-1 text-lg text-c2" />{" "}
               {currentUser.email}
@@ -93,21 +96,22 @@ function Index() {
                   <Naira /> {currentUser.balance.toFixed(2)}
                 </>
               ) : (
-                "******"
+                "****"
               )}
             </div>
             <div className="flex gap-3 w-full px-16 pb-0">
               {["Deposit", "Withdraw"].map((item, key) => (
-                <button
+                <Link
                   key={key}
-                  className={`flex-1 rounded-t-xl py-2 ${
+                  className={`flex-1 text-center rounded-t-xl py-2 ${
                     !key
                       ? "from-c1/75 to-c2/75 bg-gradient-to-br"
                       : "bg-white/5"
                   } `}
+                  href={`/profile/${item.toLowerCase()}`}
                 >
                   {item}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -133,10 +137,23 @@ function Index() {
               </motion.li>
             ))}
           </motion.ul>
-        </div>
+        </>
       )}
     </>
   );
 }
+
+export const PayTemplate = ({ v, children }) => (
+  <div className="min-h-screen">
+    <Link
+      href={"/profile"}
+      className="flex gap-3 text-lg bg-c4 items-center py-4"
+    >
+      <BiLeftArrowAlt className="text-c2 border-c1 ml-6 border-2 rounded-full" />
+      {v}
+    </Link>
+    {children}
+  </div>
+);
 
 export default Index;

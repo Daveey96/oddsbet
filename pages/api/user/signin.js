@@ -23,20 +23,21 @@ const signin = (req, res) =>
     let user = await User.findOne({ email });
 
     if (!user) throw Error("Email doesn't exist");
-    if (!user?.verified) throw Error("Unauthorized email");
 
     let pass = bcrypt.compareSync(password, user.password);
-    if (!pass) throw Error("Invalid email or password");
+    if (!pass || !user?.verified) throw Error("Invalid email or password");
 
     cookies.setCookie(req, res, "__sid", user._id, 1000 * 3600 * 24 * 30);
     res.json({
-      message: `Welocme ${email}`,
+      message: `Welcome ${email}`,
       user: { id: user._id, email, balance: user.balance },
     });
   });
 
 export default async function handler(req, res) {
-  await connectMongo().catch((err) => res.send(err));
+  await connectMongo().catch((err) =>
+    res.status(500).json({ message: "Server Error" })
+  );
 
   // sign in
   if (req.method === "POST") return signin(req, res);

@@ -31,10 +31,12 @@ const placeBet = (req, res, id) =>
   serverAsync(res, async () => {
     const { slip, stake, odds } = req.body;
 
-    let ticket = await Ticket.findOne({ slip }).populate("users.user");
+    let ticket = await Ticket.findOne({ slip });
 
     if (ticket) {
-      console.log(ticket);
+      for (let i = 0; i < ticket.users; i++)
+        if (ticket.users[i].id === id) res.json({ ticket: false });
+
       res.status(200).json({ ticket, message: "ticket logged" });
     } else {
       let code = generateCode();
@@ -51,10 +53,21 @@ const placeBet = (req, res, id) =>
     }
   });
 
-export default async function handler(req, res) {
-  await connectMongo().catch((err) => res.send(err));
+const getBets = (req, res, id) =>
+  serverAsync(res, async () => {
+    let ticks = await Ticket.find({ "users.id": id });
 
-  // sign in
+    console.log(ticks);
+    res.status(400).json({ message: "me" });
+  });
+
+export default async function handler(req, res) {
+  await connectMongo().catch((err) =>
+    res.status(500).json({ message: "Server Error" })
+  );
+
   if (req.method === "POST") return isLoggedIn(req, res, placeBet);
   // if (req.method === "POST") return placeBet(req, res);
+
+  if (req.method === "GET") return isLoggedIn(req, res, getBets);
 }

@@ -42,9 +42,7 @@ function Nav() {
   const [alert, setAlert] = useState(false);
 
   const toggleNav = (url) => {
-    url === "/profile" || url === "/bets"
-      ? setVisible(false)
-      : setVisible(true);
+    url.slice(0, 2) === "/p" ? setVisible(false) : setVisible(true);
   };
 
   useEffect(() => {
@@ -64,7 +62,7 @@ function Nav() {
     <>
       <Animated
         tag="nav"
-        className={`flex z-50 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
+        className={`flex z-50 h-[5.5vh] justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
           alert ? "opacity-10" : "opacity-100"
         }`}
         variants={{
@@ -77,20 +75,20 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className={`px-2 z-10 duration-200 pt-1.5 pb-1.5 rounded-b-2xl backdrop-blur-xl `}
+          className={`px-2 z-10 overflow-hidden h-full duration-200 pt-0.5 rounded-b-2xl backdrop-blur-xl `}
         >
           <Image
-            width={60}
-            height={28}
+            width={90}
+            height={20}
             priority
-            src={"/logo2.svg"}
+            src={"/logo.svg"}
             alt="Oddsbet logo"
           />
         </Link>
         {user && (
           <button
             className={
-              "fx gap-1 pb-3 pt-2 px-7 text-green-600 rounded-b-2xl z-30 bg-black h-full"
+              "fx gap-1 px-7 text-green-600 rounded-b-2xl z-30 bg-black h-full"
             }
           >
             <Naira /> <span>{user.balance}</span>
@@ -98,9 +96,7 @@ function Nav() {
         )}
         {user === undefined && (
           <button
-            className={
-              "fx gap-1 pb-2.5 pt-1.5 px-7 rounded-b-2xl z-30 bg-black h-full"
-            }
+            className={"fx gap-1 px-7 rounded-b-2xl z-30 bg-black h-full"}
             onClick={() => setBackdrop(!backdrop)}
           >
             {backdrop ? (
@@ -108,7 +104,7 @@ function Nav() {
                 <BiArrowToLeft className="mt-0.5" /> back
               </>
             ) : (
-              "sign up"
+              "register"
             )}
           </button>
         )}

@@ -4,6 +4,7 @@ import Slider from "@/components/Slider";
 import GameList from "@/components/Games";
 import { alertService } from "@/services";
 import mgames from "@/helpers/games";
+import Footer from "@/components/layout/Footer";
 
 // export async function getServerSideProps() {
 //   try {
@@ -23,6 +24,7 @@ export default function Home() {
   const getGames = async () => {
     try {
       // let { data } = await axios.get(
+      // https://api.betting-api.com/parimatch/football/line/all
       //   "https://api.betting-api.com/1xbet/football/live/all",
       //   {
       //     headers: {
@@ -49,19 +51,19 @@ export default function Home() {
   // }, []);
 
   return (
-    <main className="flex items-center min-h-screen flex-col bg-black">
-      <div className=" h-[50px] flex w-full gap-2 mb-2 justify-between">
-        <span className="bg-c4 h-full w-[30%] rounded-br-2xl"></span>
-        <span className="bg-c4 h-full w-[68%] rounded-bl-2xl"></span>
+    <>
+      <div className=" h-11 flex w-full gap-2 mb-2 justify-between">
+        <span className="bg-c4 h-full w-[30%] rounded-b-xl"></span>
+        <span className="bg-c4 h-full w-[68%] rounded-b-xl"></span>
       </div>
       <Slider games={mgames} />
-      <GameList title={"Live"} games={mgames} />
-      <GameList title={"Live"} games={mgames} />
+      <GameList key={45} title={"Live"} games={mgames} />
+      <GameList key={39} title={"Live"} games={mgames} />
       {/* <GameList
         title={"Today"}
         className={"rounded-b-3xl"}
         games={games?.notStart}
       /> */}
-    </main>
+    </>
   );
 }

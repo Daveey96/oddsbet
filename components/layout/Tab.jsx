@@ -11,28 +11,25 @@ export default function Tab() {
 
   const links = [
     {
-      src: "/logo.svg",
       path: "/",
       text: "home",
-      iconProps: ["1.5em", "0 0 210 297"],
+      iconProps: ["1.05em", "0 0 24 24"],
       svgPath: (
-        <path d="m32.988 148.47a72.811 72.412 78.366 0 1 42.845-81.766 72.811 72.412 78.366 0 1 88.178 26.669 72.811 72.412 78.366 0 1-8.8519 92.047 72.811 72.412 78.366 0 1-91.591 8.8161" />
+        <path d="M12.71 2.29a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42A1 1 0 0 0 3 13h1v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7h1a1 1 0 0 0 1-1 1 1 0 0 0-.29-.71zM6 20v-9.59l6-6 6 6V20z"></path>
       ),
     },
+    // {
+    //   path: "/search",
+    //   text: "search",
+    //   iconProps: ["1.1em", "0 0 24 24"],
+    //   svgPath: (
+    //     <>
+    //       <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"></path>
+    //       <path d="M11.412 8.586c.379.38.588.882.588 1.414h2a3.977 3.977 0 0 0-1.174-2.828c-1.514-1.512-4.139-1.512-5.652 0l1.412 1.416c.76-.758 2.07-.756 2.826-.002z"></path>
+    //     </>
+    //   ),
+    // },
     {
-      src: "/search.svg",
-      path: "/search",
-      text: "search",
-      iconProps: ["1.1em", "0 0 24 24"],
-      svgPath: (
-        <>
-          <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"></path>
-          <path d="M11.412 8.586c.379.38.588.882.588 1.414h2a3.977 3.977 0 0 0-1.174-2.828c-1.514-1.512-4.139-1.512-5.652 0l1.412 1.416c.76-.758 2.07-.756 2.826-.002z"></path>
-        </>
-      ),
-    },
-    {
-      src: "/openbets.svg",
       path: "/bets",
       text: "open bets",
       iconProps: ["1.6em", "0 0 34.804 34.804"],
@@ -41,7 +38,6 @@ export default function Tab() {
       ),
     },
     {
-      src: "/user.svg",
       path: "/profile",
       text: "me",
       iconProps: ["1em", "0 0 24 24"],
@@ -61,17 +57,18 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed bottom-0 z-[22] flex justify-center px-4 inset-x-0 pt-2.5 bg-black">
+      <div className="fixed bottom-0 z-[22] flex justify-center px-4 inset-x-0 pt-2.5 bg-black text-white">
         {links.map((link, key) => (
           <motion.button
             key={key}
-            whileTap={{ scale: 0.75 }}
+            whileTap={{ scale: 0.85 }}
             className="z-10 flex-1 relative fx"
           >
-            <Link href={link.path} className="fx h-full pb-5">
-              <Svg type={key === 0 && "stroke"} icon={link.iconProps}>
-                {link.svgPath}
-              </Svg>
+            <Link
+              href={link.path}
+              className={`fx h-full w-full ${key ? "pb-5" : "pb-[22px]"}`}
+            >
+              <Svg icon={link.iconProps}>{link.svgPath}</Svg>
               <span className="text-[10px] absolute bottom-2">{link.text}</span>
             </Link>
             {pathName.split("/")[1] === link.path.slice(1) && (
@@ -91,17 +88,10 @@ export default function Tab() {
   );
 }
 
-const Svg = ({ children, type, icon }) => {
+const Svg = ({ children, type = true, icon }) => {
   return (
     <svg width={icon[0]} height={icon[0]} viewBox={icon[1]} version="1.1">
-      <g
-        fill={!type ? "#f206e5" : "none"}
-        stroke={type ? "#f206e5" : "none"}
-        strokeLinecap={type ? "round" : undefined}
-        strokeWidth={type ? "32" : undefined}
-      >
-        {children}
-      </g>
+      <g className={"fill-c2"}>{children}</g>
     </svg>
   );
 };

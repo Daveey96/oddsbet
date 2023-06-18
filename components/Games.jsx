@@ -111,8 +111,10 @@ const Game = ({ game, last, mkt }) => {
 
 export default function GameList({ title, className, games }) {
   const [mkt, setMkt] = useState("1X2");
+  const { scrollY } = useScroll();
   const header = useRef(null);
-  let mgames = games ? games.slice(0, 4) : Array(4).fill(false);
+  const pos = useRef(null);
+  let mgames = games ? games.slice(0, 5) : Array(5).fill(false);
 
   let listOne = [
     {
@@ -123,22 +125,30 @@ export default function GameList({ title, className, games }) {
       ),
       v: "soccer",
     },
-    // {
-    //   item: (
-    //     <>
-    //       <BiBasketball className="mt-0.5" /> basketball
-    //     </>
-    //   ),
-    //   v: "basketball",
-    // },
-    // {
-    //   item: (
-    //     <>
-    //       <BiTennisBall className="mt-0.5" /> tennis
-    //     </>
-    //   ),
-    //   v: "tennis",
-    // },
+    {
+      item: (
+        <>
+          <BiFootball className="mt-0.5" /> v soccer
+        </>
+      ),
+      v: "vsoccer",
+    },
+    {
+      item: (
+        <>
+          <BiBasketball className="mt-0.5" /> basketball
+        </>
+      ),
+      v: "basketball",
+    },
+    {
+      item: (
+        <>
+          <BiTennisBall className="mt-0.5" /> tennis
+        </>
+      ),
+      v: "tennis",
+    },
   ];
 
   let listTwo = [
@@ -150,20 +160,22 @@ export default function GameList({ title, className, games }) {
     { item: "Away O/U", v: "AOU" },
   ];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([e]) => e.target.classList.toggle("isSticky", e.intersectionRatio < 1),
-      { threshold: [1] }
-    );
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    latest > pos.current
+      ? header.current.classList.add("isSticky")
+      : header.current.classList.remove("isSticky");
+  });
 
-    observer.observe(header.current);
+  useEffect(() => {
+    pos.current = header.current.offsetTop;
+    console.dir(header.current);
   }, []);
 
   return (
     <>
       <header
         ref={header}
-        className={`flex mb-px z-20 sticky w-full -top-[1px] flex-col bg-c4 pb-2 pt-6`}
+        className={`flex mb-px duration-150 z-20 sticky w-full -top-[1px] flex-col bg-c4 pb-2 pt-6`}
       >
         <span className=" text-lg gap-3 flex items-center pl-5">
           <span className="">{title}</span>{" "}
@@ -192,7 +204,7 @@ export default function GameList({ title, className, games }) {
             key={key}
             index={key}
             game={games ? game : false}
-            last={3 === key}
+            last={4 === key}
             mkt={mkt}
           ></Game>
         ))}

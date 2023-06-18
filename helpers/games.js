@@ -17504,5 +17504,4 @@ const games = [
   },
 ];
 
-
-export default games
+export default games;

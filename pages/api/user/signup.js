@@ -104,7 +104,7 @@ const signup = (req, res) =>
 
 const getStage = (req, res) =>
   serverAsync(res, async () => {
-    let id = await cookies.getCookie(req, res, "__sid");
+    let id = cookies.getCookie(req, res, "__sid");
 
     if (id) {
       let user = await User.findById(id);
@@ -156,7 +156,18 @@ const resendCode = (req, res) =>
   });
 
 export default async function handler(req, res) {
-  await connectMongo().catch((err) => res.send(err));
+  await connectMongo().catch(() =>
+    res.status(500).json({ message: "Server Error" })
+  );
+  // try {
+
+  //   let goat = new Goat({ fish: "fished", dead: true });
+  //   await goat.save();
+  //   res.json({ goat });
+  //   // res.json({ connected: true });
+  // } catch (err) {
+  //   res.json({ message: err });
+  // }
 
   // Check Email
   if (req.method === "POST" && req.headers?.type === "check")
