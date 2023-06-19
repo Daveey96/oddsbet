@@ -99,7 +99,7 @@ function Slider({ games }) {
               {g.title}
             </SkeletonLoad>
             <Image
-              className="absolute opacity-5"
+              className="absolute opacity-40"
               src={"vs.svg"}
               width={70}
               height={50}
