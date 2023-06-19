@@ -12,6 +12,7 @@ import {
   BiCog,
   BiEditAlt,
   BiFootball,
+  BiInfoCircle,
   BiTrashAlt,
   BiX,
 } from "react-icons/bi";
@@ -168,6 +169,7 @@ export default function BetList({ toggle, setToggle }) {
   const [stake, setStake] = useState("");
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
   const potWin = useMemo(calcWinPotential, [stake]);
+  const [betcodeLoad, setBetcodeLoad] = useState(betList.length > 0);
 
   function calcWinPotential() {
     return (totalOdds * parseFloat(stake === "" ? 0 : stake)).toFixed(2);
@@ -223,6 +225,13 @@ export default function BetList({ toggle, setToggle }) {
     }
   };
 
+  const buttons = (key) => {
+    if (key === 2) setBetList([]);
+
+    if (key === 1 && betList.length > 0) {
+    }
+  };
+
   return (
     <Animated
       variantKey="2"
@@ -248,11 +257,23 @@ export default function BetList({ toggle, setToggle }) {
         <header className="px-8 pt-8 bg-black pb-3 border-b-2 border-c4 text-lg justify-center w-full flex">
           <span
             onClick={(e) => e.stopPropagation()}
-            className="fx absolute gap-4 opacity-60"
+            className="fx absolute gap-3 opacity-60"
           >
-            <BiEditAlt />
-            <BiCog />
-            <BiTrashAlt />
+            {[
+              <BiEditAlt key={10} />,
+              <BiCog key={11} />,
+              <BiTrashAlt key={12} />,
+            ].map((i, key) => (
+              <button
+                className={`w-8 h-8 active:scale-95 duration-150 rounded-full fx ${
+                  key === 2 && "active:bg-white/20  "
+                } ${key === 0 && betcodeLoad ? "bg-white/20" : "bg-white/0"}`}
+                key={key}
+                onClick={() => buttons(key)}
+              >
+                {i}
+              </button>
+            ))}
           </span>
           <span className="justify-between flex items-center w-full">
             <span>{betList.length} bets</span>
@@ -265,16 +286,34 @@ export default function BetList({ toggle, setToggle }) {
           onClick={(e) => e.stopPropagation()}
           className="flex-1 space-y-1 pb-4 overflow-x-hidden bg-black/80 overflow-y-scroll w-full"
         >
-          <AnimatePresence>
-            {betList.map((mv, key) => (
-              <BetGame
-                v={mv}
-                deleteGame={removeGame}
-                index={key}
-                key={`${mv.id}${mv.mkt}`}
-              />
-            ))}
-          </AnimatePresence>
+          {betcodeLoad ? (
+            <AnimatePresence>
+              {betList.map((mv, key) => (
+                <BetGame
+                  v={mv}
+                  deleteGame={removeGame}
+                  index={key}
+                  key={`${mv.id}${mv.mkt}`}
+                />
+              ))}
+            </AnimatePresence>
+          ) : (
+            <div className="px-4 pt-10 flex flex-col justify-end pb-5">
+              <span className="flex mb-2 ml-2 gap-2.5 items-center">
+                Insert booking code
+                <BiInfoCircle className="text-blue-400 text-lg mt-0.5" />
+              </span>
+              <span className="flex w-full h-12 gap-2">
+                <input
+                  type="text"
+                  placeholder="FFF11"
+                  maxLength={5}
+                  className="flex-1 px-3 border-2 h-full border-gray-800"
+                />
+                <button className="w-1/3 bg-green-700 h-full">Load</button>
+              </span>
+            </div>
+          )}
         </div>
         <div
           onClick={(e) => e.stopPropagation()}
@@ -313,7 +352,7 @@ export default function BetList({ toggle, setToggle }) {
                 {buttons.map((button, key2) => (
                   <button
                     key={key2}
-                    className={`py-2 fx flex-[2] bg-slate-600/10 rounded-lg`}
+                    className={`py-1 fx flex-[2] bg-slate-600/10 rounded-lg`}
                     onClick={() => buttonClicked(key ? key2 + 1 : button)}
                   >
                     {key ? key2 + 1 : button}
