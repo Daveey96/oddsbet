@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { SkeletonLoad } from "./services/Loaders";
+import { SkeletonLoad } from "../services/Loaders";
 import { motion } from "framer-motion";
 import {
   BiDownArrow,
@@ -7,8 +7,8 @@ import {
   BiLockAlt,
   BiUpArrowAlt,
 } from "react-icons/bi";
-import { Context } from "./layout";
-import condition from "@/helpers/condition";
+import { Context } from "../layout";
+import { condition } from "@/helpers";
 
 const market = (g, v) => {
   const getAll = (mkt, out1, out2) => {
@@ -146,7 +146,7 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
           <SkeletonLoad
             key={`${mkt}${key}`}
             state={game}
-            className="flex-1 h-11"
+            className="flex-1 h-10"
           >
             {ev && key === 0 ? (
               <button

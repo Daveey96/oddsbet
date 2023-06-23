@@ -5,8 +5,8 @@ import {
   useMotionValue,
 } from "framer-motion";
 import React, { useContext, useMemo, useState, useEffect } from "react";
-import { Context } from "./layout";
-import Animated from "./Animated";
+import { Context } from "../layout";
+import Animated from "../Animated";
 import {
   BiCheck,
   BiCog,
@@ -14,6 +14,7 @@ import {
   BiFootball,
   BiInfoCircle,
   BiTrashAlt,
+  BiUpArrowAlt,
   BiX,
 } from "react-icons/bi";
 import { alertService, appService } from "@/services";
@@ -226,11 +227,15 @@ export default function BetList({ toggle, setToggle }) {
   };
 
   const buttons = (key) => {
-    if (key === 2) setBetList([]);
+    if (key === 1) setBetList([]);
 
-    if (key === 1 && betList.length > 0) {
+    if (key === 0 && betList.length > 0) {
     }
   };
+
+  useEffect(() => {
+    setBetcodeLoad(betList.length > 0);
+  }, [betList]);
 
   return (
     <Animated
@@ -245,10 +250,6 @@ export default function BetList({ toggle, setToggle }) {
         variants={childVariants}
         className="absolute overflow-hidden bottom-0 max-h-[85%] inset-x-0 fx flex-col"
       >
-        {/* <div className="absolute px-16 flex justify-between py-5 z-10 rounded-3xl top-0 w-full h-52 bg-black/90">
-        <span>Cut</span>
-        <span>1</span>
-      </div> */}
         <motion.button
           onClick={setToggle}
           whileTap={{ scale: 0.75 }}
@@ -257,17 +258,15 @@ export default function BetList({ toggle, setToggle }) {
         <header className="px-8 pt-8 bg-black pb-3 border-b-2 border-c4 text-lg justify-center w-full flex">
           <span
             onClick={(e) => e.stopPropagation()}
-            className="fx absolute gap-3 opacity-60"
+            className="fx absolute gap-0.5 opacity-60"
           >
-            {[
-              <BiEditAlt key={10} />,
-              <BiCog key={11} />,
-              <BiTrashAlt key={12} />,
-            ].map((i, key) => (
+            {[<BiEditAlt key={10} />, <BiTrashAlt key={12} />].map((i, key) => (
               <button
-                className={`w-8 h-8 active:scale-95 duration-150 rounded-full fx ${
-                  key === 2 && "active:bg-white/20  "
-                } ${key === 0 && betcodeLoad ? "bg-white/20" : "bg-white/0"}`}
+                className={`w-8 h-8 active:scale-95 active:bg-white/20 duration-150 rounded-full fx ${
+                  key === 0 && !betcodeLoad
+                    ? "bg-white/20 active:bg-white/20"
+                    : "bg-white/0"
+                }`}
                 key={key}
                 onClick={() => buttons(key)}
               >
@@ -298,19 +297,15 @@ export default function BetList({ toggle, setToggle }) {
               ))}
             </AnimatePresence>
           ) : (
-            <div className="px-4 pt-10 flex flex-col justify-end pb-5">
-              <span className="flex mb-2 ml-2 gap-2.5 items-center">
-                Insert booking code
-                <BiInfoCircle className="text-blue-400 text-lg mt-0.5" />
-              </span>
-              <span className="flex w-full h-12 gap-2">
+            <div className="px-4 pt-3 flex flex-col justify-end pb-4">
+              <span className="flex w-full h-11 gap-2">
                 <input
                   type="text"
-                  placeholder="FFF11"
+                  placeholder="Booking Code"
                   maxLength={5}
                   className="flex-1 px-3 border-2 h-full border-gray-800"
                 />
-                <button className="w-1/3 bg-green-700 h-full">Load</button>
+                <button className="w-1/2 h-full bg-green-500">Load</button>
               </span>
             </div>
           )}
@@ -320,7 +315,7 @@ export default function BetList({ toggle, setToggle }) {
           className="flex aft bg-black pt-2  flex-col relative w-full w-full-c after:bottom-[99%] after:h-12 after:from-transparent after:to-black after:w-full after:bg-gradient-to-b"
         >
           <div className="flex justify-between mb-3 px-4 items-center">
-            <span className=" px-5 py-1.5 min-w-[100px] relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-[1px] border-r-[1px] border-r-c2 fx border-l-c1">
+            <span className=" px-5 py-1 min-w-[100px] relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-[1px] border-r-[1px] border-r-c2 fx border-l-c1">
               <span className="">{stake}</span>
               {stake.length < 1 && (
                 <span className="opacity-20 absolute">min 10.00</span>
@@ -343,10 +338,10 @@ export default function BetList({ toggle, setToggle }) {
             </span>
             <span className="">
               <span className="mr-3 opacity-30 text-sm">to Win</span>
-              <span className="text-green-500 mr-2 text-xl ">{potWin}</span>
+              <span className="text-green-500 mr-2 text-lg ">{potWin}</span>
             </span>
           </div>
-          <div className="gap-1 flex flex-col px-3 w-full overflow-hidden justify-center mb-4">
+          <div className="gap-1 flex flex-col px-3 w-full overflow-hidden justify-center mb-2">
             {buttonArray.map((buttons, key) => (
               <div key={key} className="flex justify-center gap-1">
                 {buttons.map((button, key2) => (
@@ -405,6 +400,28 @@ export default function BetList({ toggle, setToggle }) {
             </button>
           </div>
         </motion.div>
+        {/* <motion.div
+          variants={childVariants}
+          className="fx flex-col w-full bg-black"
+        >
+          <span className="py-9 fx w-full" onClick={(e) => e.stopPropagation()}>
+            {buttonText}
+          </span>
+          <div className="w-4/5 flex gap-2">
+            <button
+              onClick={submitBetSlip}
+              className="bg-green-700 text-green-200 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
+            >
+              <BiCheck /> Yes
+            </button>
+            <button
+              onClick={() => setPlaceBet(false)}
+              className="bg-red-700 text-red-200 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
+            >
+              <BiX /> No
+            </button>
+          </div>
+        </motion.div>         */}
       </Animated>
     </Animated>
   );

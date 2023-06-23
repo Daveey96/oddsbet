@@ -2,11 +2,10 @@ import React, { useState, useEffect, useContext, useMemo, useRef } from "react";
 import * as Bi from "react-icons/bi";
 import * as Bs from "react-icons/bs";
 import { AnimatePresence, motion } from "framer-motion";
-import { alertService } from "@/services";
+import { alertService, userService } from "@/services";
 import Animated from "./Animated";
 import { Context } from "./layout";
-import { userService } from "@/services/user.service";
-import condition from "@/helpers/condition";
+import { condition } from "@/helpers";
 import Retry from "./services/Retry";
 import { CircularLoader, DotLoader } from "./services/Loaders";
 

@@ -6,6 +6,7 @@ import Image from "next/image";
 import games from "@/helpers/games";
 import Retry from "@/components/services/Retry";
 import { appService } from "@/services";
+import { getDate } from "@/helpers";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -126,36 +127,18 @@ const BetSlip = ({ v }) => {
 };
 
 const returnDate = () => {
-  let [year, month, date] = new Date().toISOString().split("T")[0].split("-");
   let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  let numDays = [
-    31,
-    year % 4 === 0 ? 29 : 28,
-    31,
-    30,
-    31,
-    30,
-    31,
-    31,
-    30,
-    31,
-    30,
-    31,
-  ];
-
   let dateArr = [];
+  let today = "";
 
-  for (let i = 1; i < 11; i++) {
-    let newDate = new Date(`${year}-${month}-${parseInt(date) - i}`);
-    dateArr.unshift(`${days[newDate.getDay()]} ${newDate.getDate()}`);
-  }
-  for (let i = 0; i < 7; i++) {
-    let newDate = new Date(`${year}-${month}-${parseInt(date) + i}`);
-    dateArr.push(`${days[newDate.getDay()]} ${newDate.getDate()}`);
+  for (let i = -7; i < 11; i++) {
+    let { day, month, year } = getDate(i);
+    let date = new Date(`${year}-${month}-${day}`);
+    dateArr.push(`${days[date.getDay()]} ${day}`);
+    if (i === 0) today = day;
   }
 
-  return [dateArr, date];
+  return [dateArr, today];
 };
 
 function Index() {
@@ -207,8 +190,8 @@ function Index() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col pt-5 items-center">
-      <header className="w-full z-20 pb-2 flex flex-col items-center ">
+    <>
+      <header className="w-full z-20 pb-2 flex mt-5 flex-col items-center ">
         <span className="mt-4 mb-2">{months[new Date().getMonth()]}</span>
         <div
           ref={container}
@@ -216,7 +199,7 @@ function Index() {
         >
           {dateArray.map((dates, key) => (
             <React.Fragment key={key}>
-              {dates.split(" ")[1] === currentDate ? (
+              {dates.split(" ")[1] === currentDate.toString() ? (
                 <motion.button
                   className={`from-black bg-gradient-to-b relative rounded-2xl text-sm gap-2 w-16 h-16 ${
                     active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
@@ -249,7 +232,7 @@ function Index() {
           state={activeBets}
           loading={
             <span className="mt-20 fx gap-3">
-              <CircularLoader size={30} />
+              <CircularLoader size={34} depth={6} />
             </span>
           }
           error={
@@ -271,7 +254,7 @@ function Index() {
           fish is fishing
         </Retry>
       </div>
-    </div>
+    </>
   );
 }
 

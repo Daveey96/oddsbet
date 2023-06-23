@@ -1,4 +1,4 @@
-import condition from "@/helpers/condition";
+import { condition } from "@/helpers";
 import React from "react";
 
 function Retry({

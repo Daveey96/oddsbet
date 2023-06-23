@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 
 export const DotLoader = () => {
@@ -21,23 +20,20 @@ export const DotLoader = () => {
   );
 };
 
-export const CircularLoader = ({ size = 14, className }) => {
+export const CircularLoader = ({ size = 14, className, depth = 4 }) => {
   return (
-    <motion.span
-      animate={{
-        rotate: [0, 360],
-        transition: {
-          repeat: Infinity,
-          repeatType: "loop",
-          duration: 0.4,
-          ease: "easeInOut",
-        },
-      }}
+    <span
       className={
-        "border-t-4 border-t-c1 border-b-4 rounded-md border-b-c2 " + className
+        `loader border-r-transparent inline-block rounded-[50%] ${
+          !className && "border-t-c2"
+        } ` + className
       }
-      style={{ width: `${size}px`, height: `${size}px` }}
-    ></motion.span>
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        borderWidth: `${depth}px ${depth}px 0 0`,
+      }}
+    ></span>
   );
 };
 
@@ -56,9 +52,10 @@ export const SkeletonLoad = ({
   <>
     {!state ? (
       <span
-        className={`text-white/0 bg-white/5 opacity-50 rounded-md ${className} ${iClass}`}
+        className={`text-white/0 bg-white/5 relative opacity-50 rounded-md ${className} ${iClass}`}
       >
         |
+        <span className="fade absolute h-full w-1/3 from-transparent via-white/5 to-transparent"></span>
       </span>
     ) : (
       <>

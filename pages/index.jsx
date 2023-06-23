@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Slider from "@/components/Slider";
-import GameList from "@/components/Games";
 import { alertService } from "@/services";
 import mgames from "@/helpers/games";
 import Footer from "@/components/layout/Footer";
+import GameList from "@/components/games";
 
 // export async function getServerSideProps() {
 //   try {
@@ -58,7 +58,8 @@ export default function Home() {
       </div>
       <Slider games={mgames} />
       <GameList key={45} title={"Live"} games={mgames} />
-      <GameList key={39} title={"Live"} games={mgames} />
+      <GameList key={39} title={"Today"} games={mgames} />
+      <GameList key={9} title={"Friday"} games={mgames} />
       {/* <GameList
         title={"Today"}
         className={"rounded-b-3xl"}

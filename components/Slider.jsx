@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { SkeletonLoad } from "./services/Loaders";
-import Odds from "./Odds";
+import Odds from "./games/Odds";
+import { getDate } from "@/helpers";
 
 function Slider({ games }) {
   const [mounted, setMounted] = useState(false);
@@ -12,6 +13,9 @@ function Slider({ games }) {
       slideChanged() {
         console.log("slide changed");
         console.log(instanceRef);
+      },
+      created() {
+        setMounted(true);
       },
       loop: true,
       dragSpeed: 2,
@@ -25,10 +29,6 @@ function Slider({ games }) {
     ]
   );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   let mgames = games
     ? games.filter((g) => g.minute).slice(0, 4)
     : Array(4).fill(false);
@@ -36,10 +36,8 @@ function Slider({ games }) {
   return (
     <div
       ref={sliderRef}
-      className=" keen-slider h-52 rounded-2xl text-sm relative mb-2 bg-c4 w-full"
+      className=" keen-slider h-52 rounded-2xl text-sm relative mb-2 bg-[#0d0e13] w-full"
     >
-      {/* {mounted ? } */}
-
       {mgames.map((g, key) => (
         <div key={key} className="w-full fx flex-col pb-2 keen-slider__slide">
           <div className="fx pt-10 flex-1 w-full relative">
@@ -99,7 +97,7 @@ function Slider({ games }) {
               {g.title}
             </SkeletonLoad>
             <Image
-              className="absolute opacity-40"
+              className="absolute opacity-20"
               src={"vs.svg"}
               width={70}
               height={50}

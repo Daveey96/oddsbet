@@ -15,7 +15,7 @@ input {
   background: transparent;
 }
 .isSticky {
-  padding-top: 56px !important;
+  padding-top: 45px !important;
   background: black !important;
   z-index: 22 !important;
 }
@@ -49,4 +49,17 @@ input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-text-fill-color: #fff !important;
   -webkit-box-shadow: 0 0 0 35px #000 inset !important;
+}
+
+.loader {
+  animation: rotation 0.4s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

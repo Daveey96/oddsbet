@@ -12,7 +12,7 @@ function List({ v, className, iClass, onClick, activeClass, inActiveClass }) {
             onClick(item.v || item.item);
             setActive(key);
           }}
-          className={`fx whitespace-nowrap ${iClass} ${
+          className={`fx last-of-type:mr-3 whitespace-nowrap ${iClass} ${
             active === key ? activeClass : inActiveClass
           }`}
           key={key}

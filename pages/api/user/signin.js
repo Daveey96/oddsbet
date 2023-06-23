@@ -34,6 +34,12 @@ const signin = (req, res) =>
     });
   });
 
+const signout = (req, res) =>
+  serverAsync(res, async () => {
+    cookies.setCookie(req, res, "__sid", null, 1000);
+    res.status(200).json({ message: "Logout Successful" });
+  });
+
 export default async function handler(req, res) {
   await connectMongo().catch((err) =>
     res.status(500).json({ message: "Server Error" })
@@ -44,4 +50,7 @@ export default async function handler(req, res) {
 
   // session check
   if (req.method === "GET") return sessionCheck(req, res);
+
+  // session check
+  if (req.method === "DELETE") return signout(req, res);
 }

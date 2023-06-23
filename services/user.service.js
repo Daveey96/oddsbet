@@ -31,6 +31,12 @@ const signin = (details) =>
     return data;
   });
 
+const signout = () =>
+  clientAsync(async () => {
+    const { data } = await axios.delete("/api/user/signin");
+    return data;
+  });
+
 const resendCode = (details) =>
   clientAsync(async () => {
     const { data } = await axios.post("/api/user/signup", details, {
@@ -57,6 +63,7 @@ export const userService = {
   checkEmail,
   signup,
   signin,
+  signout,
   verifyEmail,
   getStage,
   getUser,

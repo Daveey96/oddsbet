@@ -62,7 +62,7 @@ function Nav() {
     <>
       <Animated
         tag="nav"
-        className={`flex z-50 h-[5.5vh] justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
+        className={`flex z-50 h-10 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
           alert ? "opacity-10" : "opacity-100"
         }`}
         variants={{
@@ -78,7 +78,7 @@ function Nav() {
           className={`px-2 z-10 overflow-hidden h-full duration-200 pt-0.5 rounded-b-2xl backdrop-blur-xl `}
         >
           <Image
-            width={90}
+            width={80}
             height={20}
             priority
             src={"/logo.svg"}

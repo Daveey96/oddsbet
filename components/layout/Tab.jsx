@@ -2,7 +2,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
-import BetList, { BetListButton } from "../BetList";
+import BetList, { BetListButton } from "../games/BetList";
 
 export default function Tab() {
   const { pathname, events } = useRouter();
