@@ -11,9 +11,9 @@ export const condition = (v, values, output) => {
   }
 };
 
-export const getDate = (d = 0) => {
-  let [year, month, day] = new Date().toISOString().split("T")[0].split("-");
-  let days = [
+export const getDate = (d = 0, type) => {
+  let [month, day, year] = new Date().toLocaleDateString().split("/");
+  let months = [
     31,
     parseInt(year) % 4 ? 28 : 29,
     31,
@@ -27,22 +27,32 @@ export const getDate = (d = 0) => {
     30,
     31,
   ];
+  let weekDays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
-  if (!d) return { day, month, year };
+  if (!d) return { day, month, year, weekDay: weekDays[new Date().getDay()] };
   let m = parseInt(month - 1);
   let r = parseInt(day) + d;
 
   if (Math.sign(d) === -1) {
     while (r < 1) {
       m === -1 ? 11 : (m -= 1);
-      r += days[m];
+      r += months[m];
     }
   } else {
-    while (r > days[m]) {
-      r -= days[m];
+    while (r > months[m]) {
+      r -= months[m];
       m === 12 ? 0 : (m += 1);
     }
   }
 
-  return { day: r, month: m + 1, year };
+  let weekDay = new Date(`${year}-${m + 1}-${r}`).getDay();
+  return { day: r, month: m + 1, year, weekDay: weekDays[weekDay] };
 };

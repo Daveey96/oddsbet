@@ -38,7 +38,7 @@ function Nav() {
   const { user } = useContext(Context);
   const { events, pathname } = useRouter();
   const [visible, setVisible] = useState(null);
-  const [backdrop, setBackdrop] = useState(false);
+  const { backdrop, setBackdrop } = useContext(Context);
   const [alert, setAlert] = useState(false);
 
   const toggleNav = (url) => {
@@ -57,6 +57,14 @@ function Nav() {
         setAlert(false);
       }, 3500);
   }, [alert]);
+
+  useEffect(() => {
+    if (pathname.slice(0, 2) === "/p" && backdrop) {
+      setVisible(true);
+    } else if (pathname.slice(0, 2) === "/p" && !backdrop) {
+      setVisible(false);
+    }
+  }, [backdrop]);
 
   return (
     <>
@@ -109,7 +117,6 @@ function Nav() {
           </button>
         )}
       </Animated>
-      <Auth backdrop={backdrop} setBackdrop={(v) => setBackdrop(v)} />
       <AnimatePresence>
         <Alert onAlert={() => setAlert(true)} />
       </AnimatePresence>

@@ -6,12 +6,14 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
-  password: String,
+  password: { type: String, required: true },
   balance: Number,
   verified: Boolean,
   token: String,
   currentStage: Number,
-  activebets: [],
+  demo: false,
+  demoBalance: Number,
+  activebets: [{ type: Schema.Types.ObjectId, ref: "Ticket" }],
 });
 
 const ticketSchema = new Schema({
@@ -20,8 +22,6 @@ const ticketSchema = new Schema({
     type: String,
     required: true,
   },
-  odds: Number,
-  users: [{ stake: String, id: String }],
 });
 
 // const goatSchema = new Schema({

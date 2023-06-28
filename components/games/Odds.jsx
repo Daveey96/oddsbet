@@ -8,9 +8,10 @@ import {
   BiUpArrowAlt,
 } from "react-icons/bi";
 import { Context } from "../layout";
-import { condition } from "@/helpers";
+import { condition, filterDate } from "@/helpers";
 
 const market = (g, v) => {
+  if (!g) return false;
   const getAll = (mkt, out1, out2) => {
     let odds = [];
     if (!g[mkt] && g[mkt].length === 0) return false;
@@ -85,6 +86,7 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
   const { betList, setBetList } = useContext(Context);
   const { odds, tag, name } = currentMkt;
 
+  const isLive = game.minute ? true : false;
   const [score, setScore] = useState(odds && Math.floor(odds.length / 2));
   const [active, setActive] = useState(undefined);
   const [open, setOpen] = useState(false);
@@ -116,7 +118,7 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
       setActive(undefined);
       return;
     }
-    const { id, team1, team2, date_start } = game;
+    const { id, team1, team2 } = game;
 
     setBetList([
       ...newBetList,
@@ -127,7 +129,10 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
         team1,
         team2,
         score: ev && score,
-        date_start: date_start.split("T")[1].slice(0, 5),
+        isLive,
+        date_start: isLive
+          ? `${game.minute}' ${game.seconds}'`
+          : filterDate(game),
         odd: odd.toFixed(2),
         mkt,
       },
@@ -222,18 +227,27 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
 
 export default function Odds({ className, game, slider, mkt = "1X2" }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const currentMkt = useMemo(() => market(game.markets, mkt), [mkt]);
+  const currentMkt = useMemo(() => market(game?.markets, mkt), [mkt]);
 
   return (
     <div className={"fx gap-1 relative " + className}>
-      <Select
-        game={game}
-        mkt={mkt}
-        key={mkt}
-        currentMkt={currentMkt}
-        slider={slider}
-      />
-      {slider && (
+      {currentMkt ? (
+        <Select
+          game={game}
+          mkt={mkt}
+          key={mkt}
+          currentMkt={currentMkt}
+          slider={slider}
+        />
+      ) : (
+        <>
+          {[0, 1, 2].map((key) => (
+            <SkeletonLoad className="h-10 flex-1" key={key} />
+          ))}
+        </>
+      )}
+
+      {/* {slider && (
         <SkeletonLoad
           state={game}
           iClass="w-10 scale-y-75"
@@ -242,7 +256,7 @@ export default function Odds({ className, game, slider, mkt = "1X2" }) {
         >
           1X2 FT
         </SkeletonLoad>
-      )}
+      )} */}
     </div>
   );
 }

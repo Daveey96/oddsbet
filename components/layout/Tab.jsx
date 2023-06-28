@@ -18,17 +18,6 @@ export default function Tab() {
         <path d="M12.71 2.29a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42A1 1 0 0 0 3 13h1v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7h1a1 1 0 0 0 1-1 1 1 0 0 0-.29-.71zM6 20v-9.59l6-6 6 6V20z"></path>
       ),
     },
-    // {
-    //   path: "/search",
-    //   text: "search",
-    //   iconProps: ["1.1em", "0 0 24 24"],
-    //   svgPath: (
-    //     <>
-    //       <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"></path>
-    //       <path d="M11.412 8.586c.379.38.588.882.588 1.414h2a3.977 3.977 0 0 0-1.174-2.828c-1.514-1.512-4.139-1.512-5.652 0l1.412 1.416c.76-.758 2.07-.756 2.826-.002z"></path>
-    //     </>
-    //   ),
-    // },
     {
       path: "/bets",
       text: "open bets",
@@ -57,7 +46,7 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed bottom-0 z-[22] flex justify-center px-4 inset-x-0 pt-2.5 bg-black text-white">
+      <div className="fixed bottom-0 z-[22] flex justify-center px-4 rounded-t-[60px] inset-x-4 pt-2.5 bg-black text-white">
         {links.map((link, key) => (
           <motion.button
             key={key}
@@ -69,12 +58,14 @@ export default function Tab() {
               className={`fx h-full w-full ${key ? "pb-5" : "pb-[22px]"}`}
             >
               <Svg icon={link.iconProps}>{link.svgPath}</Svg>
-              <span className="text-[10px] absolute bottom-2">{link.text}</span>
+              <span className="dark:text-[10px] text-[11px] absolute bottom-2">
+                {link.text}
+              </span>
             </Link>
             {pathName.split("/")[1] === link.path.slice(1) && (
               <motion.div
                 layoutId="underline"
-                className="from-c1 to-c2 bg-gradient-to-r h-2 absolute bottom-0 w-[70%] blur-md"
+                className=" dark:from-c1 dark:to-c2 dark:bg-gradient-to-r bg-c2 h-2 absolute bottom-0 w-[70%] blur-md"
               />
             )}
           </motion.button>

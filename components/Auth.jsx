@@ -3,14 +3,15 @@ import * as Bi from "react-icons/bi";
 import * as Bs from "react-icons/bs";
 import { AnimatePresence, motion } from "framer-motion";
 import { alertService, userService } from "@/services";
-import Animated from "./Animated";
+import Animated, { BlurredModal } from "./Animated";
 import { Context } from "./layout";
 import { condition } from "@/helpers";
 import Retry from "./services/Retry";
 import { CircularLoader, DotLoader } from "./services/Loaders";
 
-export default function Auth({ backdrop, setBackdrop }) {
+export default function Auth() {
   const { setUser } = useContext(Context);
+  const { backdrop, setBackdrop } = useContext(Context);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,6 +80,8 @@ export default function Auth({ backdrop, setBackdrop }) {
         setTimeout(() => {
           setUser(data.user);
           setBackdrop(false);
+          setbuttonText("Submit");
+          setDisabled(false);
         }, 500);
       } else {
         setbuttonText("Submit");
@@ -120,106 +123,76 @@ export default function Auth({ backdrop, setBackdrop }) {
     }
   }, [email, password, currentStage]);
 
-  const variants = {
-    init: { backdropFilter: "blur(0px)" },
-    show: {
-      backdropFilter: "blur(30px)",
-      transition: { when: "beforeChildren" },
-    },
-    exit: { backdropFilter: "blur(0px)" },
-    initChild: { opacity: 0 },
-    showChild: { opacity: 1 },
-    exitChild: { opacity: 0 },
-  };
-
   return (
-    <>
-      <Animated
-        variants={variants}
-        transition={{ duration: 0.3, ease: "linear" }}
-        className="fixed flex flex-col z-30 items-center inset-0"
-        state={backdrop}
-      >
-        <motion.h3
-          variants={variants}
-          initial={"initChild"}
-          animate={"showChild"}
-          exit={"exitChild"}
-          className="text-white/20 mt-[60px] text-sm border-t-[0.5px] border-white/50 px-10 pt-2 mb-4"
+    <BlurredModal
+      state={backdrop}
+      type={"allChidren"}
+      className="flex flex-col z-[35] items-center"
+      iClass={[
+        "text-white/20 mt-[60px] text-sm border-t-[0.5px] border-white/50 px-10 pt-2 mb-4",
+        "relative max-w-[480px] w-full mt-3 fx",
+      ]}
+    >
+      <>Signup / Signin to Oddsbet</>
+      <>
+        <Retry
+          state={currentStage}
+          loading={
+            <span className="mt-12 fx gap-3">
+              <CircularLoader size={18} /> fetching forms
+            </span>
+          }
+          error={
+            <span className="fx flex-col mt-2 gap-3">
+              <Bi.BiWifiOff className="text-6xl opacity-25" />
+              Network Error
+              <button
+                className="relative px-5 py-2 aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-0.5 before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex text-c2"
+                onClick={getCurrentStage}
+              >
+                try again
+              </button>
+            </span>
+          }
         >
-          Signup / Signin to Oddsbet
-        </motion.h3>
-        <motion.div
-          variants={variants}
-          initial={"initChild"}
-          animate={"showChild"}
-          exit={"exitChild"}
-          className="relative max-w-[480px] w-full mt-3 fx"
-        >
-          <Retry
-            state={currentStage}
-            loading={
-              <span className="mt-12 fx gap-3">
-                <CircularLoader size={18} /> fetching forms
-              </span>
-            }
-            error={
-              <span className="fx flex-col mt-2 gap-3">
-                <Bi.BiWifiOff className="text-6xl opacity-25" />
-                Network Error
-                <button
-                  className="relative px-5 py-2 aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-0.5 before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex text-c2"
-                  onClick={getCurrentStage}
-                >
-                  try again
-                </button>
-              </span>
-            }
-          >
-            <AnimatePresence mode="popLayout">
-              {currentStage !== 1 ? (
-                <motion.form
-                  onSubmit={handleSubmit}
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "0%" }}
-                  exit={{ x: "-100%" }}
-                  transition={{ duration: 0.3 }}
-                  key={239283736}
-                  className="flex absolute top-0 w-full px-4 flex-col gap-1 mx- items-center"
-                >
-                  <Input
-                    value={email}
-                    disabled={emailD}
-                    setValue={(v) => setEmail(v)}
-                  />
-                  {currentStage > 1 && (
-                    <Input
-                      value={password}
-                      setValue={(v) => setPassword(v)}
-                      v
-                    />
-                  )}
-                  <button
-                    disabled={disabled}
-                    className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-14"
-                  >
-                    {buttonText}{" "}
-                    {buttonText.slice(-3) === "ing" && <DotLoader />}
-                  </button>
-                </motion.form>
-              ) : (
-                <Token
-                  key={827382837826}
-                  email={email}
-                  loading={loading}
-                  handleSubmit={handleSubmit}
+          <AnimatePresence mode="popLayout">
+            {currentStage !== 1 ? (
+              <motion.form
+                onSubmit={handleSubmit}
+                initial={{ x: "-100%" }}
+                animate={{ x: "0%" }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 0.3 }}
+                key={239283736}
+                className="flex absolute top-0 w-full px-4 flex-col gap-1 mx- items-center"
+              >
+                <Input
+                  value={email}
+                  disabled={emailD}
+                  setValue={(v) => setEmail(v)}
                 />
-              )}
-            </AnimatePresence>
-          </Retry>
-        </motion.div>
-      </Animated>
-    </>
+                {currentStage > 1 && (
+                  <Input value={password} setValue={(v) => setPassword(v)} v />
+                )}
+                <button
+                  disabled={disabled}
+                  className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-14"
+                >
+                  {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
+                </button>
+              </motion.form>
+            ) : (
+              <Token
+                key={827382837826}
+                email={email}
+                loading={loading}
+                handleSubmit={handleSubmit}
+              />
+            )}
+          </AnimatePresence>
+        </Retry>
+      </>
+    </BlurredModal>
   );
 }
 

@@ -1,26 +1,24 @@
 import { Naira } from "@/components/layout/Nav";
 import { alertService, promptService, userService } from "@/services";
 import { motion } from "framer-motion";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
-  BiCheck,
-  BiCog,
-  BiDownArrow,
-  BiDownArrowAlt,
-  BiDownArrowCircle,
   BiLeftArrowAlt,
-  BiMoneyWithdraw,
   BiMoon,
   BiPowerOff,
+  BiRefresh,
   BiSun,
   BiTransferAlt,
   BiUserCircle,
 } from "react-icons/bi";
-import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
+import { BsAsterisk, BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
 import Link from "next/link";
 import { Context } from "@/components/layout";
 import { useRouter } from "next/navigation";
+import { SkeletonLoad } from "@/components/services/Loaders";
+
+const Fix = () => <span className="z-20 absolute inset-0"></span>;
 
 const Theme = () => {
   const { theme, setTheme } = useTheme();
@@ -44,13 +42,25 @@ const Theme = () => {
   );
 };
 
-const PaymentPin = () => {
+const PaymentPin = ({ user }) => {
   return (
-    <span className="flex flex-col justify-between items-end py-3 px-3">
-      <span className="w-full opacity-60">Payment pin</span>
-      <span className="overflow-hidden shadow-lg shadow-black/20 h-8 bg-c2/5 rounded-lg">
-        <span className="text-c2 translate-y-1 flex gap-1 text-5xl px-2">
-          ****
+    <span
+      className={`flex bg-c4 flex-col justify-between items-end ${
+        !user && "opacity-40"
+      }`}
+    >
+      <span className="w-full flex items-center justify-between opacity-60 px-4 mt-5">
+        <span>Payment pin</span>
+        <BsEyeFill />
+      </span>
+      <span className="py-4 relative px-8 text-c2 flex items-center gap-1 bg-black rounded-tl-3xl">
+        {Array(4)
+          .fill("")
+          .map((i, key) => (
+            <BsAsterisk key={key} className="text-xs" />
+          ))}
+        <span className="right-[110%] bg-c2/5 py-1 px-3 rounded-xl text-sm absolute">
+          change
         </span>
       </span>
     </span>
@@ -58,12 +68,31 @@ const PaymentPin = () => {
 };
 
 const DefStake = () => {
+  const [stake, setStake] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem("defStake"))
+      localStorage.setItem("defStake", "100");
+
+    stake === false && setStake(parseInt(localStorage.getItem("defStake")));
+  }, [stake]);
+
   return (
-    <span className="bg-c4 py-4 px-4 flex flex-col justify-between items-end">
-      <span className="w-full opacity-60">Default Stake</span>
+    <span className="bg-c4 flex relative flex-col justify-end items-end">
+      <span className="bg-black absolute left-0 top-0 text-white/50 rounded-br-3xl px-5 py-3">
+        Default stake
+      </span>
       <input
         type="number"
-        className="border-4 focus:border-c2/100 w-2/3 border-c2/50 px-1 text-center rounded-lg py-1"
+        value={stake ? stake : ""}
+        placeholder="min. 100"
+        onChange={({ target }) => setStake(target.value)}
+        onBlur={() =>
+          stake >= 100
+            ? localStorage.setItem("defStake", stake.toString())
+            : setStake(parseInt(localStorage.getItem("defStake")))
+        }
+        className="border-4 focus:border-c2/100 w-32 mr-2 border-c2/50 px-2 text-right rounded-l-3xl rounded-r-lg py-1.5 mb-2"
       />
     </span>
   );
@@ -71,7 +100,7 @@ const DefStake = () => {
 
 const LogOut = () => {
   const { push } = useRouter();
-  const { setUser } = useContext(Context);
+  const { user, setUser } = useContext(Context);
 
   const logOut = async () => {
     const data = await userService.signout();
@@ -92,16 +121,18 @@ const LogOut = () => {
           logOut
         )
       }
-      className="bg-red-950/70 text-red-500 justify-between items-center flex flex-col w-full h-full py-3 px-3"
+      className={`bg-red-950/70 text-red-500 justify-between items-center flex flex-col w-full h-full py-4 px-2 ${
+        !user && "opacity-40"
+      }`}
     >
-      <span className="opacity-60">log out</span>
       <BiPowerOff className="text-4xl mb-3" />
+      <span className="opacity-60 text-sm">log out</span>
     </button>
   );
 };
 
 function Index() {
-  const { user, setUser } = useContext(Context);
+  const { user, setUser, setBackdrop } = useContext(Context);
   const [isVisible, setIsVisible] = useState(true);
 
   const getUser = async () => {
@@ -117,24 +148,27 @@ function Index() {
     { className: "col-span-2 row-span-4", jsx: <Theme /> },
     {
       className: "col-span-5 row-span-2 ",
-      jsx: <PaymentPin />,
+      jsx: <PaymentPin user={user} />,
     },
     {
       className: "col-span-3 row-span-2",
       jsx: (
-        <Link
-          href={"/profile/transactions"}
-          className="py-3 flex flex-col px-3 "
-        >
-          <BiTransferAlt className="mb-1 text-c2" />
-          <span>
-            Transaction <br /> History
-          </span>
-        </Link>
+        <>
+          <Link
+            href={"/profile/transactions"}
+            disabled
+            className={`pt-3 flex bg-c4 flex-col px-3 ${!user && "opacity-40"}`}
+          >
+            <BiTransferAlt className="mb-1 text-c2 text-xl" />
+            <span>
+              Transaction <br /> History
+            </span>
+          </Link>
+        </>
       ),
     },
     {
-      className: "col-span-2 row-span-3",
+      className: "col-span-2 row-span-2",
       jsx: <LogOut />,
     },
     {
@@ -155,14 +189,17 @@ function Index() {
 
   return (
     <>
-      <div className="bg-c4 h-48 pt-7 flex items-start flex-col">
+      <SkeletonLoad
+        state={user !== null}
+        className="bg-c4 flex flex-col min-h-[100px]"
+      >
         {user ? (
           <>
             <span className="fx fixed top-0 z-20 bg-[#000000] px-5 py-2 shadow-lg shadow-black/50 text-white/75 rounded-b-xl rounded-tr-xl">
               <BiUserCircle className="mr-1 text-lg text-c2" />
               {user.email}
             </span>
-            <div className="flex opacity-75 items-center mt-5  w-full flex-1 justify-around">
+            <div className="flex opacity-75 items-center mt-12 w-full flex-1 justify-around">
               <span>Total Balance:</span>
               <motion.button
                 whileTap={{ scale: 1.2 }}
@@ -180,7 +217,7 @@ function Index() {
                 "****"
               )}
             </div>
-            <div className="flex gap-3 w-full px-16 pb-0">
+            <div className="flex gap-3 w-full px-16">
               {["Deposit", "Withdraw"].map((item, key) => (
                 <Link
                   key={key}
@@ -197,28 +234,36 @@ function Index() {
             </div>
           </>
         ) : (
-          <span className="w-full text-center">No network connection</span>
+          <span className="w-full mb-4 mt-8 fx gap-3">
+            <span className="text-sm">
+              Oops.. <br /> You&apos;re not signed in
+            </span>
+            <button
+              className="fx h-12 rounded-xl from-c2/70 px-8 to-c1/60 bg-gradient-to-br"
+              onClick={() => setBackdrop(true)}
+            >
+              sign in
+            </button>
+          </span>
         )}
-      </div>
+      </SkeletonLoad>
       <motion.ul
         variants={pVariants}
         initial="init"
         animate="show"
-        className="grid mt-7 h-[22rem] w-full px-5 grid-rows-6 grid-cols-7 gap-4 "
+        className="grid mt-7 h-[23rem] w-full px-5 grid-rows-6 grid-cols-7 gap-4 "
       >
         {settings.map((li, key) => (
           <motion.li
             key={key}
             variants={cVariants}
             whileTap={{ scale: 0.85 }}
-            className={`flex ${
-              key ? "bg-c4" : "bg-red-600/10 text-red-700"
-            } h-full-c w-full-c overflow-hidden rounded-xl ${
-              key > 2 && "opacity-30"
-            } ${li.className}`}
-            style={{ opacity: key > 2 ? 1 : 0.2 }}
+            className={`flex relative h-full-c w-full-c overflow-hidden rounded-xl ${li.className}`}
           >
             {li.jsx}
+            {!user && key === 1 && <Fix />}
+            {!user && key === 2 && <Fix />}
+            {!user && key === 3 && <Fix />}
           </motion.li>
         ))}
       </motion.ul>

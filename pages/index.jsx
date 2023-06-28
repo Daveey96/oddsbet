@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Slider from "@/components/Slider";
-import { alertService } from "@/services";
 import mgames from "@/helpers/games";
-import Footer from "@/components/layout/Footer";
 import GameList from "@/components/games";
+import { getDate } from "@/helpers";
 
 // export async function getServerSideProps() {
 //   try {
@@ -21,50 +18,46 @@ import GameList from "@/components/games";
 export default function Home() {
   // const [games, setGames] = useState(mgames);
 
-  const getGames = async () => {
-    try {
-      // let { data } = await axios.get(
-      // https://api.betting-api.com/parimatch/football/line/all
-      //   "https://api.betting-api.com/1xbet/football/live/all",
-      //   {
-      //     headers: {
-      //       Authorization: `50b134713d5b4f4fa563d9063c0be5b9820c6bac24aa4637bfde0bb96eb5e897`,
-      //     },
-      //   }
-      // );
-      let data = mgames;
+  // const getGames = async () => {
+  //   try {
+  // let { data } = await axios.get(
+  // https://api.betting-api.com/parimatch/football/line/all
+  //   "https://api.betting-api.com/1xbet/football/live/all",
+  //   {
+  //     headers: {
+  //       Authorization: `50b134713d5b4f4fa563d9063c0be5b9820c6bac24aa4637bfde0bb96eb5e897`,
+  //     },
+  //   }
+  // );
+  //     let data = mgames;
 
-      if (data) {
-        setGames({
-          all: data,
-          isLive: data.filter((d) => d.minute !== undefined),
-          notStart: data.filter((d) => d.minute === undefined),
-        });
-      }
-    } catch (error) {
-      alertService.error("No Internet");
-    }
-  };
-
-  // useEffect(() => {
-  //   getGames();
-  // }, []);
+  //     if (data) {
+  //       setGames({
+  //         all: data,
+  //         isLive: data.filter((d) => d.minute !== undefined),
+  //         notStart: data.filter((d) => d.minute === undefined),
+  //       });
+  //     }
+  //   } catch (error) {
+  //     alertService.error("No Internet");
+  //   }
+  // };
+  let array = ["Live", "Today"];
+  for (let i = 1; i < 4; i++) {
+    let { weekDay } = getDate(i);
+    array.push(weekDay);
+  }
 
   return (
     <>
-      <div className=" h-11 flex w-full gap-2 mb-2 justify-between">
-        <span className="bg-c4 h-full w-[30%] rounded-b-xl"></span>
-        <span className="bg-c4 h-full w-[68%] rounded-b-xl"></span>
+      <div className=" h-11 flex w-full dark:gap-2 gap-0 mb-2 justify-between">
+        <span className="dark:bg-c4 dark:shadow-none shadow-[0px_2px_2px_1px] shadow-black/10 h-full w-[30%] flex-1 rounded-b-2xl"></span>
+        <span className="dark:bg-c4 dark:shadow-none shadow-[0px_2px_2px_1px] relative aft after:bg-white dark:after:h-0 dark:after:w-0 after:h-8 after:w-5 after:-translate-x-[50%] shadow-black/10 h-full flex-[2] rounded-b-2xl"></span>
       </div>
       <Slider games={mgames} />
-      <GameList key={45} title={"Live"} games={mgames} />
-      <GameList key={39} title={"Today"} games={mgames} />
-      <GameList key={9} title={"Friday"} games={mgames} />
-      {/* <GameList
-        title={"Today"}
-        className={"rounded-b-3xl"}
-        games={games?.notStart}
-      /> */}
+      {array.map((title, key) => (
+        <GameList key={key} title={title} games={mgames} />
+      ))}
     </>
   );
 }

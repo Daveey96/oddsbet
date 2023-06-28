@@ -42,29 +42,34 @@ export const SkeletonLoad = ({
   ngClass = "",
   iClass = "",
   children,
-  opacity,
-  state,
+  vertical = undefined,
+  state = false,
   style,
   tag = "span",
   disabled,
   onClick,
-}) => (
-  <>
-    {!state ? (
-      <span
-        className={`text-white/0 bg-white/5 relative opacity-50 rounded-md ${className} ${iClass}`}
-      >
-        |
-        <span className="fade absolute h-full w-1/3 from-transparent via-white/5 to-transparent"></span>
-      </span>
-    ) : (
-      <>
-        {React.createElement(
-          tag,
-          { className: `${className} ${ngClass}`, style, disabled, onClick },
-          [children]
-        )}
-      </>
-    )}
-  </>
-);
+  transparent = undefined,
+}) => {
+  return (
+    <>
+      {state ? (
+        <>
+          {React.createElement(
+            tag,
+            { className: `${className} ${ngClass}`, style, disabled, onClick },
+            [children]
+          )}
+        </>
+      ) : (
+        <span
+          className={`text-white/0 overflow-hidden rounded-md ${
+            className.includes("absolute") ? "absolute" : "relative"
+          } ${className} ${iClass} ${!transparent && "bg-slate-600/20"}`}
+        >
+          <span className="absolute fade translate-x-[-200%] left-0 top-0 h-full w-4/5 from-transparent via-white/5 to-transparent bg-gradient-to-r"></span>
+          |
+        </span>
+      )}
+    </>
+  );
+};

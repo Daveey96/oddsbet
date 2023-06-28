@@ -9,7 +9,7 @@ import Odds from "./Odds";
 // import { getDate } from "@/helpers";
 import { Context } from "../layout";
 
-const Game = ({ game, last, mkt }) => {
+const Game = ({ game, mkt }) => {
   const [g, setG] = useState(game);
   const { setGameId } = useContext(Context);
 
@@ -50,14 +50,12 @@ const Game = ({ game, last, mkt }) => {
 
   return (
     <div
-      className={`flex bg-c4 w-full flex-col px-4 pt-3 gap-1 ${
-        last ? "pb-12" : "pb-3"
-      }`}
+      className={`flex dark:bg-c4 bg-white w-full flex-col px-4 pt-3 gap-1 last-of-type:pb-12 pb-2`}
     >
       <SkeletonLoad
         state={g}
         iClass="scale-y-75 origin-bottom"
-        className="w-[40%] flex gap-2 text-[12px]"
+        className="w-[46%] flex gap-2 text-[12px]"
         style={{ width: "100%" }}
       >
         <span className="text-c2 ">
@@ -115,7 +113,8 @@ export default function GameList({ title, className, games }) {
   const { scrollY } = useScroll();
   const header = useRef(null);
   const pos = useRef(null);
-  let mgames = games ? games.slice(0, 5) : Array(5).fill(false);
+  let mgames = games ? games.slice(4, 9) : Array(5).fill(false);
+  // let mgames = Array(5).fill(false);
 
   let listOne = [
     {
@@ -169,14 +168,13 @@ export default function GameList({ title, className, games }) {
 
   useEffect(() => {
     pos.current = header.current.offsetTop;
-    console.dir(header.current);
   }, []);
 
   return (
     <>
       <header
         ref={header}
-        className={`flex mb-px z-20 sticky w-full -top-[1px] flex-col bg-c4 pb-2 pt-6`}
+        className={`flex mb-px z-20 sticky w-full -top-[1px] flex-col dark:bg-c4 bg-white pb-2 pt-6`}
       >
         <span className=" text-lg gap-3 flex items-center pl-5">
           <span className="">{title}</span>{" "}
@@ -201,15 +199,9 @@ export default function GameList({ title, className, games }) {
         className={`flex flex-col mb-2 relative items-center w-full gap-[1px] ${className}`}
       >
         {mgames.map((game, key) => (
-          <Game
-            key={key}
-            index={key}
-            game={games ? game : false}
-            last={4 === key}
-            mkt={mkt}
-          ></Game>
+          <Game key={key} game={game} mkt={mkt} />
         ))}
-        {title === "Live" && games && (
+        {title === "Live" && (
           <motion.button
             whileTap={{ opacity: 0.3 }}
             className="absolute bottom-0 bg-c2/5 text-[12px] pt-0.5 pb-1 rounded-t-xl px-3.5 text-c2"

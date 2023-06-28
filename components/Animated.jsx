@@ -53,6 +53,7 @@ export const Pagged = ({
   exit,
   transition,
   onClick,
+  layout = false,
   onSubmit,
   tag = "div",
 }) => {
@@ -70,11 +71,77 @@ export const Pagged = ({
           transition={transition}
           onClick={onClick}
           onSubmit={onSubmit}
+          layout={layout}
         >
           {children}
         </Element>
       )}
     </AnimatePresence>
+  );
+};
+
+export const BlurredModal = ({
+  children,
+  onClick,
+  variants,
+  className,
+  iClass,
+  state,
+  type,
+}) => {
+  const variant = {
+    init2: { opacity: 0 },
+    show2: { opacity: 1 },
+    exit2: { opacity: 0 },
+  };
+
+  let childVariants = {
+    init2: { ...(variants?.init || { opacity: 0 }) },
+    show2: {
+      ...(variants?.show || { opacity: 1 }),
+      transition: { ease: "anticipate" },
+    },
+    exit2: {
+      ...(variants?.exit || { opacity: 0 }),
+      transition: { ease: "easeInOut" },
+    },
+  };
+
+  return (
+    <Animated
+      variantKey="2"
+      state={state}
+      variants={variant}
+      className={`fixed inset-0 ${
+        variants ? "backdrop-blur-md" : "backdrop-blur-xl"
+      } ${className}`}
+      onClick={onClick}
+    >
+      {type === "allChidren" ? (
+        <>
+          {children.map((child, key) => (
+            <motion.div
+              key={key}
+              variants={childVariants}
+              className={iClass[key]}
+            >
+              {child}
+            </motion.div>
+          ))}
+        </>
+      ) : (
+        <>
+          <motion.div
+            layout
+            variants={childVariants}
+            className={"absolute inset-x-0 " + iClass}
+          >
+            {children?.length ? children[0] : children}
+          </motion.div>
+          {children?.length && children[1]}
+        </>
+      )}
+    </Animated>
   );
 };
 

@@ -127,18 +127,13 @@ const BetSlip = ({ v }) => {
 };
 
 const returnDate = () => {
-  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   let dateArr = [];
-  let today = "";
-
   for (let i = -7; i < 11; i++) {
-    let { day, month, year } = getDate(i);
-    let date = new Date(`${year}-${month}-${day}`);
-    dateArr.push(`${days[date.getDay()]} ${day}`);
-    if (i === 0) today = day;
+    let { day, weekDay } = getDate(i);
+    dateArr.push(`${weekDay.slice(0, 3)} ${day}`);
   }
 
-  return [dateArr, today];
+  return [dateArr, getDate().day];
 };
 
 function Index() {
