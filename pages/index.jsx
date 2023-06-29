@@ -50,10 +50,6 @@ export default function Home() {
 
   return (
     <>
-      <div className=" h-11 flex w-full dark:gap-2 gap-0 mb-2 justify-between">
-        <span className="dark:bg-c4 dark:shadow-none shadow-[0px_2px_2px_1px] shadow-black/10 h-full w-[30%] flex-1 rounded-b-2xl"></span>
-        <span className="dark:bg-c4 dark:shadow-none shadow-[0px_2px_2px_1px] relative aft after:bg-white dark:after:h-0 dark:after:w-0 after:h-8 after:w-5 after:-translate-x-[50%] shadow-black/10 h-full flex-[2] rounded-b-2xl"></span>
-      </div>
       <Slider games={mgames} />
       {array.map((title, key) => (
         <GameList key={key} title={title} games={mgames} />

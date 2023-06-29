@@ -46,7 +46,7 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed bottom-0 z-[22] flex justify-center px-4 rounded-t-[60px] inset-x-4 pt-2.5 bg-black text-white">
+      <div className="fixed px-[5vh] bottom-0 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[22] flex justify-center rounded-t-[60px] inset-x-4 pt-2.5 bg-black text-white">
         {links.map((link, key) => (
           <motion.button
             key={key}
@@ -55,17 +55,21 @@ export default function Tab() {
           >
             <Link
               href={link.path}
-              className={`fx h-full w-full ${key ? "pb-5" : "pb-[22px]"}`}
+              className={`flex justify-center ${
+                key === 1 && "md:mt-2"
+              } items-center h-full w-full md:pb-3 md:items-end ${
+                key ? "pb-5" : "pb-[22px]"
+              }`}
             >
               <Svg icon={link.iconProps}>{link.svgPath}</Svg>
-              <span className="dark:text-[10px] text-[11px] absolute bottom-2">
+              <span className="dark:text-[10px] md:hidden text-[11px] absolute bottom-2">
                 {link.text}
               </span>
             </Link>
             {pathName.split("/")[1] === link.path.slice(1) && (
               <motion.div
                 layoutId="underline"
-                className=" dark:from-c1 dark:to-c2 dark:bg-gradient-to-r bg-c2 h-2 absolute bottom-0 w-[70%] blur-md"
+                className=" dark:from-c1 dark:to-c2 dark:bg-gradient-to-r bg-c2 h-2 absolute bottom-0 w-[70%] md:w-[30%] blur-md md:blur-none md:rounded-t-2xl md:h-1"
               />
             )}
           </motion.button>
@@ -79,9 +83,15 @@ export default function Tab() {
   );
 }
 
-const Svg = ({ children, type = true, icon }) => {
+const Svg = ({ children, icon, className }) => {
   return (
-    <svg width={icon[0]} height={icon[0]} viewBox={icon[1]} version="1.1">
+    <svg
+      className={className}
+      width={icon[0]}
+      height={icon[0]}
+      viewBox={icon[1]}
+      version="1.1"
+    >
       <g className={"fill-c2"}>{children}</g>
     </svg>
   );

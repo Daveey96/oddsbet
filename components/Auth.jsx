@@ -127,9 +127,9 @@ export default function Auth() {
     <BlurredModal
       state={backdrop}
       type={"allChidren"}
-      className="flex flex-col z-[35] items-center"
+      className="flex text-sm flex-col z-[35] items-center"
       iClass={[
-        "text-white/20 mt-[60px] text-sm border-t-[0.5px] border-white/50 px-10 pt-2 mb-4",
+        "text-white/20 mt-[60px] text-sm border-t-[0.5px] border-c1/50 px-10 pt-2 mb-4",
         "relative max-w-[480px] w-full mt-3 fx",
       ]}
     >

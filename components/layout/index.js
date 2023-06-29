@@ -43,12 +43,20 @@ export default function Layout({ children }) {
         <Nav />
         <Auth />
         <Prompt />
-        <main className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
-          <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
-            {children}
+        <main className="flex px-7 text-sm gap-3 bg-white dark:bg-black text-black dark:text-white">
+          <aside className="bg-c4 rounded-2xl sticky top-12 h-[calc(100vh_-_60px)] flex-1">
+            me
+          </aside>{" "}
+          <div className="flex flex-col w-1/2">
+            <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
+              {children}
+            </div>
+            <GameAnalysis />
+            <Footer />
           </div>
-          <GameAnalysis />
-          <Footer />
+          <aside className="bg-c4 rounded-2xl sticky top-12 h-[calc(100vh_-_60px)] flex-1">
+            me
+          </aside>
         </main>
         <Overlay />
         <Tab />

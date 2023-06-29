@@ -70,7 +70,7 @@ function Nav() {
     <>
       <Animated
         tag="nav"
-        className={`flex z-50 h-10 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
+        className={`flex text-sm z-50 h-9 md:h-12 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
           alert ? "opacity-10" : "opacity-100"
         }`}
         variants={{
@@ -83,10 +83,10 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className={`px-2 z-10 overflow-hidden h-full duration-200 pt-0.5 rounded-b-2xl backdrop-blur-xl `}
+          className="pl-2 pr-1 justify-center flex relative aft after:h-2 after:bottom-0 after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-xl z-10 overflow-hidden h-full duration-200 pt-0.5 md:pt-2 md:rounded-none rounded-b-2xl backdrop-blur-xl"
         >
           <Image
-            width={80}
+            width={85}
             height={20}
             priority
             src={"/logo.svg"}
@@ -94,17 +94,13 @@ function Nav() {
           />
         </Link>
         {user && (
-          <button
-            className={
-              "fx gap-1 px-7 text-green-600 rounded-b-2xl z-30 bg-black h-full"
-            }
-          >
+          <button className="fx gap-1 px-7 text-green-600 rounded-b-2xl z-30 bg-black h-full">
             <Naira /> <span>{user.balance}</span>
           </button>
         )}
         {user === undefined && (
           <button
-            className={"fx gap-1 px-7 rounded-b-2xl z-30 bg-black h-full"}
+            className={"fx gap-1 pb-1 px-7 rounded-b-2xl z-30 bg-black h-full"}
             onClick={() => setBackdrop(!backdrop)}
           >
             {backdrop ? (

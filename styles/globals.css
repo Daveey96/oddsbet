@@ -7,6 +7,13 @@ body {
   scroll-behavior: smooth;
   background-color: black;
 }
+body::-webkit-scrollbar {
+  width: 10px;
+}
+body::-webkit-scrollbar-thumb {
+  background-color: aqua;
+  border-radius: 50px 0 0 50px;
+}
 *,
 * > * {
   font-family: "Comic Neue", system-ui, -apple-system, BlinkMacSystemFont,

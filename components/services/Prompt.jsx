@@ -35,7 +35,7 @@ export default function Prompt() {
   return (
     <div
       onClick={promptService.clear}
-      className="fixed inset-0 fx backdrop-blur-lg bg-black/60 z-50 fx w-full"
+      className="fixed text-sm inset-0 fx backdrop-blur-lg bg-black/60 z-[55] fx w-full"
     >
       <motion.div
         onClick={(e) => e.stopPropagation()}

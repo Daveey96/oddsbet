@@ -7,7 +7,7 @@ export default function App({ Component, pageProps }) {
     <>
       <Head>
         <title>Odds Bet</title>
-        <link rel="shortcut icon" href="/favicon.ico"></link>
+        <link rel="shortcut icon" href="/favicon.svg"></link>
       </Head>
       <Layout>
         <Component {...pageProps} />
