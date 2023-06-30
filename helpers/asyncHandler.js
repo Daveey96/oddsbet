@@ -6,8 +6,8 @@ const clientAsync = (fn) =>
     return false;
   });
 
-const serverAsync = (res, fn) =>
-  fn().catch(async (err) => {
+const serverAsync = (req, res, fn, id) =>
+  fn(req, res, id).catch(async (err) => {
     res.status(400).json({ message: err.message });
   });
 

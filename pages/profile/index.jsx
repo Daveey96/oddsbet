@@ -271,17 +271,20 @@ function Index() {
   );
 }
 
-export const PayTemplate = ({ v, children }) => (
-  <div className="min-h-screen">
-    <Link
-      href={"/profile"}
-      className="flex gap-3 text-lg bg-c4 items-center py-4"
-    >
-      <BiLeftArrowAlt className="text-c2 border-c1 ml-6 border-2 rounded-full" />
-      {v}
-    </Link>
-    {children}
-  </div>
-);
+export const PayTemplate = ({ v, children }) => {
+  let { back } = useRouter();
+  return (
+    <div className="min-h-screen">
+      <header
+        onClick={back}
+        className="flex gap-3 text-lg bg-c4 items-center py-4"
+      >
+        <BiLeftArrowAlt className="text-c2 border-c1 ml-6 border-2 rounded-full" />
+        {v}
+      </header>
+      {children}
+    </div>
+  );
+};
 
 export default Index;

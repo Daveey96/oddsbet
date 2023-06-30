@@ -38,18 +38,21 @@ function Slider({ games }) {
 
   return (
     <>
-      <ul className="mt-10 px-2 mb-2 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-3 w-full">
-        <li className="px-3 fx gap-0.5 py-1.5 bg-c4 rounded-t-2xl rounded-b-lg">
-          <BiFootball className="text-c2 mt-0.5" /> Uefa Nations League
-        </li>
-        <li className="px-3 fx gap-0.5 py-1.5 bg-c4 rounded-t-2xl rounded-b-lg">
-          <BiFootball className="text-c2 mt-0.5" />
-          La liga
-        </li>
-        <li className="px-3 fx gap-0.5 py-1.5 bg-c4 rounded-t-2xl rounded-b-lg">
-          <BiTennisBall className="text-c2 mt-0.5" />
-          Tennis
-        </li>
+      <ul className="mt-12 px-2 mb-2 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-3 w-full">
+        {["Uefa Nations League", "La liga", "Tennis"].map((item, key) => {
+          return (
+            <SkeletonLoad
+              state={mounted}
+              key={key}
+              iClass={"w-24"}
+              tag="li"
+              className="px-3 fx gap-0.5 py-1.5 bg-c4 rounded-t-2xl rounded-b-lg"
+            >
+              <BiFootball className="text-c2 mt-0.5" />
+              {item}
+            </SkeletonLoad>
+          );
+        })}
       </ul>
       <div
         ref={sliderRef}

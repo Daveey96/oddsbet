@@ -37,6 +37,10 @@ export const CircularLoader = ({ size = 14, className, depth = 4 }) => {
   );
 };
 
+export const CircularLoader2 = () => (
+  <span className="loader2 inline-block relative w-12 h-12 border-[3px] after:border-solid after:border-[3px] before:border-solid before:border-[3px] border-solid bef aft before:m-auto after:m-auto before:w-8 before:h-8 after:h-10 after:w-10 after:inset-0 before:inset-0 before:rounded-inh after:rounded-inh after:origin-center before:origin-center rounded-[50%] "></span>
+);
+
 export const SkeletonLoad = ({
   className = "",
   ngClass = "",

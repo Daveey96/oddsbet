@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
-import Auth from "../Auth";
 import Image from "next/image";
 import Link from "next/link";
 import Animated from "../Animated";
@@ -9,11 +8,12 @@ import { BiArrowToLeft } from "react-icons/bi";
 import { Context } from ".";
 import Alert from "../services/Alert";
 
-export const Naira = () => (
+export const Naira = (className) => (
   <svg
     fill="currentColor"
-    width="15px"
-    height="15px"
+    width="12px"
+    height="12px"
+    className={className}
     viewBox="0 0 496.262 496.262"
   >
     <path
@@ -83,20 +83,34 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className="pl-2 pr-1 justify-center flex relative aft after:h-2 after:bottom-0 after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-xl z-10 overflow-hidden h-full duration-200 pt-0.5 md:pt-2 md:rounded-none rounded-b-2xl backdrop-blur-xl"
+          className="justify-center px-2 md:px-0 flex md:ml-10 relative aft after:h-0 after:w-0 md:after:h-2 after:bottom-0 md:after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-lg z-10 h-full duration-200 md:pt-2 md:rounded-none rounded-b-2xl backdrop-blur-xl"
         >
           <Image
-            width={85}
-            height={20}
+            width={75}
+            height={10}
             priority
+            className="scale-75"
             src={"/logo.svg"}
             alt="Oddsbet logo"
           />
         </Link>
         {user && (
-          <button className="fx gap-1 px-7 text-green-600 rounded-b-2xl z-30 bg-black h-full">
-            <Naira /> <span>{user.balance}</span>
-          </button>
+          <span
+            className={`fx gap-1 relative text-base px-7 rounded-b-2xl z-30 bg-black h-full" ${
+              user.balance < 100 ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            <Naira />
+            <span>{user.balance.toFixed(2)}</span>
+            {user.balance < 100 && (
+              <Link
+                href={"/profile/deposit"}
+                className="from-c2 active:opacity-20 to-c1 bg-gradient-to-br rounded-r-full rounded-l-[6000px] px-5 text-sm text-white absolute right-[95%] py-0.5"
+              >
+                deposit
+              </Link>
+            )}
+          </span>
         )}
         {user === undefined && (
           <button
