@@ -101,7 +101,7 @@ function Slider({ games }) {
                   <span className="text-green-600 text-sm px-2 mb-1 rounded-r-xl bg-green-700/10">
                     Live
                   </span>
-                  <span iClass="px-5 scale-y-50" className="text-center">
+                  <span className="text-center">
                     {g.minute + "' " + g.seconds + "'"}
                   </span>
                 </span>

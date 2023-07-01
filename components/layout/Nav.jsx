@@ -83,13 +83,13 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className="justify-center px-2 md:px-0 flex md:ml-10 relative aft after:h-0 after:w-0 md:after:h-2 after:bottom-0 md:after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-lg z-10 h-full duration-200 md:pt-2 md:rounded-none rounded-b-2xl backdrop-blur-xl"
+          className="justify-center h-9 px-2 md:px-0 flex md:ml-10 relative aft after:h-0 after:w-0 md:after:h-2 after:bottom-0 md:after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-lg z-10 duration-200 md:pt-3.5 md:rounded-none rounded-b-2xl backdrop-blur-xl"
         >
           <Image
             width={75}
             height={10}
             priority
-            className="scale-75"
+            className="scale-75 md:scale-110"
             src={"/logo.svg"}
             alt="Oddsbet logo"
           />

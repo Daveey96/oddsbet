@@ -46,7 +46,6 @@ export const SkeletonLoad = ({
   ngClass = "",
   iClass = "",
   children,
-  vertical = undefined,
   state = false,
   style,
   tag = "span",
@@ -66,13 +65,10 @@ export const SkeletonLoad = ({
         </>
       ) : (
         <span
-          className={`text-white/0 overflow-hidden rounded-md ${
+          className={`text-white/0 before:content-["load"] fade aft after:translate-x-[-200%] overflow-hidden rounded-md after:left-0 after:top-0 after:h-full after:w-4/5 after:from-transparent after:via-white/5 after:to-transparent after:bg-gradient-to-r ${
             className.includes("absolute") ? "absolute" : "relative"
           } ${className} ${iClass} ${!transparent && "bg-slate-600/20"}`}
-        >
-          <span className="absolute fade translate-x-[-200%] left-0 top-0 h-full w-4/5 from-transparent via-white/5 to-transparent bg-gradient-to-r"></span>
-          |
-        </span>
+        ></span>
       )}
     </>
   );
