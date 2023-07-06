@@ -74,6 +74,7 @@ export const BetListButton = ({ toggle, setToggle }) => {
               exit="exit"
               onClick={() => setToggle(true)}
               whileTap={{ scale: 1.1 }}
+              style={{ x: "-50%", left: "50%" }}
               className={`absolute fx rounded-xl z-20 ${
                 key
                   ? "h-[5px] w-12 bottom-[105%]"
@@ -174,7 +175,7 @@ const BetGame = ({ v, index, deleteGame }) => {
 
 export default function BetList({ toggle, setToggle }) {
   const { betList, setBetList } = useContext(Context);
-  const [placeBet, setPlaceBet] = useState(true);
+  const [placeBet, setPlaceBet] = useState(false);
   const [successful, setSuccessful] = useState("");
   const [buttonText, setbuttonText] = useState("Place bet?");
 

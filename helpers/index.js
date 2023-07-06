@@ -11,7 +11,7 @@ export const condition = (v, values, output) => {
   }
 };
 
-export const getDate = (d = 0, type) => {
+export const getDate = (d = 0) => {
   let [month, day, year] = new Date().toLocaleDateString().split("/");
   let months = [
     31,
@@ -37,7 +37,20 @@ export const getDate = (d = 0, type) => {
     "Saturday",
   ];
 
-  if (!d) return { day, month, year, weekDay: weekDays[new Date().getDay()] };
+  const normalize = (value) => {
+    let g = value.toString();
+    if (g.length === 1) g = "0" + g;
+    return g;
+  };
+
+  if (!d)
+    return {
+      day,
+      month,
+      year,
+      weekDay: weekDays[new Date().getDay()],
+      isoString: new Date().toISOString().split("T")[0],
+    };
   let m = parseInt(month - 1);
   let r = parseInt(day) + d;
 
@@ -54,5 +67,11 @@ export const getDate = (d = 0, type) => {
   }
 
   let weekDay = new Date(`${year}-${m + 1}-${r}`).getDay();
-  return { day: r, month: m + 1, year, weekDay: weekDays[weekDay] };
+  return {
+    day: r,
+    month: m + 1,
+    year,
+    weekDay: weekDays[weekDay],
+    isoString: `${year}-${normalize(m + 1)}-${normalize(r)}`,
+  };
 };

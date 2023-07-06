@@ -1,5 +1,5 @@
-import { cookies } from "./cookies";
 import Joi from "joi";
+import { cookies } from "./cookies";
 
 export const isLoggedIn = (req, res, fn, fn2 = undefined) => {
   let id = cookies.getCookie(req, res, "__sid");
@@ -8,7 +8,7 @@ export const isLoggedIn = (req, res, fn, fn2 = undefined) => {
   res.status(400).json({ message: "You're not logged in" });
 };
 
-export const joiSchema = (data, params = "email") => {
+export const joiValidate = (data, params = "email") => {
   let newObject = {};
   const objects = {
     email: Joi.string().email().min(12).lowercase().required(),

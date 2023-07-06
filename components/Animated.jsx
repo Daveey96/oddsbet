@@ -40,43 +40,28 @@ const Animated = ({
   );
 };
 
-export const Pagged = ({
-  state,
+export const Page = ({
   className,
   style,
   children,
   variants,
-  variantKey = "",
-  mode = "sync",
-  init,
-  show,
-  exit,
   transition,
   onClick,
-  layout = false,
-  onSubmit,
   tag = "div",
 }) => {
   let Element = motion[tag];
   return (
-    <AnimatePresence mode={mode}>
-      {state && (
-        <Element
-          style={style}
-          className={className}
-          variants={variants}
-          initial={variants ? `init${variantKey}` : init}
-          animate={variants ? `show${variantKey}` : show}
-          exit={variants ? `exit${variantKey}` : exit || init}
-          transition={transition}
-          onClick={onClick}
-          onSubmit={onSubmit}
-          layout={layout}
-        >
-          {children}
-        </Element>
-      )}
-    </AnimatePresence>
+    <Element
+      style={style}
+      initial={variants.init}
+      animate={variants.show}
+      exit={variants.exit}
+      transition={transition}
+      onClick={onClick}
+      className={"absolute " + className}
+    >
+      {children}
+    </Element>
   );
 };
 

@@ -1,24 +1,22 @@
 import React, { useState, useEffect, useContext, useMemo, useRef } from "react";
-import * as Bi from "react-icons/bi";
-import * as Bs from "react-icons/bs";
+import Retry from "./services/Retry";
 import { AnimatePresence, motion } from "framer-motion";
 import { alertService, userService } from "@/services";
-import Animated, { BlurredModal } from "./Animated";
 import { Context } from "./layout";
 import { condition } from "@/helpers";
-import Retry from "./services/Retry";
+import { FaChevronLeft } from "react-icons/fa";
 import { CircularLoader, DotLoader } from "./services/Loaders";
+import { BiEnvelope, BiLockOpenAlt, BiXCircle } from "react-icons/bi";
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 
 export default function Auth() {
   const { setUser } = useContext(Context);
   const { backdrop, setBackdrop } = useContext(Context);
 
+  const [currentStage, setCurrentStage] = useState(null);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const [currentStage, setCurrentStage] = useState(null);
-  const [loading, setLoading] = useState(null);
-
   const [disabled, setDisabled] = useState(true);
   const [emailD, setEmailD] = useState(false);
   const [buttonText, setbuttonText] = useState("verify");
@@ -32,17 +30,14 @@ export default function Auth() {
       setbuttonText("verifying");
 
       const data = await userService.checkEmail({ email });
-      // const data = { message: "Mail sent!" };
 
       if (data) {
-        if (data.userRegistered) {
-          setCurrentStage(3);
-          setbuttonText("Submit");
-        } else {
+        setbuttonText("Submit");
+        setDisabled(true);
+        if (data.userRegistered) setCurrentStage(3);
+        else {
           alertService.success(data.message);
-          setTimeout(() => {
-            setCurrentStage(1);
-          }, 500);
+          setCurrentStage(1);
         }
       } else {
         setEmailD(false);
@@ -50,21 +45,16 @@ export default function Auth() {
         setbuttonText("verify");
       }
     } else if (currentStage === 1) {
-      setLoading("loading");
-
       const data = await userService.verifyEmail({ email, token: e });
-      // const data = { message: "verified!" };
 
       if (data) {
         alertService.success(data.message);
-        setLoading("success");
-        setbuttonText("Submit");
         setTimeout(() => {
           setCurrentStage(2);
         }, 500);
-      } else {
-        setLoading("error");
+        return true;
       }
+      return false;
     } else if (currentStage > 1) {
       setbuttonText("Submitting");
       setDisabled(true);
@@ -73,16 +63,11 @@ export default function Auth() {
         currentStage === 2
           ? await userService.signup({ email, password })
           : await userService.signin({ email, password });
-      // const data = { message: `Welcome ${email}`, user: {balance: 0, email} };
 
       if (data) {
         alertService.success(data.message);
-        setTimeout(() => {
-          setUser(data.user);
-          setBackdrop(false);
-          setbuttonText("Submit");
-          setDisabled(false);
-        }, 500);
+        setUser(data.user);
+        setBackdrop(false);
       } else {
         setbuttonText("Submit");
         setDisabled(false);
@@ -93,114 +78,124 @@ export default function Auth() {
   const getCurrentStage = async () => {
     setCurrentStage("loading");
     let data = await userService.getStage();
-    // let data = false;
 
     if (data) {
       setCurrentStage(data.stage);
-      if (data.email && data.email !== email) setEmail(data.email);
+      data.email && setEmail(data.email);
     } else {
       setCurrentStage("error");
     }
   };
 
+  const changeMail = async () => {
+    let data = await userService.changeMail();
+
+    if (data) {
+      setCurrentStage(0);
+      setbuttonText("verify");
+      setEmailD(false);
+      setDisabled(false);
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
     setTimeout(() => {
-      currentStage === null && getCurrentStage();
-    }, 2000);
+      backdrop && getCurrentStage();
+    }, 1000);
+  }, [backdrop]);
 
-    if (currentStage > 1) {
-      currentStage === 2 && setEmailD(true);
-      setbuttonText("Submit");
-    }
-  }, [currentStage]);
+  const validate = (v, type) => {
+    type ? setEmail(v) : setPassword(v);
 
-  useEffect(() => {
-    if (currentStage === 0) {
-      email.match("@gmail.com") ? setDisabled(false) : setDisabled(true);
-    }
-    if (currentStage > 1) {
-      password.length > 6 ? setDisabled(false) : setDisabled(true);
-    }
-  }, [email, password, currentStage]);
+    if (currentStage === 0 && type)
+      v.match("@gmail.com") ? setDisabled(false) : setDisabled(true);
+
+    if (currentStage > 1 && !type)
+      v.length > 6 ? setDisabled(false) : setDisabled(true);
+  };
 
   return (
-    <BlurredModal
-      state={backdrop}
-      type={"allChidren"}
-      className="flex text-sm flex-col z-[35] items-center"
-      iClass={[
-        "text-white/20 mt-[60px] text-sm border-t-[0.5px] border-c1/50 px-10 pt-2 mb-4",
-        "relative max-w-[480px] w-full mt-3 fx",
-      ]}
+    <Retry
+      state={currentStage}
+      loading={
+        <span className="mt-12 fx gap-3">
+          <CircularLoader size={18} /> fetching forms
+        </span>
+      }
+      error={
+        <span className="fx flex-col mt-2 gap-3">
+          <BiXCircle className="text-4xl opacity-25" />
+          <span>Something went wrong</span>
+          <button
+            className="relative px-4 py-1.5 aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex text-c2"
+            onClick={getCurrentStage}
+          >
+            Retry
+          </button>
+        </span>
+      }
     >
-      <>Signup / Signin to Oddsbet</>
-      <>
-        <Retry
-          state={currentStage}
-          loading={
-            <span className="mt-12 fx gap-3">
-              <CircularLoader size={18} /> fetching forms
-            </span>
-          }
-          error={
-            <span className="fx flex-col mt-2 gap-3">
-              <Bi.BiWifiOff className="text-6xl opacity-25" />
-              Network Error
-              <button
-                className="relative px-5 py-2 aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-0.5 before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex text-c2"
-                onClick={getCurrentStage}
-              >
-                try again
-              </button>
-            </span>
-          }
-        >
-          <AnimatePresence mode="popLayout">
-            {currentStage !== 1 ? (
-              <motion.form
-                onSubmit={handleSubmit}
-                initial={{ x: "-100%" }}
-                animate={{ x: "0%" }}
-                exit={{ x: "-100%" }}
-                transition={{ duration: 0.3 }}
-                key={239283736}
-                className="flex absolute top-0 w-full px-4 flex-col gap-1 mx- items-center"
-              >
-                <Input
-                  value={email}
-                  disabled={emailD}
-                  setValue={(v) => setEmail(v)}
-                />
-                {currentStage > 1 && (
-                  <Input value={password} setValue={(v) => setPassword(v)} v />
-                )}
-                <button
-                  disabled={disabled}
-                  className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-14"
-                >
-                  {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
-                </button>
-              </motion.form>
-            ) : (
-              <Token
-                key={827382837826}
-                email={email}
-                loading={loading}
-                handleSubmit={handleSubmit}
-              />
+      <AnimatePresence mode="popLayout">
+        {currentStage !== 1 ? (
+          <motion.form
+            onSubmit={handleSubmit}
+            initial={{ x: "-100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: "-100%" }}
+            transition={{ duration: 0.3 }}
+            key={239283736}
+            className="flex absolute top-0 w-full px-4 flex-col gap-1 mx- items-start"
+          >
+            <Input
+              value={email}
+              disabled={emailD}
+              setValue={(v) => validate(v, true)}
+              setD={(v) => setDisabled(v)}
+              setED={(v) => setEmailD(v)}
+              currentStage={currentStage}
+              changeMail={changeMail}
+            />
+            {currentStage > 1 && (
+              <Input value={password} setValue={validate} v />
             )}
-          </AnimatePresence>
-        </Retry>
-      </>
-    </BlurredModal>
+            {currentStage === 3 && (
+              <button
+                onClick={(e) => e.preventDefault()}
+                className="bg-c2/5 -mt-3 text-sm text-c2 px-3 rounded-r-xl rounded-bl-xl rounded-tl-sm pt-1 pb-1 mb-3"
+              >
+                forgot password?
+              </button>
+            )}
+            <button
+              disabled={disabled}
+              className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-14"
+            >
+              {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
+            </button>
+          </motion.form>
+        ) : (
+          <Token
+            key={parseInt(Math.random() * 10000000)}
+            handleSubmit={handleSubmit}
+            email={email}
+            changeMail={changeMail}
+          />
+        )}
+      </AnimatePresence>
+    </Retry>
   );
 }
 
-function Token({ email, handleSubmit, loading }) {
+function Token({ email, handleSubmit, changeMail }) {
   const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(null);
+  const [buttonText, setbuttonText] = useState("resend code");
+
   const tokenArray = useMemo(convertToken, [token]);
-  let input = useRef(null);
-  let color = condition(
+  const input = useRef(null);
+  const color = condition(
     loading,
     ["success", "error", "*"],
     [
@@ -209,7 +204,6 @@ function Token({ email, handleSubmit, loading }) {
       ["border-gray-600", "border-gray-600/20"],
     ]
   );
-  const [buttonText, setbuttonText] = useState("resend code");
 
   function convertToken() {
     let tokenArr = [];
@@ -223,23 +217,34 @@ function Token({ email, handleSubmit, loading }) {
 
   const resend = async () => {
     setbuttonText("sending");
-    // const data = await userService.resendCode();
-    const data = { message: "Mail sent!" };
+    const data = await userService.resendCode();
 
     if (data) {
-      setTimeout(() => {
-        alertService.success(data.message);
-        setbuttonText("60s");
-      }, 2000);
+      alertService.success(data.message);
+      setbuttonText("60s");
+    } else {
+      setbuttonText("resend code");
     }
   };
 
   useEffect(() => {
     input.current.focus();
-  }, []);
+  }, [email]);
 
   useEffect(() => {
-    if (token.length === 4) handleSubmit(token);
+    const submitToken = async () => {
+      setLoading("loading");
+      const response = await handleSubmit(token);
+      if (response) return setLoading("success");
+      setLoading("error");
+      setToken("");
+      setTimeout(() => {
+        input.current.focus();
+      }, 4000);
+    };
+
+    token.length === 4 && submitToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -252,15 +257,6 @@ function Token({ email, handleSubmit, loading }) {
     }
   }, [buttonText]);
 
-  useEffect(() => {
-    if (loading === "error") {
-      setToken("");
-      setTimeout(() => {
-        input.current.focus();
-      }, 2000);
-    }
-  }, [loading]);
-
   return (
     <motion.div
       initial={{ x: "100%" }}
@@ -271,10 +267,15 @@ function Token({ email, handleSubmit, loading }) {
     >
       <h2
         className={`${
-          loading === "loading" ? "opacity-20" : "opacity-80"
-        }  whitespace-nowrap text-center overflow-hidden text-ellipsis w-[90%]`}
+          loading === "loading" && "opacity-20"
+        } flex whitespace-nowrap items-center`}
       >
-        Enter otp sent to {email}
+        Enter otp sent to
+        <span className="text-c2 ml-1 rounded-lg fx bg-c2/5 py-1 flex-1">
+          <span className="w-[90%] whitespace-nowrap text-ellipsis overflow-hidden">
+            {email}
+          </span>
+        </span>
       </h2>
       <div
         className={`${loading === "loading" && "opacity-30"} w-full flex gap-4`}
@@ -283,45 +284,40 @@ function Token({ email, handleSubmit, loading }) {
           <span
             key={key}
             className={`flex-1 text-2xl fx h-20 duration-150 border-4  rounded-md ${
-              parseInt(i) ? color[0] : color[1]
+              isNaN(parseInt(i)) ? color[1] : color[0]
             }`}
             onClick={() => input.current.focus()}
           >
-            {i === "|" ? (
-              <motion.span
-                animate={{
-                  opacity: [0.3, 0.7],
-                  transition: {
-                    repeat: Infinity,
-                    repeatType: "mirror",
-                    duration: 0.7,
-                  },
-                }}
-              >
-                {i}
-              </motion.span>
-            ) : (
-              i
-            )}
+            {i === "|" ? <span className="animate-pulse">{i}</span> : i}
           </span>
         ))}
       </div>
       <div
         className={`${
           loading === "loading" && "opacity-30"
-        } px-5 w-full flex justify-between`}
+        } w-full text-sm flex justify-center gap-2`}
       >
-        <button className="opacity-30">change email</button>
         <button
-          className="text-c2"
-          onClick={buttonText === "resend code" && resend}
+          onClick={changeMail}
+          className="px-4 bg-slate-500/5 fx gap-1 py-1.5 active:scale-90 duration-150 rounded-t-lg rounded-b-xl"
+        >
+          <FaChevronLeft className="text-sm opacity-25" /> change email
+        </button>
+        <button
+          className="text-c2 px-4 bg-c2/5 py-1.5 active:scale-90 duration-150 rounded-t-lg rounded-b-xl"
+          onClick={() => (buttonText === "resend code" ? resend() : {})}
         >
           {buttonText}
+          {buttonText.slice(-3) === "ing" && <DotLoader />}
         </button>
       </div>
       {loading === "loading" && (
-        <div className="absolute fx gap-2 bg-black rounded-lg pt-2 pb-2.5 px-5 mb-8 text-green-500">
-          <CircularLoader size={18} />
+        <div className="absolute fx bg-green-950 gap-2 rounded-lg pt-2 pb-2.5 px-5 mb-8">
+          <CircularLoader
+            size={15}
+            depth={3}
+            className={"border-t-green-500"}
+          />
           verifying
         </div>
       )}
@@ -332,45 +328,128 @@ function Token({ email, handleSubmit, loading }) {
         disabled={loading === "loading" || loading === "success" ? true : false}
         className="opacity-0"
         maxLength={4}
-        onChange={({ target }) => setToken(target.value)}
+        onChange={({ target }) =>
+          !isNaN(target.value) && setToken(target.value)
+        }
       />
     </motion.div>
   );
 }
 
-function Input({ v, disabled = false, value, setValue }) {
+function Input({
+  v,
+  currentStage,
+  disabled = false,
+  value,
+  setValue,
+  setD,
+  setED,
+  changeMail,
+}) {
   const [isVisible, setIsVisible] = useState(false);
+  const emailInput = useRef(null);
+  let email = "";
+
+  const change = () => {
+    email = value;
+    setED(false);
+    setD(true);
+
+    setTimeout(() => {
+      emailInput.current.focus();
+      emailInput.current.addEventListener("blur", async () => {
+        if (emailInput.current.value.match("@gmail.com")) {
+          if (email === emailInput.current.value) {
+            setED(true);
+            setD(false);
+          } else {
+            let success = await changeMail();
+            if (!success) {
+              setED(true);
+              setD(false);
+            }
+          }
+        } else {
+          setValue(email);
+          setED(true);
+        }
+      });
+    }, 500);
+  };
 
   return (
     <div
-      className={`h-14 w-full relative aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-0.5 before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex ${
+      className={`h-14 w-full relative aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-0.5 before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 items-center fx ${
         v ? "mt-8 mb-4" : "mt-7 mb-3"
-      } ${disabled && "opacity-50"}`}
+      } ${
+        disabled
+          ? "after:opacity-50 before:opacity-50 border-r-c2/50 border-l-c1/50"
+          : "border-r-c2 border-l-c1"
+      }`}
     >
-      <label className="ml-1 absolute bottom-[108%] left-0">
+      <label
+        className={`ml-1 absolute bottom-[108%] left-0 ${
+          disabled && "opacity-50"
+        }`}
+      >
         Your {v ? "Password" : "Email"}
       </label>
-      <label className="text-c1 text-xl absolute left-0 px-5 fx ">
-        {v ? <Bi.BiLockOpenAlt /> : <Bi.BiEnvelope />}
+      <label
+        className={`text-c1 text-xl absolute left-0 px-5 fx  ${
+          disabled && "opacity-50"
+        }`}
+      >
+        {v ? <BiLockOpenAlt /> : <BiEnvelope />}
       </label>
       <input
         type={v ? (isVisible ? "text" : "password") : "email"}
         disabled={disabled}
-        className="h-full w-full text-md pl-14 pr-2"
+        className={`h-full w-full text-md pl-14 pr-2 ${
+          disabled && "opacity-50"
+        }`}
+        ref={v ? null : emailInput}
         value={value}
         onChange={({ target }) => setValue(target.value)}
       />
-      {v && (
+      {!v && disabled && (
+        <button
+          onClick={change}
+          className="py-1.5 absolute right-2 active:scale-90 duration-150 px-3 mr-2 shadow bg-c2/5 text-c2 rounded-l-xl rounded-tr-xl rounded-br-sm"
+        >
+          change
+        </button>
+      )}
+      {!v && !disabled && currentStage > 0 && (
+        <span className="py-1.5 absolute right-2 active:scale-90 duration-150 px-3 mr-2 shadow bg-c2/5 text-c2 rounded-l-xl rounded-tr-xl rounded-br-sm">
+          done
+        </span>
+      )}
+      {v && value.length > 0 && (
         <button
           onClick={(e) => {
             e.preventDefault();
             setIsVisible(!isVisible);
           }}
-          className="text-xl absolute right-0 inset-y-0 w-14 pl-1"
+          className={`text-xl absolute right-0 inset-y-0 w-14 pl-1 ${
+            disabled && "opacity-50"
+          }`}
         >
-          {value.length > 0 ? isVisible ? <Bs.BsEye /> : <Bs.BsEyeSlash /> : ""}
+          {value.length > 0 ? isVisible ? <BsEye /> : <BsEyeSlash /> : ""}
         </button>
       )}
     </div>
   );
 }
+
+export const ForgotPassword = () => {
+  return (
+    <motion.div
+      initial={{ x: "-100%" }}
+      animate={{ x: "0%" }}
+      exit={{ x: "-100%" }}
+      transition={{ duration: 0.3 }}
+    >
+      <header>Password reset</header>
+    </motion.div>
+  );
+};

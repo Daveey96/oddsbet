@@ -1,11 +1,4 @@
-import {
-  ActiveBets,
-  Ticket,
-  User,
-  connectMongo,
-  cookies,
-  isLoggedIn,
-} from "@/database";
+import { Ticket, User, connectMongo, cookies, isLoggedIn } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import bcrypt from "bcryptjs";
 
@@ -34,44 +27,46 @@ const generateCode = () => {
   return code;
 };
 
-const placeBet = async (req, res, id) => {
-  const { slip, stake, odds } = req.body;
+const placeBet = async (req, res) => {
+  // const { slip, stake, odds } = req.body;
+  const { id } = req.body;
 
-  let activeBets = await ActiveBets.findOne({ userid: id });
+  let user = await User.findById(id);
 
-  if (activeBets) {
-    ticket.users.push({ stake, id });
+  res.json({ user });
+  // if (activeBets) {
+  //   ticket.users.push({ stake, id });
 
-    await ticket.save();
-    res.status(201).json({
-      newSlip: {
-        odds,
-        stake,
-        potWin: (parseFloat(odds) * parseFloat(stake)).toFixed(2),
-        code,
-      },
-      message: "bet submitted",
-    });
-  } else {
-    let user = await User.findById(id);
+  //   await ticket.save();
+  //   res.status(201).json({
+  //     newSlip: {
+  //       odds,
+  //       stake,
+  //       potWin: (parseFloat(odds) * parseFloat(stake)).toFixed(2),
+  //       code,
+  //     },
+  //     message: "bet submitted",
+  //   });
+  // } else {
+  //   let user = await User.findById(id);
 
-    let code = generateCode();
-    const newTicket = new Ticket({ code, slip });
-    await newTicket.save();
+  //   let code = generateCode();
+  //   const newTicket = new Ticket({ code, slip });
+  //   await newTicket.save();
 
-    // for (let i = 0; i < user.activeBets.length; i++) {
-    //   if (user.activeBets[i].id === ticket._id)
-    //     throw Error("You already have this ticket");
-    // }
+  //   // for (let i = 0; i < user.activeBets.length; i++) {
+  //   //   if (user.activeBets[i].id === ticket._id)
+  //   //     throw Error("You already have this ticket");
+  //   // }
 
-    user.activeBets.push({ code, odds, stake });
-    await user.save();
+  //   user.activeBets.push({ code, odds, stake });
+  //   await user.save();
 
-    res.status(201).json({
-      ticket: { odds, stake, code },
-      message: "bet submitted",
-    });
-  }
+  //   res.status(201).json({
+  //     ticket: { odds, stake, code },
+  //     message: "bet submitted",
+  //   });
+  // }
 };
 
 const getBets = async (req, res) => {

@@ -10,11 +10,7 @@ const userSchema = new Schema({
   balance: Number,
   token: String,
   currentStage: Number,
-});
-
-const activeBetsSchema = new Schema({
-  userid: { type: Schema.Types.ObjectId, ref: "User" },
-  active: [
+  activeBets: [
     {
       ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
       stake: String,
@@ -23,15 +19,16 @@ const activeBetsSchema = new Schema({
   ],
 });
 
-const ticketSchema = new Schema({
-  code: String,
-  slip: {
-    type: String,
-    required: true,
+const ticketSchema = new Schema(
+  {
+    code: String,
+    slip: {
+      type: String,
+      required: true,
+    },
   },
-});
+  { timestamps: true }
+);
 
 export const User = models?.User || model("User", userSchema);
-export const ActiveBets =
-  models?.ActiveBets || model("ActiveBets", activeBetsSchema);
 export const Ticket = models?.Ticket || model("Ticket", ticketSchema);

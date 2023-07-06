@@ -59,6 +59,18 @@ const getUser = () =>
     return data;
   });
 
+const changeMail = () =>
+  clientAsync(async () => {
+    const { data } = await axios.delete("/api/user/signup");
+    return data;
+  });
+
+const forgotPass = () =>
+  clientAsync(async () => {
+    const { data } = await axios.get("/api/user/signin");
+    return data;
+  });
+
 export const userService = {
   checkEmail,
   signup,
@@ -68,4 +80,6 @@ export const userService = {
   getStage,
   getUser,
   resendCode,
+  changeMail,
+  forgotPass,
 };

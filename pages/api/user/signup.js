@@ -1,4 +1,4 @@
-import { User, connectMongo, cookies, joiSchema } from "@/database";
+import { User, connectMongo, cookies, joiValidate } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
@@ -9,18 +9,7 @@ const generateToken = () => {
   return token;
 };
 
-const checkEmail = async (req, res) => {
-  const { email } = req.body;
-
-  const { error } = joiSchema({ email });
-  if (error) return res.json({ message: "Invalid request data" });
-
-  let user = await User.findOne({ email });
-  if (user?.currentStage === 3) res.json({ userRegistered: true });
-
-  let token = generateToken();
-  let hashedToken = bcrypt.hashSync(token, 10);
-
+const sendMail = async (email, token) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -28,16 +17,60 @@ const checkEmail = async (req, res) => {
       pass: process.env.MAIL_PASS,
     },
   });
-  await transporter
-    .sendMail({
+
+  try {
+    await transporter.sendMail({
       from: process.env.MAIL,
       to: email,
       subject: "Sign in to Oddssbet",
-      html: `<h3>Your verification code is ${token}</h3>`,
-    })
-    .catch(() => {
-      throw Error("Couldn't send mail");
+      html: `
+       <div
+          style="
+            margin: 50px auto 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 17px;
+            gap: 0.5rem;
+          "
+        >
+          <h3>Your verification code:</h3>
+          <span
+            style="
+              font-family: monospace;
+              font-size: 24px;
+              padding: 3px 14px 3px 14px;
+              background-color: #000000;
+              color: #fff;
+              border-radius: 7px;
+            "
+          >
+            ${token}
+          </span>
+        </div>
+      `,
     });
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+const checkEmail = async (req, res) => {
+  const { email } = req.body;
+
+  const { error } = joiValidate({ email });
+  if (error) throw Error("Invalid request data");
+
+  let user = await User.findOne({ email });
+  if (user?.currentStage === 3) return res.json({ userRegistered: true });
+
+  let token = generateToken();
+  let hashedToken = bcrypt.hashSync(token, 10);
+
+  // let mailSent = await sendMail(email, token);
+  // if (!mailSent) throw Error("Couldn't send mail");
+  console.log(token);
 
   let newUser = await User.create({
     email,
@@ -47,14 +80,14 @@ const checkEmail = async (req, res) => {
   });
 
   cookies.setCookie(req, res, "__sid", newUser._id, 1000 * 3600 * 24 * 30);
-  res.status(201).json({ message: "Mail sent" });
+  res.status(201).json({ message: "Mail sent", token });
 };
 
 const verifyToken = async (req, res) => {
   let { email, token } = req.body;
 
-  const { error } = joiSchema({ email, token }, "email token");
-  if (error) return res.json({ message: "Invalid request data" });
+  const { error } = joiValidate({ email, token }, "email token");
+  if (error) throw Error("Invalid request data");
 
   let user = await User.findOne({ email });
   if (!user) throw Error("Something went wrong!");
@@ -63,12 +96,11 @@ const verifyToken = async (req, res) => {
   if (!checkPass) throw Error("Code is incorrect!");
 
   user.token = "";
-  user.verified = true;
   user.currentStage = 2;
   await user.save();
 
   res.status(200).json({
-    message: "verified",
+    message: "Email verified",
     email: user.email,
   });
 };
@@ -76,12 +108,11 @@ const verifyToken = async (req, res) => {
 const signup = async (req, res) => {
   let { email, password } = req.body;
 
-  const { error } = joiSchema({ email, password }, "email password");
-  if (error) return res.json({ message: "Invalid request data" });
+  let { error } = joiValidate({ email, password }, "email password");
+  if (error) throw Error("Invalid request data");
 
   let user = await User.findOne({ email });
-  if (!user) throw Error("Email doesn't exist");
-  if (user.currentStage !== 2) throw Error("Unauthorized");
+  if (!user || user.currentStage !== 2) throw Error("Something went wrong");
 
   password = bcrypt.hashSync(password, 12);
   user.password = password;
@@ -121,41 +152,35 @@ const getStage = async (req, res) => {
 };
 
 const resendCode = async (req, res) => {
-  // let resend = await cookies.getCookie(req, res, "__sc");
-  // if (resend) throw Error("Something went wrong");
+  let id = cookies.getCookie(req, res, "__sid");
 
-  let email = await cookies.getCookie(req, res, "__mail");
-  let user = User.findOne({ email });
-  if (user.currentStage !== 1) throw Error("Something went wrong");
+  let user = await User.findById(id);
+  if (!user || user.currentStage !== 1) throw Error("Something went wrong");
 
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.MAIL,
-      pass: process.env.MAIL_PASS,
-    },
-  });
-  await transporter
-    .sendMail({
-      from: process.env.MAIL,
-      to: email,
-      subject: "Sign in to Oddssbet",
-      html: `<h3>Your verification code is ${token}</h3>`,
-    })
-    .catch(() => {
-      throw Error("Couldn't send mail");
-    });
+  // let mailSent = await sendMail(email, token);
+  // if (!mailSent) throw Error("Couldn't send mail");
+  console.log(token);
 
   user.token = hashedToken;
   await user.save();
 
-  cookies.setCookie(req, res, "__sc", "krfd4eh3d3i5fi49fuf", 55000);
-
   res.json({ message: "Mail resent!" });
 };
+
+const changeEmail = async (req, res) => {
+  const id = cookies.getCookie(req, res, "__sid");
+  if (id) {
+    cookies.setCookie(req, res, "__sid", id, 0);
+    await User.deleteOne({ _id: id });
+  }
+
+  res.json({ message: "changed" });
+};
+
+const forgotPassword = async (req, res) => {};
 
 export default async function handler(req, res) {
   const connect = await connectMongo(res);
@@ -180,4 +205,11 @@ export default async function handler(req, res) {
   // Getting Stage
   if (req.method === "GET" && req.headers?.type === "stage")
     return serverAsync(req, res, getStage);
+
+  // Finalise signup
+  if (req.method === "POST" && req.headers?.type === "forgotpassword")
+    return serverAsync(req, res, forgotPassword);
+
+  // Change Email
+  if (req.method === "DELETE") return serverAsync(req, res, changeEmail);
 }

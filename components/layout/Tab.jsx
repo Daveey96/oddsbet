@@ -37,42 +37,38 @@ export default function Tab() {
   ];
 
   useEffect(() => {
-    events.on("routeChangeStart", (url) =>
-      setTimeout(() => {
-        setPathName(url);
-      }, 500)
-    );
+    events.on("routeChangeStart", (url) => {
+      setPathName(url);
+    });
   }, [events]);
 
   return (
     <>
-      <div className="fixed px-[5vh] bottom-0 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[22] flex justify-center rounded-t-[60px] inset-x-4 pt-2.5 bg-black text-white">
+      <div className="fixed px-[15vw] md:px-[3vw] items-end bottom-0 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[22] flex justify-between md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none inset-x-4 pt-2.5 bg-black text-white">
         {links.map((link, key) => (
-          <motion.button
+          <Link
+            href={link.path}
             key={key}
-            whileTap={{ scale: 0.85 }}
-            className="z-10 flex-1 relative fx"
+            className={`flex items-end justify-center relative duration-200 active:scale-90 z-10 px-[2vw] h-9 md:h-7 md:pb-3 md:items-end `}
           >
-            <Link
-              href={link.path}
-              className={`flex justify-center ${
-                key === 1 && "md:mt-2"
-              } items-center h-full w-full md:pb-3 md:items-end ${
-                key ? "pb-5" : "pb-[22px]"
+            <Svg
+              className={`absolute md:scale-110 ${
+                key === 1 ? "-top-[3px] md:-top-[3.5px] " : "top-0"
               }`}
+              icon={link.iconProps}
             >
-              <Svg icon={link.iconProps}>{link.svgPath}</Svg>
-              <span className="dark:text-[10px] md:hidden text-[11px] absolute bottom-2">
-                {link.text}
-              </span>
-            </Link>
+              {link.svgPath}
+            </Svg>
+            <span className="dark:text-[10px] md:hidden text-[11px]">
+              {link.text}
+            </span>
             {pathName.split("/")[1] === link.path.slice(1) && (
               <motion.div
                 layoutId="underline"
-                className=" dark:from-c1 dark:to-c2 dark:bg-gradient-to-r bg-c2 h-2 absolute bottom-0 w-[70%] md:w-[30%] blur-md md:blur-none md:rounded-t-2xl md:h-1"
+                className=" dark:from-c1 dark:to-c2 dark:bg-gradient-to-r bg-c2 h-2 absolute bottom-0 w-[70%] md:w-full blur-md md:blur-none md:rounded-t-2xl md:h-1"
               />
             )}
-          </motion.button>
+          </Link>
         ))}
         <AnimatePresence>
           <BetListButton toggle={toggle} setToggle={(t) => setToggle(t)} />

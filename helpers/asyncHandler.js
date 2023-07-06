@@ -1,8 +1,11 @@
 import { alertService } from "@/services";
 
-const clientAsync = (fn) =>
+const clientAsync = (fn, alertError = true) =>
   fn().catch((error) => {
-    alertService.error(error?.response?.data?.message || "Network Error");
+    alertError &&
+      alertService.error(
+        error?.response?.data?.message || "Something went wrong"
+      );
     return false;
   });
 

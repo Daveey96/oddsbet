@@ -1,9 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context } from "../layout";
 import Animated from "../Animated";
+import axios from "axios";
 
 export default function GameAnalysis() {
   let { gameId, setGameId } = useContext(Context);
+
   return (
     <Animated
       state={gameId}

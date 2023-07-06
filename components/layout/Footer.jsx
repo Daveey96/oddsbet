@@ -16,11 +16,11 @@ export default function Footer() {
           <span className="text-blue-700">#betresponsibly</span>
         </span>
       </span>
-      <span className="flex mt-1 text-sm">
+      <span className="flex mt-1">
         {["Privacy Policy", "Terms & conditions", "Help"].map((item, key) => (
           <button
             key={key}
-            className={`mt-1 active:text-white/5 text-white/50 duration-150 px-3  ${
+            className={`mt-1 text-xs active:text-white/5 text-white/50 duration-150 px-3  ${
               key && "border-l-2 border-c1"
             }`}
           >

@@ -7,6 +7,7 @@ import Animated from "../Animated";
 import { BiArrowToLeft } from "react-icons/bi";
 import { Context } from ".";
 import Alert from "../services/Alert";
+import { SkeletonLoad } from "../services/Loaders";
 
 export const Naira = (className) => (
   <svg
@@ -49,7 +50,7 @@ function Nav() {
     if (visible === null) toggleNav(pathname);
     events.on("routeChangeStart", toggleNav);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [events]);
+  }, []);
 
   useEffect(() => {
     if (alert)
@@ -59,12 +60,9 @@ function Nav() {
   }, [alert]);
 
   useEffect(() => {
-    if (pathname.slice(0, 2) === "/p" && backdrop) {
-      setVisible(true);
-    } else if (pathname.slice(0, 2) === "/p" && !backdrop) {
-      setVisible(false);
-    }
-  }, [backdrop]);
+    if (pathname.slice(0, 2) === "/p" && backdrop) setVisible(true);
+    else if (pathname.slice(0, 2) === "/p" && !backdrop) setVisible(false);
+  }, [backdrop, pathname, visible]);
 
   return (
     <>
@@ -94,7 +92,7 @@ function Nav() {
             alt="Oddsbet logo"
           />
         </Link>
-        {user && (
+        {user?.id ? (
           <span
             className={`fx gap-1 relative text-base px-7 rounded-b-2xl z-30 bg-black h-full" ${
               user.balance < 100 ? "text-red-600" : "text-green-600"
@@ -102,18 +100,19 @@ function Nav() {
           >
             <Naira />
             <span>{user.balance.toFixed(2)}</span>
-            {user.balance < 100 && (
+            {/* {user.balance < 100 && (
               <Link
                 href={"/profile/deposit"}
-                className="from-c2 active:opacity-20 to-c1 bg-gradient-to-br rounded-r-full rounded-l-[6000px] px-5 text-sm text-white absolute right-[95%] py-0.5"
+                className="active:opacity-20 bg-c1 rounded-r-full rounded-l-[6000px] px-5 text-sm text-white absolute right-[95%] py-0.5"
               >
                 deposit
               </Link>
-            )}
+            )} */}
           </span>
-        )}
-        {user === undefined && (
-          <button
+        ) : (
+          <SkeletonLoad
+            state={user !== null}
+            tag="button"
             className={"fx gap-1 pb-1 px-7 rounded-b-2xl z-30 bg-black h-full"}
             onClick={() => setBackdrop(!backdrop)}
           >
@@ -124,7 +123,7 @@ function Nav() {
             ) : (
               "register"
             )}
-          </button>
+          </SkeletonLoad>
         )}
       </Animated>
       <AnimatePresence>

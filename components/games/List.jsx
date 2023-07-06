@@ -1,15 +1,25 @@
 import React, { useState } from "react";
 
-function List({ v, className, iClass, onClick, activeClass, inActiveClass }) {
+function List({
+  list,
+  v,
+  className,
+  jsx,
+  iClass,
+  onClick,
+  activeClass,
+  inActiveClass,
+}) {
   const [active, setActive] = useState(0);
+
   return (
     <ul
       className={`flex text-sm overflow-x-scroll no-bars w-full gap-3 ${className}`}
     >
-      {v.map((item, key) => (
+      {list.map((i, key) => (
         <li
           onClick={() => {
-            onClick(item.v || item.item);
+            onClick(v[key][list]);
             setActive(key);
           }}
           className={`fx last-of-type:mr-3 whitespace-nowrap ${iClass} ${
@@ -17,7 +27,13 @@ function List({ v, className, iClass, onClick, activeClass, inActiveClass }) {
           }`}
           key={key}
         >
-          {item.item}
+          {jsx.includes(" ") ? (
+            <>
+              {list[key][jsx.split(" ")[0]]} {list[key][jsx.split(" ")[1]]}
+            </>
+          ) : (
+            <>{list[key][jsx]}</>
+          )}
         </li>
       ))}
     </ul>
