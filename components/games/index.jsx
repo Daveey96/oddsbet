@@ -8,7 +8,8 @@ import Odds from "./Odds";
 import Retry from "../services/Retry";
 import { Context } from "../layout";
 import { getDate } from "@/helpers";
-import footBall from "@/helpers/football";
+// import footBall from "@/helpers/football";
+import { apiController } from "@/controllers";
 
 export const sports = [
   {
@@ -274,8 +275,8 @@ export default function GameDays() {
   const getGames = async (id) => {
     setGames("loading");
 
-    // const data = await apiService.getMatches(1);
-    const data = footBall;
+    const data = await apiController.getMatches(1);
+    // const data = footBall;
 
     if (data.events) {
       let dataArr = [];

@@ -53,16 +53,13 @@ function Nav() {
   }, []);
 
   useEffect(() => {
-    if (alert)
-      setTimeout(() => {
-        setAlert(false);
-      }, 3500);
+    if (alert) setTimeout(() => setAlert(false), 3500);
   }, [alert]);
 
   useEffect(() => {
     if (pathname.slice(0, 2) === "/p" && backdrop) setVisible(true);
     else if (pathname.slice(0, 2) === "/p" && !backdrop) setVisible(false);
-  }, [backdrop, pathname, visible]);
+  }, [backdrop]);
 
   return (
     <>

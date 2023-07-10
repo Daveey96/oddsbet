@@ -26,7 +26,7 @@ const sendMail = async (email, token) => {
       html: `
        <div
           style="
-            margin: 50px auto 0 auto;
+            margin: 50px 10px 0 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -34,19 +34,7 @@ const sendMail = async (email, token) => {
             gap: 0.5rem;
           "
         >
-          <h3>Your verification code:</h3>
-          <span
-            style="
-              font-family: monospace;
-              font-size: 24px;
-              padding: 3px 14px 3px 14px;
-              background-color: #000000;
-              color: #fff;
-              border-radius: 7px;
-            "
-          >
-            ${token}
-          </span>
+          <h3>Your verification code is <br /> ${token}</h3>
         </div>
       `,
     });
@@ -68,9 +56,9 @@ const checkEmail = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  // let mailSent = await sendMail(email, token);
-  // if (!mailSent) throw Error("Couldn't send mail");
-  console.log(token);
+  let mailSent = await sendMail(email, token);
+  if (!mailSent) throw Error("Couldn't send mail");
+  // console.log(token);
 
   let newUser = await User.create({
     email,
@@ -160,9 +148,9 @@ const resendCode = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  // let mailSent = await sendMail(email, token);
-  // if (!mailSent) throw Error("Couldn't send mail");
-  console.log(token);
+  let mailSent = await sendMail(email, token);
+  if (!mailSent) throw Error("Couldn't send mail");
+  // console.log(token);
 
   user.token = hashedToken;
   await user.save();
