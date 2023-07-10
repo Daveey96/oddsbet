@@ -1,8 +1,6 @@
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { BiLeftArrowAlt, BiMoney } from "react-icons/bi";
+import { BiMoney } from "react-icons/bi";
 import { PayTemplate } from ".";
-import { Naira } from "@/components/layout/Nav";
 
 function Amount({ value, setValue }) {
   return (

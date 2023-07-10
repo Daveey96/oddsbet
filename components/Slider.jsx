@@ -5,11 +5,11 @@ import Odds from "./games/Odds";
 import { useKeenSlider } from "keen-slider/react";
 import { SkeletonLoad } from "./services/Loaders";
 import { BiFootball, BiTv, BiXCircle } from "react-icons/bi";
-import { apiService } from "@/services";
 import { FaClock, FaFireAlt } from "react-icons/fa";
 import { BsSlashCircle } from "react-icons/bs";
 import "keen-slider/keen-slider.min.css";
 import { sports } from "./games";
+import { apiController } from "@/controllers";
 
 function Slider() {
   const [mounted, setMounted] = useState(false);
@@ -36,7 +36,7 @@ function Slider() {
   const getGames = async (id) => {
     setGames("loading");
 
-    let data = await apiService.getMatches(id, true);
+    let data = await apiController.getMatches(id, true);
 
     if (data.events) {
       console.log(data);
@@ -79,6 +79,12 @@ function Slider() {
             </>,
             <>
               <FaFireAlt className="text-c2" /> Hot
+            </>,
+            <>
+              <FaClock className="text-c2" />
+              <span className="flex flex-col leading-3 text-[10px]">
+                This <span>Weekend</span>
+              </span>
             </>,
           ].map((i, key) => (
             <li key={key} className="fx gap-1.5 px-3.5 h-full text-xs">

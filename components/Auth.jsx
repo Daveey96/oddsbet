@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useContext, useMemo, useRef } from "react";
 import Retry from "./services/Retry";
 import { AnimatePresence, motion } from "framer-motion";
-import { alertService, userService } from "@/services";
+import { alertService } from "@/services";
 import { Context } from "./layout";
 import { condition } from "@/helpers";
 import { FaChevronLeft } from "react-icons/fa";
 import { CircularLoader, DotLoader } from "./services/Loaders";
 import { BiEnvelope, BiLockOpenAlt, BiXCircle } from "react-icons/bi";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
+import { userController } from "@/controllers";
 
 export default function Auth() {
   const { setUser } = useContext(Context);
@@ -29,7 +30,7 @@ export default function Auth() {
       setDisabled(true);
       setbuttonText("verifying");
 
-      const data = await userService.checkEmail({ email });
+      const data = await userController.checkEmail({ email });
 
       if (data) {
         setbuttonText("Submit");
@@ -45,7 +46,7 @@ export default function Auth() {
         setbuttonText("verify");
       }
     } else if (currentStage === 1) {
-      const data = await userService.verifyEmail({ email, token: e });
+      const data = await userController.verifyEmail({ email, token: e });
 
       if (data) {
         alertService.success(data.message);
@@ -61,8 +62,8 @@ export default function Auth() {
 
       const data =
         currentStage === 2
-          ? await userService.signup({ email, password })
-          : await userService.signin({ email, password });
+          ? await userController.signup({ email, password })
+          : await userController.signin({ email, password });
 
       if (data) {
         alertService.success(data.message);
@@ -77,7 +78,7 @@ export default function Auth() {
 
   const getCurrentStage = async () => {
     setCurrentStage("loading");
-    let data = await userService.getStage();
+    let data = await userController.getStage();
 
     if (data) {
       setCurrentStage(data.stage);
@@ -88,7 +89,7 @@ export default function Auth() {
   };
 
   const changeMail = async () => {
-    let data = await userService.changeMail();
+    let data = await userController.changeMail();
 
     if (data) {
       setCurrentStage(0);
@@ -217,7 +218,7 @@ function Token({ email, handleSubmit, changeMail }) {
 
   const resend = async () => {
     setbuttonText("sending");
-    const data = await userService.resendCode();
+    const data = await userController.resendCode();
 
     if (data) {
       alertService.success(data.message);
@@ -239,7 +240,7 @@ function Token({ email, handleSubmit, changeMail }) {
       setLoading("error");
       setToken("");
       setTimeout(() => {
-        input.current.focus();
+        input.current && input.current.focus();
       }, 4000);
     };
 

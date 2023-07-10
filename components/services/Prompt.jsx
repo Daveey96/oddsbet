@@ -53,25 +53,39 @@ export default function Prompt() {
                 whileTap={{ scale: 0.8 }}
                 key={key}
                 className={`py-2 fx gap-1 relative mb-2 rounded-xl px-8 ${
-                  key
+                  prompt?.type
+                    ? "bg-c2 text-white"
+                    : key
                     ? "text-red-500 bg-red-500/5"
                     : `bg-green-500/5 ${
                         load ? "text-green-500/0" : "text-green-500"
                       }`
                 }`}
-                onClick={() => (key ? promptService.clear() : clicked(key))}
+                onClick={() =>
+                  prompt?.type
+                    ? promptService.clear()
+                    : key
+                    ? promptService.clear()
+                    : clicked(key)
+                }
               >
                 {!key && load && (
                   <CircularLoader
                     size={12}
                     depth={2}
-                    className={"border-green-500 absolute"}
+                    className={`absolute ${
+                      prompt.type ? "border-white" : "border-green-500"
+                    }`}
                   />
                 )}
-                {key ? (
-                  <BiX />
-                ) : (
-                  <BiCheck className={!key && load && "opacity-0"} />
+                {!prompt.type && (
+                  <>
+                    {key ? (
+                      <BiX />
+                    ) : (
+                      <BiCheck className={!key && load && "opacity-0"} />
+                    )}
+                  </>
                 )}
                 {text}
               </motion.button>

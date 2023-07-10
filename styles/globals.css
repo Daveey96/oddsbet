@@ -62,8 +62,14 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 35px #000 inset !important;
 }
 
+.fvsc {
+  font-variant: small-caps;
+}
 .loader {
   animation: rotation 0.6s linear infinite;
+}
+.loaderColor {
+  animation: rotationColor 0.6s linear infinite;
 }
 .fade {
   color: #ffffff01;
@@ -105,20 +111,6 @@ input:-webkit-autofill:active {
   }
 }
 
-.loader2 {
-  border-color: #fff #fff transparent transparent;
-  animation: rotation 1s linear infinite;
-}
-.loader2::after,
-.loader2::before {
-  border-color: transparent transparent #ff3d00 #ff3d00;
-  animation: rotationBack 0.5s linear infinite;
-}
-.loader2::before {
-  border-color: #fff #fff transparent transparent;
-  animation: rotation 1.5s linear infinite;
-}
-
 @keyframes rotation {
   0% {
     transform: rotate(0deg);
@@ -127,11 +119,16 @@ input:-webkit-autofill:active {
     transform: rotate(360deg);
   }
 }
-@keyframes rotationBack {
+@keyframes rotationColor {
   0% {
     transform: rotate(0deg);
+    border-top-color: #06b6d4;
+  }
+  50% {
+    border-top-color: #1a1fa4;
   }
   100% {
-    transform: rotate(-360deg);
+    transform: rotate(360deg);
+    border-top-color: #06b6d4;
   }
 }

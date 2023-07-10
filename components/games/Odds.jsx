@@ -1,14 +1,7 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { SkeletonLoad } from "../services/Loaders";
-import { motion } from "framer-motion";
-import {
-  BiDownArrow,
-  BiDownArrowAlt,
-  BiLockAlt,
-  BiUpArrowAlt,
-} from "react-icons/bi";
+import React, { useContext, useMemo, useState } from "react";
+import { BiDownArrow, BiLockAlt } from "react-icons/bi";
 import { Context } from "../layout";
-import { condition, filterDate } from "@/helpers";
+import { condition } from "@/helpers";
 
 const market = (g, v) => {
   if (!g) return false;
@@ -21,11 +14,22 @@ const market = (g, v) => {
     return odds;
   };
 
-  if (v === "1X2") {
+  if (v === "WDL") {
     return {
       name: ["home", "draw", "away"],
-      tag: ["1", "X", "2"],
-      odds: [g.win1?.v, g.winX?.v, g.win2?.v],
+      tag: ["W1", "D", "W2"],
+      odds: g?.money_line
+        ? [g.money_line.home, g.money_line.draw, g.money_line.away]
+        : Array(3).fill(null),
+    };
+  }
+  if (v === "WL") {
+    return {
+      name: ["home", "away"],
+      tag: ["W1", "W2"],
+      odds: g?.money_line
+        ? [g.money_line.home, g.money_line.away]
+        : Array(2).fill(null),
     };
   }
   if (v === "DB") {
@@ -33,13 +37,6 @@ const market = (g, v) => {
       name: ["home or draw", "draw or away", "home or away"],
       tag: ["1X", "X2", "12"],
       odds: [g.win1X?.v, g.winX2?.v, g.win12?.v],
-    };
-  }
-  if (v === "GGNG") {
-    return {
-      name: ["both teams score. Yes", "both teams score. No"],
-      tag: ["GG", "NG"],
-      odds: [g.bothToScore?.yes?.v, g.bothToScore?.no?.v],
     };
   }
   if (v === "OU" || v === "HOU" || v === "AOU") {
@@ -51,46 +48,114 @@ const market = (g, v) => {
         "over",
         "under"
       ),
+      type: "td",
     };
   }
 };
 
-const OddsChange = ({ odds }) => {
-  const [upOrDown, setUpOrDown] = useState(0);
-  let upAndDown = useRef(null);
+// const OddsChange = ({ odds }) => {
+//   const [upOrDown, setUpOrDown] = useState(0);
+//   let upAndDown = useRef(null);
 
-  useEffect(() => {
-    if (upAndDown.current === null) upAndDown.current = odds;
-    else {
-      setUpOrDown(Math.sign(odds - upAndDown.current));
-      upAndDown.current = odds;
+//   useEffect(() => {
+//     if (upAndDown.current === null) upAndDown.current = odds;
+//     else {
+//       setUpOrDown(Math.sign(odds - upAndDown.current));
+//       upAndDown.current = odds;
+//     }
+//   }, [odds]);
+
+//   return (
+//     <>
+//       {upOrDown !== 0 && (
+//         <span
+//           className={`absolute right-[2%] top-[10%] ${
+//             upOrDown === 1 ? "text-green-500" : "text-red-500"
+//           }`}
+//         >
+//           {upOrDown === 1 ? <BiUpArrowAlt /> : <BiDownArrowAlt />}
+//         </span>
+//       )}
+//     </>
+//   );
+// };
+
+const Layout_I = ({ currentMkt, slider, game, mkt }) => {
+  const { betList, setBetList } = useContext(Context);
+  const { odds, tag, name } = currentMkt;
+  const [active, setActive] = useState(undefined);
+
+  const activate = () => {
+    for (let i = 0; i < betList.length; i++)
+      if (betList[i].id === game.event_id && betList[i].mkt === mkt) {
+        return setActive(name.indexOf(betList[i].name));
+      }
+
+    setActive(undefined);
+  };
+  const addGame = (odd, key) => {
+    let newBetList = betList.filter(
+      (g) => g.id !== game.event_id || g.mkt !== mkt
+    );
+
+    if (active === key) {
+      setBetList(newBetList);
+      setActive(undefined);
+      return;
     }
-  }, [odds]);
+    const { event_id, home, away, starts } = game;
+
+    setActive(key);
+    setBetList([
+      ...newBetList,
+      {
+        id: event_id,
+        game,
+        sportId: 1,
+        name: name[key],
+        home,
+        away,
+        time: starts.split("T")[1].slice(0, -3),
+        odd,
+        mkt,
+      },
+    ]);
+  };
+  const locked = (key) => odds[key] && odds[key] >= 1.01;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(activate, [mkt, betList]);
 
   return (
     <>
-      {upOrDown !== 0 && (
-        <span
-          className={`absolute right-[2%] top-[10%] ${
-            upOrDown === 1 ? "text-green-500" : "text-red-500"
-          }`}
+      {odds.map((odd, key) => (
+        <button
+          key={key}
+          disabled={!locked(key)}
+          onClick={() => addGame(odd.toFixed(2), key)}
+          className={`bg-black h-10 active:scale-110 duration-150 text-sm w-full rounded-md relative fx ${
+            key === active && "from-c1/75 to-c2/75 bg-gradient-to-br"
+          } `}
         >
-          {upOrDown === 1 ? <BiUpArrowAlt /> : <BiDownArrowAlt />}
-        </span>
-      )}
+          {locked(key) ? odd.toFixed(2) : <BiLockAlt className="opacity-60" />}
+          {!slider && (
+            <span className="absolute fx -top-0.5 left-1 text-[9px] text-white/10">
+              {tag[key]}
+            </span>
+          )}
+        </button>
+      ))}
     </>
   );
 };
 
-const Select = ({ currentMkt, slider, game, mkt }) => {
+const Layout_II = ({ currentMkt, slider, game, mkt }) => {
   const { betList, setBetList } = useContext(Context);
   const { odds, tag, name } = currentMkt;
 
-  const isLive = game.minute ? true : false;
   const [score, setScore] = useState(odds && Math.floor(odds.length / 2));
   const [active, setActive] = useState(undefined);
   const [open, setOpen] = useState(false);
-  const ev = mkt.slice(-2) === "OU";
 
   const activate = () => {
     for (let i = 0; i < betList.length; i++)
@@ -118,26 +183,36 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
       setActive(undefined);
       return;
     }
-    const { id, team1, team2 } = game;
+    const { event_id, home, away, starts } = game;
 
-    setBetList([
-      ...newBetList,
-      {
-        id,
-        key,
-        name: ev ? `${name[key]}@${odds[score][0]}` : name[key],
-        team1,
-        team2,
-        score: ev && score,
-        isLive,
-        date_start: isLive
-          ? `${game.minute}' ${game.seconds}'`
-          : filterDate(game),
-        odd: odd.toFixed(2),
-        mkt,
-      },
-    ]);
+    console.log({
+      id: event_id,
+      key,
+      name: ev ? `${name[key]}@${odds[score][0]}` : name[key],
+      home,
+      away,
+      eventType: "",
+      score: ev && score,
+      time: "15:00",
+      odd: odd.toFixed(2),
+      mkt,
+    });
     setActive(key);
+    // setBetList([
+    //   ...newBetList,
+    //   {
+    //     id: event_id,
+    //     key,
+    //     name: ev ? `${name[key]}@${odds[score][0]}` : name[key],
+    //     home,
+    //     away,
+    //     eventType: "",
+    //     score: ev && score,
+    //     time: starts.split("T").slice(0, -3),
+    //     odd: odd.toFixed(2),
+    //     mkt,
+    //   },
+    // ]);
   };
   const locked = (key) => odds[key] && odds[key] >= 1.01;
 
@@ -148,12 +223,8 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
     <>
       {[0, 1, 2].map((key) => {
         return (
-          <SkeletonLoad
-            key={`${mkt}${key}`}
-            state={game}
-            className="flex-1 h-10"
-          >
-            {ev && key === 0 ? (
+          <>
+            {key === 0 ? (
               <button
                 className={`bg-black h-full text-sm w-full rounded-md relative fx `}
                 disabled={odds ? false : true}
@@ -183,8 +254,7 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
                 )}
               </button>
             ) : (
-              <motion.button
-                whileTap={{ scale: 1.1 }}
+              <button
                 disabled={ev ? (odds ? false : true) : !locked(key)}
                 onClick={() => addGame(ev ? odds[score][key] : odds[key], key)}
                 className={`bg-black h-full text-sm w-full rounded-md relative fx ${
@@ -212,13 +282,13 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
                   <OddsChange odds={odds[key].toFixed(2)} />
                 )} */}
                 {!slider && (
-                  <span className="absolute fx bottom-[105%] text-[12px] text-white/10">
+                  <span className="absolute fx -top-0.5 left-1 text-[11px] text-white/10">
                     {tag[key]}
                   </span>
                 )}
-              </motion.button>
+              </button>
             )}
-          </SkeletonLoad>
+          </>
         );
       })}
     </>
@@ -227,12 +297,12 @@ const Select = ({ currentMkt, slider, game, mkt }) => {
 
 export default function Odds({ className, game, slider, mkt = "1X2" }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const currentMkt = useMemo(() => market(game?.markets, mkt), [mkt]);
+  const currentMkt = useMemo(() => market(game.periods.num_0, mkt), [mkt]);
 
   return (
     <div className={"fx gap-1 relative " + className}>
-      {currentMkt ? (
-        <Select
+      {currentMkt.type ? (
+        <Layout_II
           game={game}
           mkt={mkt}
           key={mkt}
@@ -240,23 +310,19 @@ export default function Odds({ className, game, slider, mkt = "1X2" }) {
           slider={slider}
         />
       ) : (
-        <>
-          {[0, 1, 2].map((key) => (
-            <SkeletonLoad className="h-10 flex-1" key={key} />
-          ))}
-        </>
+        <Layout_I
+          game={game}
+          mkt={mkt}
+          key={mkt}
+          currentMkt={currentMkt}
+          slider={slider}
+        />
       )}
-
-      {/* {slider && (
-        <SkeletonLoad
-          state={game}
-          iClass="w-10 scale-y-75"
-          ngClass="text-white/50"
-          className="absolute mt-0.5 text-sm fx gap-7 bottom-[115%] "
-        >
-          1X2 FT
-        </SkeletonLoad>
-      )} */}
+      {slider && (
+        <span className="absolute mt-0.5 text-white/50 text-sm fx gap-7 bottom-[115%] ">
+          {mkt}
+        </span>
+      )}
     </div>
   );
 }

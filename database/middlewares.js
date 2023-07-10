@@ -1,10 +1,11 @@
 import Joi from "joi";
 import { cookies } from "./cookies";
+import { serverAsync } from "@/helpers/asyncHandler";
 
-export const isLoggedIn = (req, res, fn, fn2 = undefined) => {
+export const isLoggedIn = (req, res, fn) => {
   let id = cookies.getCookie(req, res, "__sid");
 
-  if (id) return fn2 ? fn2(req, res, fn, id) : fn(req, res, id);
+  if (id) return serverAsync(req, res, fn, id);
   res.status(400).json({ message: "You're not logged in" });
 };
 

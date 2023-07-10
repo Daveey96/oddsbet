@@ -10,21 +10,16 @@ import Animated, { BlurredModal } from "../Animated";
 import {
   BiCheck,
   BiCheckCircle,
-  BiCog,
-  BiCopyAlt,
   BiEditAlt,
   BiFootball,
-  BiInfoCircle,
-  BiRightArrow,
-  BiRightArrowAlt,
   BiShareAlt,
   BiTrashAlt,
-  BiUpArrowAlt,
   BiX,
   BiXCircle,
 } from "react-icons/bi";
-import { alertService, appService } from "@/services";
 import { CircularLoader } from "../services/Loaders";
+import Link from "next/link";
+import { betController } from "@/controllers";
 
 const variants = {
   initial: { opacity: 0 },
@@ -131,7 +126,7 @@ const BetGame = ({ v, index, deleteGame }) => {
       className={`relative flex items-center overflow-hidden ${
         dragStart && "bg-red-600 "
       }`}
-      initial={{ height: "96px" }}
+      initial={{ height: "88px" }}
       exit={{ height: "0px", transition: { duration: 0.1 } }}
     >
       <motion.div
@@ -147,16 +142,16 @@ const BetGame = ({ v, index, deleteGame }) => {
       >
         <span className="flex w-3/4 flex-col gap-1">
           <span className="flex w-full items-center text-c2">
-            {v.isLive && (
+            {/* {v.isLive && (
               <span className="px-3 mr-1 bg-green-500/10 text-green-500 pt-px text-sm pb-0.5 rounded-r-3xl">
                 Live
               </span>
-            )}
+            )} */}
             <BiFootball className="mr-0.5 text-c1/60" />
             <span className="flex items-center gap-3">{v.name}</span>
           </span>
           <span className="w-full whitespace-nowrap text-ellipsis overflow-hidden">
-            {v.team1} <span className="text-c2">vs</span> {v.team2}
+            {v.home} <span className="text-c2">vs</span> {v.away}
           </span>
         </span>
         <span className="mr-2 fx text-white/60">{v.odd}</span>
@@ -173,6 +168,27 @@ const BetGame = ({ v, index, deleteGame }) => {
   );
 };
 
+export function calcWinPotential(totalOdds, stake) {
+  let pWin = (totalOdds * parseFloat(stake === "" ? 0 : stake))
+    .toFixed(2)
+    .toString()
+    .split(".");
+  if (pWin[0].length < 4) return pWin.join(".");
+
+  if (parseInt(pWin[0]) > 50000000) pWin[0] = "50000000";
+  let arr = pWin[0].split("").reverse();
+  let len = arr.length;
+  let count = 0;
+
+  while (len > 3) {
+    count === 1 ? arr.splice(7, 0, ",") : arr.splice(3, 0, ",");
+    count = 1;
+    len -= 3;
+  }
+
+  return `${arr.reverse().join("")}.${pWin[1]}`;
+}
+
 export default function BetList({ toggle, setToggle }) {
   const { betList, setBetList } = useContext(Context);
   const [placeBet, setPlaceBet] = useState(false);
@@ -181,29 +197,17 @@ export default function BetList({ toggle, setToggle }) {
 
   const [stake, setStake] = useState("");
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
-  const potWin = useMemo(calcWinPotential, [stake, betList]);
+  const potWin = useMemo(
+    () => calcWinPotential(stake, totalOdds),
+    [stake, betList]
+  );
   const [betcodeLoad, setBetcodeLoad] = useState(betList.length > 0);
 
-  function calcWinPotential() {
-    let pWin = (totalOdds * parseFloat(stake === "" ? 0 : stake))
-      .toFixed(2)
-      .toString()
-      .split(".");
-    if (pWin[0].length < 4) return pWin.join(".");
-
-    if (parseInt(pWin[0]) > 50000000) pWin[0] = "50000000";
-    let arr = pWin[0].split("").reverse();
-    let len = arr.length;
-    let count = 0;
-
-    while (len > 3) {
-      count === 1 ? arr.splice(7, 0, ",") : arr.splice(3, 0, ",");
-      count = 1;
-      len -= 3;
-    }
-
-    return `${arr.reverse().join("")}.${pWin[1]}`;
-  }
+  const reset = () => {
+    setSuccessful("");
+    setbuttonText("Place bet?");
+    setToggle(false);
+  };
 
   const buttonClicked = (button) => {
     if (button === "del") {
@@ -235,25 +239,26 @@ export default function BetList({ toggle, setToggle }) {
     setbuttonText("Adding ticket");
 
     let newBetList = [];
-    for (let i = 0; i < betList.length; i++)
-      newBetList.push(
-        `${betList[i].id},${betList[i].mkt},${betList[i].name},${betList[i].odd}`.toLowerCase()
-      );
+    let odds = [];
 
-    const data = await appService.placeBet({
+    betList.forEach((elem) => {
+      newBetList.push(`${elem.id},${elem.mkt},${elem.name}`);
+      odds.push(elem.odd);
+    });
+    const data = await betController.placeBet({
       slip: newBetList.join("|"),
-      odds: totalOdds,
-      stake,
+      odds,
+      totalOdds: parseFloat(totalOdds),
+      stake: parseFloat(stake),
     });
 
     if (data) {
-      alertService.success(data.message);
       setBetList([]);
       setSuccessful({
         odds: data.odds,
         code: data.code,
         stake: data.stake,
-        potWin: data.potWin,
+        potWin: data.toWin,
       });
     } else {
       setbuttonText("Place bet?");
@@ -433,39 +438,49 @@ export default function BetList({ toggle, setToggle }) {
           {successful ? (
             <>
               <h3 className="relative fx mt-7 mb-4 ">
-                <BiCheckCircle className="text-green-500 -left-4 opacity-25 absolute scale-[2] text-xl" />
+                <BiCheckCircle className="text-white -left-4 opacity-10 absolute scale-[2] text-xl" />
                 <span className="z-10">Bet Successful</span>
               </h3>
-              <div className="flex flex-col mt-4 w-full gap-2">
+              <div className="flex flex-col mt-4 px-10 w-full">
                 {[
                   { title: "Odds", value: successful.odds },
                   { title: "Stake", value: successful.stake },
-                  { title: "To Win", value: successful.potWin },
+                  { title: "Potential Win", value: successful.potWin },
                   { title: "Code", value: successful.code },
                 ].map((v, key) => {
                   return (
                     <div
                       key={key}
-                      className="py-4 odd:bg-c4/50 px-10 justify-between items-center flex gap-2 flex-1 w-full"
+                      className="py-3 justify-between items-center flex flex-1 w-full"
                     >
-                      <span className="text-c2">{v.title}</span>
+                      <span className="text-white/50">{v.title}</span>
                       {key === 3 ? (
-                        <span className="fx gap-2">
+                        <span className="fx text-c2 gap-2">
                           <BiShareAlt />
                           <span>{v.value}</span>
                         </span>
                       ) : (
-                        <span>{v.value}</span>
+                        <span className="text-c2">{v.value}</span>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <div className="flex gap-2 h-12 mb-2 mt-2 w-full px-8">
-                <button className="fx h-full w-3/4 px-14 rounded-lg bg-c2/10 text-c2">
+              <div
+                onClick={(e) => e.preventDefault()}
+                className="flex gap-2 h-12 mb-2 mt-7 w-full px-8"
+              >
+                <Link
+                  href={"/bets"}
+                  onClick={reset}
+                  className="fx h-full w-3/4 px-14 rounded-lg bg-c2/10 text-c2"
+                >
                   view bets
-                </button>
-                <button className="h-full bg-red-600/10 text-xl text-red-600 px-8 flex-1 rounded-lg">
+                </Link>
+                <button
+                  onClick={reset}
+                  className="h-full bg-red-600/10 text-xl text-red-600 px-8 flex-1 rounded-lg"
+                >
                   <BiXCircle />
                 </button>
               </div>
@@ -488,7 +503,7 @@ export default function BetList({ toggle, setToggle }) {
                       <BiCheck /> Yes
                     </>
                   ) : (
-                    <CircularLoader depth={2} className={"border-green-200"} />
+                    <CircularLoader depth={2} className={"border-green-400"} />
                   )}
                 </button>
                 <button

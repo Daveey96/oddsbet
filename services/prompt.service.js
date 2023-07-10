@@ -8,8 +8,8 @@ export const promptService = {
   clear,
 };
 
-function prompt(message, choices, clicked, empty = null) {
-  promptSubject.next({ message, choices, clicked, empty });
+function prompt(message, choices, clicked, type) {
+  promptSubject.next({ message, choices, clicked, type });
 }
 
 function clear() {

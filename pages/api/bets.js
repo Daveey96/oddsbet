@@ -1,6 +1,5 @@
-import { Ticket, User, connectMongo, cookies, isLoggedIn } from "@/database";
-import { serverAsync } from "@/helpers/asyncHandler";
-import bcrypt from "bcryptjs";
+import { Ticket, User, connectMongo, isLoggedIn } from "@/database";
+import footBallGames from "@/helpers/football";
 
 const generateCode = () => {
   const letters = "abcdefghijklmnpqrstuvwxyz";
@@ -27,63 +26,128 @@ const generateCode = () => {
   return code;
 };
 
-const placeBet = async (req, res) => {
-  // const { slip, stake, odds } = req.body;
-  const { id } = req.body;
+const placeBet = async (req, res, id) => {
+  const { slip, stake, odds, totalOdds } = req.body;
 
-  let user = await User.findById(id);
+  let user = await User.findById(id, "active balance");
+  if (!user) throw Error("Something went wrong");
 
-  res.json({ user });
-  // if (activeBets) {
-  //   ticket.users.push({ stake, id });
+  // if (user.balance < stake) throw Error("Insufficient balance");
 
-  //   await ticket.save();
-  //   res.status(201).json({
-  //     newSlip: {
-  //       odds,
-  //       stake,
-  //       potWin: (parseFloat(odds) * parseFloat(stake)).toFixed(2),
-  //       code,
-  //     },
-  //     message: "bet submitted",
-  //   });
-  // } else {
-  //   let user = await User.findById(id);
+  let ticket = await Ticket.findOne({ slip });
 
-  //   let code = generateCode();
-  //   const newTicket = new Ticket({ code, slip });
-  //   await newTicket.save();
+  if (!ticket) {
+    let code = generateCode();
+    const newTicket = new Ticket({ code, slip });
+    await newTicket.save();
+    ticket = newTicket;
+  }
 
-  //   // for (let i = 0; i < user.activeBets.length; i++) {
-  //   //   if (user.activeBets[i].id === ticket._id)
-  //   //     throw Error("You already have this ticket");
-  //   // }
+  user.active.push({
+    ticket: ticket._id,
+    odds,
+    totalOdds,
+    stake,
+  });
+  // user.balance -= stake;
+  await user.save();
 
-  //   user.activeBets.push({ code, odds, stake });
-  //   await user.save();
-
-  //   res.status(201).json({
-  //     ticket: { odds, stake, code },
-  //     message: "bet submitted",
-  //   });
-  // }
+  res.json({
+    odds: totalOdds,
+    stake,
+    code: ticket.code,
+    toWin: (totalOdds * stake).toFixed(2),
+  });
 };
 
-const getBets = async (req, res) => {
-  let id = "649b34dc6833646ae0b7b972";
-  let ticks = await Ticket.findById({ "users._id": id });
-  if (!ticks) throw Error("something went wrong");
+const getBets = async (req, res, id) => {
+  const { type = "active", date } = req.body;
 
-  res.status(200).json({ ticks });
+  if (type === "active") {
+    let { active } = await User.findById(id, "active").populate(
+      "active.ticket"
+    );
+    let betlist = [];
+
+    active.forEach((betSlip) => {
+      let games = [];
+
+      betSlip.ticket.slip.split("|").forEach((elem) => {
+        let g = footBallGames.events.filter(
+          (v) => v.event_id === parseInt(elem.split(",")[0])
+        );
+        games.push(g);
+      });
+      betlist.push({
+        games,
+        code: betSlip.ticket.code,
+        slip: betSlip.ticket.slip,
+        odds: betSlip.odds,
+        stake: betSlip.stake,
+      });
+    });
+
+    res.status(200).json({ betlist: betlist.reverse() });
+  } else {
+    let { history } = await User.findById(id, "history").populate(
+      "history.games.ticket"
+    );
+
+    const games = history.forEach((day) => {
+      if (day.date === date) {
+        return day.games;
+      }
+    });
+
+    res.json({ games });
+  }
+};
+
+const loadBet = async (req, res) => {
+  const { code } = req.body;
+  const codeAvail = await Ticket.findOne({ code });
+  if (!codeAvail) throw Error("Code does not exist");
+
+  let games = [];
+
+  for (let i = 0; i < codeAvail.slip.split("|").length; i++) {
+    const [id, mkt, outcome] = codeAvail.slip.split("|")[i].split(",");
+    let game = footBallGames.events.filter((v) => v.event_id === parseInt(id));
+
+    games.push({ game, odds: codeAvail.slip.odds[i], mkt, outcome });
+  }
+
+  res.json({ games });
+};
+
+const deleteBet = async (req, res, id) => {
+  const { code } = req.body;
+  const user = await User.findById(id, "active").populate("active.ticket");
+
+  for (let i = 0; i < user.active.length; i++) {
+    if (code === user.active[i].ticket.code) {
+      user.active.splice(i, 1);
+      break;
+    }
+  }
+  await user.save();
+
+  res.json({ message: "Deleted" });
 };
 
 export default async function handler(req, res) {
   const connect = await connectMongo(res);
-  if (!connect) return;
+  if (!connect) throw Error("Server error");
 
-  // if (req.method === "POST") return isLoggedIn(req, res, serverAsync, placeBet);
-  if (req.method === "POST") return serverAsync(req, res, placeBet);
+  if (req.method === "POST" && req.headers.type === "place")
+    return isLoggedIn(req, res, placeBet);
 
-  // if (req.method === "GET") return isLoggedIn(req, res, getBets);
-  if (req.method === "GET") return serverAsync(req, res, getBets);
+  if (req.method === "POST" && req.headers.type === "load")
+    return isLoggedIn(req, res, loadBet);
+
+  if (req.method === "POST" && req.headers.type === "get")
+    return isLoggedIn(req, res, getBets);
+
+  if (req.method === "POST" && req.headers.type === "delete")
+    return isLoggedIn(req, res, deleteBet);
 }

@@ -1,5 +1,5 @@
 import { Naira } from "@/components/layout/Nav";
-import { alertService, promptService, userService } from "@/services";
+import { alertService, promptService } from "@/services";
 import { motion } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
@@ -7,7 +7,6 @@ import {
   BiLeftArrowAlt,
   BiMoon,
   BiPowerOff,
-  BiRefresh,
   BiSun,
   BiTransferAlt,
   BiUserCircle,
@@ -17,6 +16,7 @@ import Link from "next/link";
 import { Context } from "@/components/layout";
 import { useRouter } from "next/navigation";
 import { SkeletonLoad } from "@/components/services/Loaders";
+import { userController } from "@/controllers";
 
 const Fix = () => <span className="z-20 absolute inset-0"></span>;
 
@@ -103,7 +103,7 @@ const LogOut = () => {
   const { user, setUser } = useContext(Context);
 
   const logOut = async () => {
-    const data = await userService.signout();
+    const data = await userController.signout();
     if (data) {
       alertService.success(data.message);
       setUser(undefined);
@@ -132,17 +132,8 @@ const LogOut = () => {
 };
 
 function Index() {
-  const { user, setUser, setBackdrop } = useContext(Context);
+  const { user, setBackdrop } = useContext(Context);
   const [isVisible, setIsVisible] = useState(true);
-
-  const getUser = async () => {
-    const data = await userService.getUser();
-    setCurrentUser(data.user.balance);
-  };
-
-  // useEffect(() => {
-  //   currentUser === null && getUser();
-  // }, [currentUser]);
 
   let settings = [
     { className: "col-span-2 row-span-4", jsx: <Theme /> },

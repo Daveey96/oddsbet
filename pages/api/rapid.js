@@ -20,12 +20,26 @@ const getMatches = async (req, res) => {
   };
 
   let { data } = await axios.request(marketoptions);
-  data && res.json(data);
+  if (data) return res.json(data);
 
   throw Error("No Internet");
 };
 
+// const getMatchestest = async (req, res) => {
+//   marketoptions.params = {
+//     sport_id: 1,
+//     is_have_odds: "true",
+//     event_type: "prematch",
+//   };
+
+//   let { data } = await axios.request(marketoptions);
+//   if (data) return res.json(data);
+
+//   throw Error("No Internet");
+// };
+
 export default async function handler(req, res) {
-  // if () return isLoggedIn(req, res, serverAsync, placeBet);
   if (req.method === "POST") return serverAsync(req, res, getMatches);
+
+  // if (req.method === "GET") return serverAsync(req, res, getMatchestest);
 }

@@ -44,12 +44,12 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed px-[15vw] md:px-[3vw] items-end bottom-0 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[22] flex justify-between md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none inset-x-4 pt-2.5 bg-black text-white">
+      <div className="fixed px-[8vw] md:px-[3vw] items-end bottom-0 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[22] flex justify-between md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none inset-x-4 pt-2.5 bg-black text-white">
         {links.map((link, key) => (
           <Link
             href={link.path}
             key={key}
-            className={`flex items-end justify-center relative duration-200 active:scale-90 z-10 px-[2vw] h-9 md:h-7 md:pb-3 md:items-end `}
+            className={`flex w-[25%] items-end justify-center relative duration-200 active:scale-90 z-10 px-[2vw] h-9 md:h-7 md:pb-3 md:items-end `}
           >
             <Svg
               className={`absolute md:scale-110 ${

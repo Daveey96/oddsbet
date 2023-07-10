@@ -2,13 +2,13 @@ import { createContext, useEffect, useState } from "react";
 import Tab from "./Tab";
 import Nav from "./Nav";
 import Footer from "./Footer";
-import { userService } from "@/services";
 import { ThemeProvider } from "next-themes";
 import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
 import GameAnalysis from "../games/GameAnalysis";
 import Auth from "../Auth";
 import { BlurredModal } from "../Animated";
+import { userController } from "@/controllers";
 
 export const Context = createContext(null);
 
@@ -33,7 +33,7 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     const getUser = async () => {
-      let data = await userService.getUser();
+      let data = await userController.getUser();
       setUser(data);
     };
 

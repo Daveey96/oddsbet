@@ -10,11 +10,25 @@ const userSchema = new Schema({
   balance: Number,
   token: String,
   currentStage: Number,
-  activeBets: [
+  active: [
     {
       ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
-      stake: String,
-      odds: String,
+      stake: Number,
+      totalOdds: Number,
+      odds: Array,
+    },
+  ],
+  history: [
+    {
+      date: String,
+      games: [
+        {
+          ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
+          stake: Number,
+          totalOdds: Number,
+          odds: Array,
+        },
+      ],
     },
   ],
 });

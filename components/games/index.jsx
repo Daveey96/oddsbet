@@ -1,22 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import {
-  BiBaseball,
-  BiBasketball,
-  BiCricketBall,
-  BiFootball,
-  BiTennisBall,
-  BiXCircle,
-} from "react-icons/bi";
-import { SkeletonLoad } from "../services/Loaders";
+import { BiFootball, BiXCircle } from "react-icons/bi";
 import Image from "next/image";
 import axios from "axios";
 import List from "./List";
 import Odds from "./Odds";
-import { Context } from "../layout";
-import { apiService } from "@/services";
 import Retry from "../services/Retry";
+import { Context } from "../layout";
 import { getDate } from "@/helpers";
+import footBall from "@/helpers/football";
 
 export const sports = [
   {
@@ -25,7 +17,6 @@ export const sports = [
     icon: <BiFootball className="text-c2" />,
     markets: [
       { name: "WDL", v: "WDL" },
-      { name: "Double Chance", v: "DB" },
       { name: "over/under", v: "OU" },
       { name: "home over/under", v: "HOU" },
       { name: "away over/under", v: "AOU" },
@@ -88,7 +79,7 @@ const Game = ({ game, mkt }) => {
       className={`flex dark:bg-c4 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2`}
     >
       <div className="w-full flex gap-2 text-[11px]">
-        <span className="text-c2 ">{g.starts.split("T")[0]}</span>
+        <span className="text-c2 ">{g.starts.split("T")[1].slice(0, -3)}</span>
         <span className="w-[62%] text-[11px] overflow-hidden opacity-30 text-ellipsis whitespace-nowrap">
           {g.league_name}
         </span>
@@ -116,12 +107,7 @@ const Game = ({ game, mkt }) => {
             </span>
           ))}
         </div>
-        <div className="w-[58%] gap-2 flex h-10">
-          {[0, 1, 2].map((key) => (
-            <SkeletonLoad className="h-full flex-1" key={key} />
-          ))}
-        </div>
-        {/* <Odds game={g} mkt={mkt} className={"w-[58%]"} /> */}
+        <Odds game={g} mkt={mkt} className={"w-[58%]"} />
       </div>
     </div>
   );
@@ -260,27 +246,24 @@ const GameList = ({ title, globalGames, getGames }) => {
       >
         {typeof games === "object" && games && (
           <div className="flex flex-col mb-2 relative items-center w-full gap-px">
-            {games.map((game, key) => (
+            {games.slice(0, 15).map((game, key) => (
               <Game key={key} game={game} mkt={mkt} />
             ))}
+            <motion.button
+              whileTap={{ opacity: 0.3 }}
+              className="absolute bottom-0 bg-c2/5 text-[12px] pt-0.5 pb-1 rounded-t-xl px-3.5 text-c2"
+            >
+              view more
+            </motion.button>
           </div>
         )}
       </Retry>
-
-      {/* {title === "Live" && (
-          <motion.button
-            whileTap={{ opacity: 0.3 }}
-            className="absolute bottom-0 bg-c2/5 text-[12px] pt-0.5 pb-1 rounded-t-xl px-3.5 text-c2"
-          >
-            view more
-          </motion.button>
-        )} */}
     </>
   );
 };
 
 export default function GameDays() {
-  let array = ["Today"];
+  const [array, setArray] = useState(["Today"]);
   // for (let i = 1; i < 5; i++) {
   //   let { weekDay } = getDate(i);
   //   array.push(weekDay);
@@ -291,14 +274,43 @@ export default function GameDays() {
   const getGames = async (id) => {
     setGames("loading");
 
-    let data = await apiService.getMatches(1);
+    // const data = await apiService.getMatches(1);
+    const data = footBall;
 
     if (data.events) {
+      let dataArr = [];
+      let dataSpecialArr = [];
       let { isoString } = getDate();
-      setGames(data.events.filter((v) => v.starts.split("T")[0] === isoString));
-    } else {
-      setGames("error");
-    }
+      let filter = data.events.filter(
+        (v) => v.starts.split("T")[0] === isoString
+      );
+      let l = filter.filter((v) => v.parent_id !== null);
+
+      filter.forEach((element) => {
+        if (element.parent_id) {
+          let r = filter.filter((v) => v.event_id === element.parent_id);
+          r[0].periods.num_0[element.resulting_unit.toLowerCase()] =
+            element.periods.num_0.totals;
+          dataSpecialArr.push(r[0]);
+        } else {
+          const g = l.filter((v) => v.parent_id === element.event_id);
+          if (!g) dataArr.push(element);
+        }
+      });
+
+      const Arr = [
+        ...dataSpecialArr,
+        ...dataArr.sort((a, b) => a.league_id - b.league_id),
+      ]
+        .slice(0, 12)
+        .sort(
+          (a, b) =>
+            parseInt(a.starts.split("T")[1].slice(0, 2)) -
+            parseInt(b.starts.split("T")[1].slice(0, 2))
+        );
+      console.log(Arr);
+      setGames(Arr);
+    } else setGames("error");
   };
 
   useEffect(() => {

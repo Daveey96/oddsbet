@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { BiShareAlt, BiWifiOff } from "react-icons/bi";
+import {
+  BiCopy,
+  BiFootball,
+  BiShareAlt,
+  BiTrashAlt,
+  BiXCircle,
+} from "react-icons/bi";
 import { CircularLoader } from "@/components/services/Loaders";
 import Image from "next/image";
-import games from "@/helpers/games";
 import Retry from "@/components/services/Retry";
-import { appService } from "@/services";
 import { getDate } from "@/helpers";
+import { alertService, promptService } from "@/services";
+import { calcWinPotential } from "@/components/games/BetList";
+import { betController } from "@/controllers";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -29,25 +35,36 @@ const TicketDots = ({ active, right = false }) => {
   );
 };
 
-const BetSlip = ({ v }) => {
-  const [active, setActive] = useState(false);
+const BetSlip = ({ v, active, index, onClick, getBets }) => {
+  let arr = v.slip.split("|");
+  let totalOdds = calcWinPotential(
+    v.odds.reduce((a, v) => parseFloat(v) + parseFloat(a)),
+    v.stake
+  );
+  const deleteTicket = async () => {
+    const deleted = await betController.deleteBet({ code: v.code });
+
+    promptService.clear();
+    deleted ? getBets() : alertService.error("Something went wrong");
+  };
+
   return (
-    <div className="flex w-[90%] flex-col">
+    <div className="flex w-[95%] flex-col">
       <div
-        className={`w-full mb-2 active:opacity-75 relative gap-1 fx ${
-          active ? "h-12" : "h-36"
+        className={`w-full cursor-pointer active:opacity-75 relative gap-1 fx ${
+          active === index ? "h-12" : "h-32"
         }`}
-        onClick={() => setActive(!active)}
+        onClick={() => (active === index ? onClick(null) : onClick(index))}
       >
         <div className="w-1/4 flex flex-col items-center relative h-full z-10 overflow-hidden bg-c4">
           <span
             className={`bg-c2/10 z-10 text-c2 text-lg fx ${
-              active ? "w-full h-full" : "w-12 h-12 mt-4 rounded-full"
+              active === index ? "w-full h-full" : "w-12 h-12 mt-4 rounded-full"
             }`}
           >
-            3
+            {v.games.length}
           </span>
-          <TicketDots right active={active} />
+          <TicketDots right active={active === index} />
           <div className="absolute -rotate-45 -right-12 opacity-10">
             {Array(6)
               .fill("")
@@ -69,56 +86,126 @@ const BetSlip = ({ v }) => {
               ))}
           </div>
         </div>
-        <div className="w-full duration-300 items-center relative flex h-full flex-1 z-10 bg-c4/70">
-          <span className="flex w-full py-2 text-lg gap-5 opacity-75 justify-end mr-3">
-            <BiShareAlt />
+        <div className="flex-1 overflow-hidden duration-300 items-center relative flex h-full flex-col z-10 bg-c4/70">
+          <span
+            className={`flex w-full py-1.5 text-lg gap-2 pr-3 justify-end ${
+              active === index ? "h-full items-center" : "mt-1"
+            } `}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                promptService.prompt(
+                  <span className="flex flex-col items-center">
+                    <span className="text-[11px]">betting code is</span>
+                    <span
+                      onClick={() => navigator.clipboard.writeText(`${v.code}`)}
+                      className="text-c2 gap-1 px-4 active:bg-white/5 duration-150 rounded-lg py-1 fx text-xl"
+                    >
+                      {v.code}
+                      <BiCopy className=" text-sm text-white opacity-50" />
+                    </span>
+                  </span>,
+                  ["ok"],
+                  null,
+                  "info"
+                );
+              }}
+              className="active:bg-c2/10 text-c2 bg-c2/0 p-1.5 rounded-full duration-200"
+            >
+              <BiShareAlt />
+            </button>
+            <button
+              className="active:bg-red-600/10 text-red-600 bg-red-600/0 p-1.5 rounded-full duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                promptService.prompt(
+                  "Delete this ticket?",
+                  ["Yes", "No"],
+                  deleteTicket
+                );
+              }}
+            >
+              <BiTrashAlt />
+            </button>
           </span>
-          <TicketDots active={active} />
+          {active !== index && (
+            <>
+              <ul className="flex-1 w-full mt-0.5 flex flex-col justify-start items-start px-7">
+                {v.games.slice(0, 3).map((g, key) => (
+                  <li
+                    key={key}
+                    className="whitespace-nowrap text-[12px] w-4/5 overflow-hidden text-ellipsis"
+                  >
+                    {g[0].home} <span className="text-c2">vs</span> {g[0].away}
+                  </li>
+                ))}
+              </ul>
+              <span className="fvsc text-base absolute top-2 px-6 py-2 left-0 text-white/20">
+                Not Start
+              </span>
+            </>
+          )}
+          <TicketDots active={active === index} />
         </div>
       </div>
-      {active && (
+      {active === index && (
         <>
-          {games.slice(0, 3).map((g, key) => (
+          {v.games.map((g, key) => (
             <div
               key={key}
-              className="flex justify-between border-b-[2px] border-c4 last-of-type:border-b-0 px-1 items-start py-5 text-sm w-full relative"
+              className="flex px-3 gap-3 mt-2 flex-col justify-between bg-c4/0 active:bg-c4/40 duration-200 border-l-[4px] border-c4 items-start py-5 text-sm w-full relative"
             >
-              <div className="flex flex-col">
+              <span className="flex gap-4 w-full justify-between items-center">
+                <span className="flex gap-1 relative text-c1 items-center">
+                  <BiFootball className="mb-0.5 text-lg" />
+                  <span className="text-c2 font-bold text-base capitalize">
+                    {arr[key].split(",")[2]}
+                  </span>
+                  <span className="text-white/20 absolute left-[120%] bottom-0 mb-0.5 text-xs">
+                    {arr[key].split(",")[1]}
+                  </span>
+                  <span className="absolute text-c2 left-[180%]">
+                    @{v.odds[key]}
+                  </span>
+                </span>
+                <span>{g[0].starts.split("T")[1].slice(0, -3)}</span>
+              </span>
+              <span className="flex flex-col relative justify-center gap-1">
                 {[0, 1].map((key) => (
                   <div
                     key={key}
                     className="top-3 overflow-hidden whitespace-nowrap text-ellipsis z-10"
                   >
-                    {key ? g.team1 : g.team2}
+                    {key ? g[0].home : g[0].away}
                   </div>
                 ))}
-              </div>
-              <div className="flex">
-                <span className="text-c2 text-base mr-4">3.89</span>
-                <div className="flex items-end flex-col">
-                  <span className="flex">
-                    @Home
-                    <span className="opacity-40">1X2</span>
-                  </span>
-                  <span className="text-c2">19:45</span>
-                </div>
-              </div>
+                <span className="text-c2 opacity-10 text-3xl absolute -right-1">
+                  vs
+                </span>
+              </span>
+              <span className="text-c4 font-bold fvsc text-xl border-r-2  border-c4 bottom-0 right-0 px-2 py-1 absolute">
+                Not Start
+              </span>
             </div>
           ))}
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-8">
             {[0, 1].map((key) => (
-              <span className="flex gap-3 px-1 items-end" key={key}>
-                <span className="opacity-40 mb-1 text-sm">
-                  {key ? "To Win" : "Stake"}
+              <span className="flex gap-3 px-1 text-[19px] items-end" key={key}>
+                <span className="text-slate-700/50 text-sm">
+                  {key ? "To win" : "Stake"}
                 </span>
-                <span className={`${key ? "text-c2" : ""} text-lg`}>
-                  {key ? 2000 : 388}
+                <span className={`${key ? "text-c2" : ""} mb-[1.5px] `}>
+                  {key ? totalOdds : v.stake}
                 </span>
               </span>
             ))}
           </div>
-          <button className="bg-green-600 mt-2 disabled:bg-c4 disabled:text-white/40 bg-gradient-to-br h-14 w-full">
-            Cashout
+          <button
+            disabled
+            className=" bg-c4 mb-5 bg-gradient-to-br mt-2 disabled:bg-c4/40 disabled:text-white/40 h-16 w-full"
+          >
+            Cashout Unavailable
           </button>
         </>
       )}
@@ -126,17 +213,7 @@ const BetSlip = ({ v }) => {
   );
 };
 
-const returnDate = () => {
-  let dateArr = [];
-  for (let i = -7; i < 11; i++) {
-    let { day, weekDay } = getDate(i);
-    dateArr.push(`${weekDay.slice(0, 3)} ${day}`);
-  }
-
-  return [dateArr, getDate().day];
-};
-
-function Index() {
+const DateList = () => {
   const container = useRef(null);
   const cDate = useRef(null);
   let months = [
@@ -154,21 +231,21 @@ function Index() {
     "Dec",
   ];
 
+  const returnDate = () => {
+    let dateArr = [];
+    for (let i = -10; i < 6; i++) {
+      let { day, weekDay } = getDate(i);
+      dateArr.push(`${weekDay.slice(0, 3)} ${day}`);
+    }
+
+    return [dateArr, getDate().day];
+  };
+
   const [dateArray, currentDate] = returnDate();
   const [active, setActive] = useState(currentDate);
-  const [activeBets, setActiveBets] = useState("loading");
 
-  const getBets = async () => {
-    setActiveBets("loading");
-    let data = await appService.getBets();
-    // let data = false;
-
-    if (data) {
-      setActiveBets(data.stage);
-      if (data.email && data.email !== email) setEmail(data.email);
-    } else {
-      setActiveBets("error");
-    }
+  const activate = (v) => {
+    setActive(v);
   };
 
   useEffect(() => {
@@ -179,74 +256,98 @@ function Index() {
           cDate.current.clientWidth / 2,
         0
       );
-
-      setTimeout(getBets, 500);
     }, 500);
   }, []);
 
   return (
+    <header className="w-full z-20 flex mt-3 flex-col items-center ">
+      <span className="mt-4">{months[new Date().getMonth()]}</span>
+      <div
+        ref={container}
+        className="w-full pb-3 pt-2 scroll-smooth px-3 no-bars overflow-x-scroll space-x-3 whitespace-nowrap "
+      >
+        {dateArray.map((dates, key) => (
+          <button
+            className={`from-black active:scale-110 duration-200 bg-gradient-to-b relative rounded-2xl text-sm gap-2 w-16 h-16 ${
+              active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
+            }`}
+            key={key}
+            ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
+            onClick={() => activate(dates.split(" ")[1])}
+          >
+            <span className="z-10">{dates.split(" ")[0]}</span> <br />
+            <span className="text-c2"> {dates.split(" ")[1]}</span>
+          </button>
+        ))}
+      </div>
+    </header>
+  );
+};
+
+function Index() {
+  const [activeTicket, setActiveTicket] = useState(null);
+  const [activeBets, setActiveBets] = useState(null);
+  const [active, setActive] = useState(0);
+
+  const getBets = async () => {
+    setActiveBets("loading");
+    const data = await betController.getBets();
+    data ? setActiveBets(data.betlist) : setActiveBets("error");
+  };
+
+  useEffect(() => {
+    setTimeout(() => activeBets === null && getBets(), 2000);
+  }, [activeBets]);
+
+  return (
     <>
-      <header className="w-full z-20 pb-2 flex mt-5 flex-col items-center ">
-        <span className="mt-4 mb-2">{months[new Date().getMonth()]}</span>
-        <div
-          ref={container}
-          className="w-full scroll-smooth px-3 no-bars overflow-x-scroll space-x-3 whitespace-nowrap "
-        >
-          {dateArray.map((dates, key) => (
-            <React.Fragment key={key}>
-              {dates.split(" ")[1] === currentDate.toString() ? (
-                <motion.button
-                  className={`from-black bg-gradient-to-b relative rounded-2xl text-sm gap-2 w-16 h-16 ${
-                    active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
-                  }`}
-                  ref={cDate}
-                  whileTap={{ opacity: 0.2 }}
-                  onClick={() => setActive(dates.split(" ")[1])}
-                >
-                  <span className="z-10">{dates.split(" ")[0]}</span> <br />
-                  <span className="text-c2"> {dates.split(" ")[1]}</span>
-                </motion.button>
-              ) : (
-                <motion.button
-                  className={`from-black bg-gradient-to-b relative rounded-2xl text-sm gap-2 w-16 h-16 ${
-                    active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
-                  }`}
-                  whileTap={{ opacity: 0.2 }}
-                  onClick={() => setActive(dates.split(" ")[1])}
-                >
-                  <span className="z-10">{dates.split(" ")[0]}</span> <br />
-                  <span className="text-c2"> {dates.split(" ")[1]}</span>
-                </motion.button>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </header>
-      <div className="flex mt-6 items-center flex-col gap-4 w-full">
+      <DateList />
+      <ul
+        style={{ width: "95%" }}
+        className="flex justify-start mb-5 pb-1 w-full px-4"
+      >
+        {["active", "settled"].map((v, key) => (
+          <li
+            key={key}
+            className={`px-5 py-2 fx active:scale-90 duration-150 rounded-xl ${
+              key === active ? "bg-c2/5 text-c2" : "text-white/30"
+            }`}
+            onClick={() => setActive(key)}
+          >
+            {v}
+          </li>
+        ))}
+      </ul>
+      <div className="flex mb-28 items-center flex-col gap-4 w-full">
         <Retry
           state={activeBets}
           loading={
             <span className="mt-20 fx gap-3">
-              <CircularLoader size={34} depth={6} />
+              <CircularLoader size={35} depth={6} color />
             </span>
           }
           error={
-            <span className="fx flex-col text-sm mt-6 gap-2">
-              <BiWifiOff className="text-5xl mb-1 opacity-25" />
-              Network Error
-              <button
-                onClick={getBets}
-                className="relative px-5 py-2 aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-0.5 before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex text-c2"
-              >
-                try again
+            <span className="fx flex-col text-sm mt-9 gap-2">
+              <BiXCircle className="text-3xl opacity-25" />
+              Something went wrong
+              <button onClick={getBets} className=" text-c2">
+                refresh
               </button>
             </span>
           }
         >
-          {/* {activeBets.length > 0
-            ? activeBets.map((bet, key) => <BetSlip key={key} v={bet} />)
-            : "You have no active bets"} */}
-          fish is fishing
+          {typeof activeBets === "object" && activeBets?.length > 0
+            ? activeBets.map((bet, key) => (
+                <BetSlip
+                  key={key}
+                  v={bet}
+                  active={activeTicket}
+                  index={key}
+                  onClick={(key) => setActiveTicket(key)}
+                  getBets={getBets}
+                />
+              ))
+            : "You have no active bets"}
         </Retry>
       </div>
     </>
