@@ -188,7 +188,7 @@ function Index() {
           <>
             <span className="fx fixed top-0 z-20 bg-[#000000] px-5 py-2 shadow-lg shadow-black/50 text-white/75 rounded-b-xl rounded-tr-xl">
               <BiUserCircle className="mr-1 text-lg text-c2" />
-              {user.email}
+              {user?.email}
             </span>
             <div className="flex opacity-75 items-center mt-12 w-full flex-1 justify-around">
               <span>Total Balance:</span>
@@ -202,7 +202,7 @@ function Index() {
             <div className="pb-6 fx pt-4 w-full text-center text-green-500 text-3xl ">
               {isVisible ? (
                 <>
-                  <Naira /> {user.balance.toFixed(2)}
+                  <Naira /> {user?.balance}
                 </>
               ) : (
                 "****"
