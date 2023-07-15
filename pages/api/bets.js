@@ -37,7 +37,7 @@ const placeBet = async (req, res, id) => {
   let ticket = await Ticket.findOne({ slip });
 
   if (!ticket) {
-    let code = generateCode();
+    const code = generateCode();
     const newTicket = new Ticket({ code, slip });
     await newTicket.save();
     ticket = newTicket;
@@ -78,6 +78,7 @@ const getBets = async (req, res, id) => {
         );
         games.push(g);
       });
+
       betlist.push({
         games,
         code: betSlip.ticket.code,
@@ -105,16 +106,28 @@ const getBets = async (req, res, id) => {
 
 const loadBet = async (req, res) => {
   const { code } = req.body;
+
   const codeAvail = await Ticket.findOne({ code });
-  if (!codeAvail) throw Error("Code does not exist");
+  if (!codeAvail) throw Error("No games found");
 
   let games = [];
 
   for (let i = 0; i < codeAvail.slip.split("|").length; i++) {
     const [id, mkt, outcome] = codeAvail.slip.split("|")[i].split(",");
-    let game = footBallGames.events.filter((v) => v.event_id === parseInt(id));
+    const { home, away, starts, sport_id } = footBallGames.events.filter(
+      (v) => v.event_id === parseInt(id)
+    )[0];
 
-    games.push({ game, odds: codeAvail.slip.odds[i], mkt, outcome });
+    games.push({
+      id,
+      odd: "4.4",
+      mkt,
+      outcome,
+      sport_id,
+      home,
+      away,
+      time: starts.split("T")[1].slice(0, -3),
+    });
   }
 
   res.json({ games });

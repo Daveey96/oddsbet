@@ -8,35 +8,39 @@ import Odds from "./Odds";
 import Retry from "../services/Retry";
 import { Context } from "../layout";
 import { getDate } from "@/helpers";
-// import footBall from "@/helpers/football";
+import footBall from "@/helpers/football";
 import { apiController } from "@/controllers";
 
 export const sports = [
   {
     id: 1,
     item: "soccer",
-    icon: <BiFootball className="text-c2" />,
     markets: [
-      { name: "WDL", v: "WDL" },
-      { name: "over/under", v: "OU" },
-      { name: "home over/under", v: "HOU" },
-      { name: "away over/under", v: "AOU" },
+      { item: "WDL", v: "WDL" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
     ],
   },
-  { id: 3, item: "basketball", icon: <BiFootball className="text-c2" /> },
-  { id: 2, item: "tennis", icon: <BiFootball className="text-c2" /> },
-  { id: 4, item: "Hockey", icon: <BiFootball className="text-c2" /> },
-  { id: 5, item: "volleyball", icon: <BiFootball className="text-c2" /> },
-  { id: 6, item: "handball", icon: <BiFootball className="text-c2" /> },
   {
-    id: 7,
-    item: "Mixed Martial Arts",
-    icon: <BiFootball className="text-c2" />,
+    id: 3,
+    item: "basketball",
+    markets: [
+      { item: "Winner", v: "WL" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
   },
-  { id: 8, item: "Baseball", icon: <BiFootball className="text-c2" /> },
+  { id: 2, item: "tennis" },
+  { id: 4, item: "hockey" },
+  { id: 5, item: "volleyball" },
+  { id: 6, item: "handball" },
+  { id: 7, item: "mixed martial Arts" },
+  { id: 8, item: "baseball" },
 ];
 
-const Game = ({ game, mkt }) => {
+const Game = ({ game, mkt, isLive }) => {
   const [g, setG] = useState(game);
   const { setGameId } = useContext(Context);
 
@@ -77,21 +81,21 @@ const Game = ({ game, mkt }) => {
 
   return (
     <div
-      className={`flex dark:bg-c4 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2`}
+      className={`flex bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2 ${
+        isLive ? "dark:bg-[#010f12]" : "dark:bg-c4"
+      }`}
     >
       <div className="w-full flex gap-2 text-[11px]">
         <span className="text-c2 ">{g.starts.split("T")[1].slice(0, -3)}</span>
-        <span className="w-[62%] text-[11px] overflow-hidden opacity-30 text-ellipsis whitespace-nowrap">
+        <span className="w-[62%] overflow-hidden opacity-30 text-ellipsis whitespace-nowrap">
           {g.league_name}
         </span>
       </div>
       <div className="w-full flex justify-between items-center">
-        <div
-          onClick={() => setGameId(g.id)}
-          className="flex h-9 pr-3 flex-col justify-between w-[42%]"
-        >
+        <div className="flex h-9 pr-3 flex-col justify-between w-[42%]">
           {[0, 1].map((key) => (
             <span
+              onClick={() => setGameId(g.event_id)}
               className="flex pl-1 rounded-md active:bg-white/5 duration-200 pr-2 bg-white/0 gap-1 items-center"
               key={key}
             >
@@ -130,10 +134,7 @@ const GameList = ({ title, globalGames, getGames }) => {
 
   useEffect(() => {
     pos.current = header.current.offsetTop;
-    scrollY > pos.current
-      ? header.current.classList.add("isSticky")
-      : header.current.classList.remove("isSticky");
-  }, [scrollY]);
+  }, [games]);
 
   useEffect(() => {
     setGames(globalGames);
@@ -148,30 +149,30 @@ const GameList = ({ title, globalGames, getGames }) => {
     <>
       <header
         ref={header}
-        className={`flex mb-px z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col dark:bg-c4 bg-white pb-2 pt-6`}
+        className={`flex mb-px z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col bg-white pb-1 pt-5 ${
+          title === "Live" ? "dark:bg-c2/5" : "dark:bg-c4"
+        }`}
       >
-        <span className=" text-lg gap-3 flex items-center pl-5">
+        <span className=" text-base gap-3 flex items-center pl-5">
           <span className="">{title}</span>{" "}
           <span className="opacity-50">|</span>
           <List
-            iClass="border-[1px] pt-0.5 pb-0.5 mt-0.5 rounded-lg text-[13px] gap-1 pr-3 pl-2"
-            activeClass={`text-c2 border-c2/60`}
+            iClass="pt-0.5 pb-0.5 mt-0.5 text-[13px] gap-1 pr-3 pl-2"
+            activeClass={`text-c2`}
             inActiveClass={"border-white/20"}
-            onClick={(v) => changeSport(v)}
+            onClick={changeSport}
             list={sports}
-            jsx={"icon item"}
-            v={"id"}
+            v="id"
+            icon
           />
         </span>
         <List
-          className={"mt-2 mb-1 py-1 px-3"}
+          className={"mt-1 mb-1 py-1 px-3"}
           iClass="px-3.5 py-1 bg-gray-700/5 active:opacity-10 opacity-100 rounded-lg shadow-[0px_2px_2px_1px] shadow-black/20 duration-200"
           activeClass={"text-c2"}
           inActiveClass={"text-white/40"}
           onClick={(v) => setMkt(v)}
           list={sports.filter((g) => g.id === sportId)[0].markets}
-          jsx={"name"}
-          v={"v"}
         />
       </header>
       <Retry
@@ -248,7 +249,7 @@ const GameList = ({ title, globalGames, getGames }) => {
         {typeof games === "object" && games && (
           <div className="flex flex-col mb-2 relative items-center w-full gap-px">
             {games.slice(0, 15).map((game, key) => (
-              <Game key={key} game={game} mkt={mkt} />
+              <Game key={key} isLive={title === "Live"} game={game} mkt={mkt} />
             ))}
             <motion.button
               whileTap={{ opacity: 0.3 }}
@@ -265,52 +266,63 @@ const GameList = ({ title, globalGames, getGames }) => {
 
 export default function GameDays() {
   const [array, setArray] = useState(["Today"]);
-  // for (let i = 1; i < 5; i++) {
-  //   let { weekDay } = getDate(i);
-  //   array.push(weekDay);
-  // }
-
   const [games, setGames] = useState(null);
+
+  const filterGames = (data, isoString, len = 7) => {
+    let dataArr = [];
+    let dataSpecialArr = [];
+    let filter = data.events.filter(
+      (v) => v.starts.split("T")[0] === isoString
+    );
+    let l = filter.filter((v) => v.parent_id !== null);
+
+    filter.forEach((element) => {
+      if (element.parent_id) {
+        let r = filter.filter((v) => v.event_id === element.parent_id);
+        r[0].periods.num_0[element.resulting_unit.toLowerCase()] =
+          element.periods.num_0.totals;
+        dataSpecialArr.push(r[0]);
+      } else {
+        const g = l.filter((v) => v.parent_id === element.event_id);
+        if (!g) dataArr.push(element);
+      }
+    });
+
+    const Arr = [
+      ...dataSpecialArr,
+      ...dataArr.sort((a, b) => a.league_id - b.league_id),
+    ]
+      .slice(0, len)
+      .sort(
+        (a, b) =>
+          parseInt(a.starts.split("T")[1].slice(0, 2)) -
+          parseInt(b.starts.split("T")[1].slice(0, 2))
+      );
+
+    return Arr;
+  };
 
   const getGames = async (id) => {
     setGames("loading");
 
-    const data = await apiController.getMatches(1);
-    // const data = footBall;
+    // const data = await apiController.getMatches(1);
+    const data = footBall;
 
     if (data.events) {
-      let dataArr = [];
-      let dataSpecialArr = [];
-      let { isoString } = getDate();
-      let filter = data.events.filter(
-        (v) => v.starts.split("T")[0] === isoString
-      );
-      let l = filter.filter((v) => v.parent_id !== null);
+      let genArray = [];
+      let daysArr = [];
+      let day = -8;
 
-      filter.forEach((element) => {
-        if (element.parent_id) {
-          let r = filter.filter((v) => v.event_id === element.parent_id);
-          r[0].periods.num_0[element.resulting_unit.toLowerCase()] =
-            element.periods.num_0.totals;
-          dataSpecialArr.push(r[0]);
-        } else {
-          const g = l.filter((v) => v.parent_id === element.event_id);
-          if (!g) dataArr.push(element);
-        }
-      });
+      for (let i = 0; i < 3; i++) {
+        const { isoString, weekDay } = getDate(day);
+        const games = filterGames(data, isoString, 5);
+        daysArr.push(i ? weekDay : "Today");
+        genArray.push(games);
+        day++;
+      }
 
-      const Arr = [
-        ...dataSpecialArr,
-        ...dataArr.sort((a, b) => a.league_id - b.league_id),
-      ]
-        .slice(0, 12)
-        .sort(
-          (a, b) =>
-            parseInt(a.starts.split("T")[1].slice(0, 2)) -
-            parseInt(b.starts.split("T")[1].slice(0, 2))
-        );
-      console.log(Arr);
-      setGames(Arr);
+      setArray(["Live", ...daysArr]);
+      setGames(genArray);
     } else setGames("error");
   };
 
@@ -326,7 +338,7 @@ export default function GameDays() {
         <GameList
           title={title}
           key={key}
-          globalGames={games}
+          globalGames={games && games[key]}
           getGames={getGames}
         />
       ))}

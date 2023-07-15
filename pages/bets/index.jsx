@@ -56,39 +56,19 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
         }`}
         onClick={() => (active === index ? onClick(null) : onClick(index))}
       >
-        <div className="w-1/4 flex flex-col items-center relative h-full z-10 overflow-hidden bg-c4">
+        <div className="w-1/5 flex flex-col items-center relative h-full z-10 overflow-hidden bg-c4/40">
           <span
             className={`bg-c2/10 z-10 text-c2 text-lg fx ${
-              active === index ? "w-full h-full" : "w-12 h-12 mt-4 rounded-full"
+              active === index ? "w-full h-full" : "w-10 h-10 mt-4 rounded-full"
             }`}
           >
             {v.games.length}
           </span>
           <TicketDots right active={active === index} />
-          <div className="absolute -rotate-45 -right-12 opacity-10">
-            {Array(6)
-              .fill("")
-              .map((i, key) => (
-                <div key={key} className="flex h-10 even:ml-10 overflow-hidden">
-                  {Array(6)
-                    .fill("")
-                    .map((i2, key2) => (
-                      <Image
-                        width={70}
-                        height={20}
-                        key={key2}
-                        priority
-                        src={"/logo3.svg"}
-                        alt="Oddsbet"
-                      />
-                    ))}
-                </div>
-              ))}
-          </div>
         </div>
         <div className="flex-1 overflow-hidden duration-300 items-center relative flex h-full flex-col z-10 bg-c4/70">
           <span
-            className={`flex w-full py-1.5 text-lg gap-2 pr-3 justify-end ${
+            className={`flex w-full py-1.5 text-lg gap-1 pr-6 justify-end ${
               active === index ? "h-full items-center" : "mt-1"
             } `}
           >
@@ -147,6 +127,7 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
             </>
           )}
           <TicketDots active={active === index} />
+          <TicketDots right active={active === index} />
         </div>
       </div>
       {active === index && (
@@ -154,7 +135,7 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
           {v.games.map((g, key) => (
             <div
               key={key}
-              className="flex px-3 gap-3 mt-2 flex-col justify-between bg-c4/0 active:bg-c4/40 duration-200 border-l-[4px] border-c4 items-start py-5 text-sm w-full relative"
+              className="flex px-3 gap-3 mt-2 flex-col justify-between bg-c4/0 active:bg-c4/40 duration-200 border-l-[4px] border-amber-600 items-start py-5 text-sm w-full relative"
             >
               <span className="flex gap-4 w-full justify-between items-center">
                 <span className="flex gap-1 relative text-c1 items-center">
@@ -184,8 +165,8 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
                   vs
                 </span>
               </span>
-              <span className="text-c4 font-bold fvsc text-xl border-r-2  border-c4 bottom-0 right-0 px-2 py-1 absolute">
-                Not Start
+              <span className="text-amber-600 font-bold fvsc text-xl border-r-2  border-amber-600 bottom-0 right-0 px-2 py-1 absolute">
+                Ongoing
               </span>
             </div>
           ))}
@@ -336,18 +317,20 @@ function Index() {
             </span>
           }
         >
-          {typeof activeBets === "object" && activeBets?.length > 0
-            ? activeBets.map((bet, key) => (
-                <BetSlip
-                  key={key}
-                  v={bet}
-                  active={activeTicket}
-                  index={key}
-                  onClick={(key) => setActiveTicket(key)}
-                  getBets={getBets}
-                />
-              ))
-            : "You have no active bets"}
+          {typeof activeBets === "object" && activeBets?.length > 0 ? (
+            activeBets.map((bet, key) => (
+              <BetSlip
+                key={key}
+                v={bet}
+                active={activeTicket}
+                index={key}
+                onClick={(key) => setActiveTicket(key)}
+                getBets={getBets}
+              />
+            ))
+          ) : (
+            <span className="mt-10">You have no active bets</span>
+          )}
         </Retry>
       </div>
     </>

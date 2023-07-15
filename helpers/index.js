@@ -11,6 +11,16 @@ export const condition = (v, values, output) => {
   }
 };
 
+export const weekDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 export const getDate = (d = 0) => {
   let [month, day, year] = new Date().toLocaleDateString().split("/");
   let months = [
@@ -26,15 +36,6 @@ export const getDate = (d = 0) => {
     31,
     30,
     31,
-  ];
-  let weekDays = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
   ];
 
   const normalize = (value) => {

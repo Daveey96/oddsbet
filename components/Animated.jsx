@@ -75,18 +75,18 @@ export const BlurredModal = ({
   type,
 }) => {
   const variant = {
-    init2: { opacity: 0 },
-    show2: { opacity: 1 },
-    exit2: { opacity: 0 },
+    init: { opacity: 0 },
+    show: { opacity: 1 },
+    exit: { opacity: 0 },
   };
 
   let childVariants = {
-    init2: { ...(variants?.init || { opacity: 0 }) },
-    show2: {
+    init: { ...(variants?.init || { opacity: 0 }) },
+    show: {
       ...(variants?.show || { opacity: 1 }),
       transition: { ease: "anticipate" },
     },
-    exit2: {
+    exit: {
       ...(variants?.exit || { opacity: 0 }),
       transition: { ease: "easeInOut" },
     },
@@ -94,12 +94,9 @@ export const BlurredModal = ({
 
   return (
     <Animated
-      variantKey="2"
       state={state}
       variants={variant}
-      className={`fixed inset-0 ${
-        variants ? "backdrop-blur-md" : "backdrop-blur-xl"
-      } ${className}`}
+      className={`fixed inset-0 ${className}`}
       onClick={onClick}
     >
       {type === "allChidren" ? (
@@ -116,11 +113,7 @@ export const BlurredModal = ({
         </>
       ) : (
         <>
-          <motion.div
-            layout
-            variants={childVariants}
-            className={"absolute inset-x-0 " + iClass}
-          >
+          <motion.div variants={childVariants} className={iClass}>
             {children?.length ? children[0] : children}
           </motion.div>
           {children?.length && children[1]}

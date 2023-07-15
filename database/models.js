@@ -9,6 +9,8 @@ const userSchema = new Schema({
   password: String,
   balance: Number,
   token: String,
+  pin: Number,
+  demo: Boolean,
   currentStage: Number,
   active: [
     {

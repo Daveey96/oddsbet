@@ -1,11 +1,12 @@
+import Image from "next/image";
 import React, { useState } from "react";
 
 function List({
   list,
-  v,
   className,
-  jsx,
+  icon,
   iClass,
+  v = "v",
   onClick,
   activeClass,
   inActiveClass,
@@ -19,7 +20,7 @@ function List({
       {list.map((i, key) => (
         <li
           onClick={() => {
-            onClick(v[key][list]);
+            onClick(list[key][v]);
             setActive(key);
           }}
           className={`fx last-of-type:mr-3 whitespace-nowrap ${iClass} ${
@@ -27,13 +28,15 @@ function List({
           }`}
           key={key}
         >
-          {jsx.includes(" ") ? (
-            <>
-              {list[key][jsx.split(" ")[0]]} {list[key][jsx.split(" ")[1]]}
-            </>
-          ) : (
-            <>{list[key][jsx]}</>
+          {icon && (
+            <Image
+              width={15}
+              height={15}
+              src={`/sport_icons_I/sport${i.id}.svg`}
+              alt={i.item}
+            />
           )}
+          <>{i.item}</>
         </li>
       ))}
     </ul>
