@@ -60,7 +60,7 @@ const market = (g, v) => {
   }
 };
 
-const Layout_I = ({ currentMkt, slider, game, mkt }) => {
+const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
   const { betList, setBetList } = useContext(Context);
   const { odds, tag, name } = currentMkt;
   const [active, setActive] = useState(undefined);
@@ -119,7 +119,11 @@ const Layout_I = ({ currentMkt, slider, game, mkt }) => {
           {locked(key) ? odd.toFixed(2) : <BiLockAlt className="opacity-60" />}
           {!slider && (
             <span
-              className={`absolute bottom-[110%] shadow-[-9px_0px_6px_0] shadow-c4 text-[10px] bg-c4 leading-3 text-white/40 px-2 `}
+              className={`absolute bottom-[110%] text-[10px] leading-3 px-2 ${
+                !isLive
+                  ? "shadow-c4 text-white/40 shadow-[-9px_0px_6px_0] bg-c4"
+                  : "text-c2/80"
+              } `}
             >
               {tag[key]}
             </span>
@@ -130,7 +134,7 @@ const Layout_I = ({ currentMkt, slider, game, mkt }) => {
   );
 };
 
-const Layout_II = ({ currentMkt, slider, game, mkt }) => {
+const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
   const { betList, setBetList } = useContext(Context);
   const { odds, tag, name } = currentMkt;
 
@@ -249,7 +253,7 @@ const Layout_II = ({ currentMkt, slider, game, mkt }) => {
   );
 };
 
-export default function Odds({ className, game, slider, mkt = "WDL" }) {
+export default function Odds({ className, game, slider, isLive, mkt = "WDL" }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const currentMkt = useMemo(() => market(game.periods.num_0, mkt), [mkt]);
 
@@ -262,6 +266,7 @@ export default function Odds({ className, game, slider, mkt = "WDL" }) {
           key={mkt}
           currentMkt={currentMkt}
           slider={slider}
+          isLive={isLive}
         />
       ) : (
         <Layout_I
@@ -270,6 +275,7 @@ export default function Odds({ className, game, slider, mkt = "WDL" }) {
           key={mkt}
           currentMkt={currentMkt}
           slider={slider}
+          isLive={isLive}
         />
       )}
       {slider && (

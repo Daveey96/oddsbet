@@ -56,16 +56,17 @@ const checkEmail = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  // let mailSent = await sendMail(email, token);
-  // if (!mailSent) throw Error("Couldn't send mail");
+  let mailSent = await sendMail(email, token);
+  if (!mailSent) throw Error("Couldn't send mail");
   console.log(token);
 
   let newUser = await User.create({
     email,
     token: hashedToken,
-    verified: false,
     currentStage: 1,
   });
+
+  console.log("created");
 
   cookies.setCookie(req, res, "__sid", newUser._id, 1000 * 3600 * 24 * 30);
   res.status(201).json({ message: "Mail sent", token });
@@ -129,14 +130,22 @@ const getStage = async (req, res) => {
   let id = cookies.getCookie(req, res, "__sid");
 
   if (id) {
-    let user = await User.findById(id);
+    let {
+      currentStage = 0,
+      balance,
+      email,
+      _id,
+    } = await User.findById(id, "currentStage balance email");
 
-    user?.currentStage
-      ? res.json({ stage: user.currentStage, email: user.email })
-      : res.json({ stage: 0 });
-  } else {
-    res.json({ stage: 0 });
-  }
+    if (currentStage === 3) {
+      return res.json({
+        cookie: true,
+        user: { id: _id, mail: email, balance },
+      });
+    }
+
+    res.json({ stage: currentStage, email });
+  } else res.json({ stage: 0 });
 };
 
 const resendCode = async (req, res) => {
@@ -148,9 +157,8 @@ const resendCode = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  // let mailSent = await sendMail(email, token);
-  // if (!mailSent) throw Error("Couldn't send mail");
-  console.log(token);
+  let mailSent = await sendMail(email, token);
+  if (!mailSent) throw Error("Couldn't send mail");
 
   user.token = hashedToken;
   await user.save();

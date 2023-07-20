@@ -1,15 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { BiFootball, BiXCircle } from "react-icons/bi";
-import Image from "next/image";
-import axios from "axios";
-import List from "./List";
-import Odds from "./Odds";
-import Retry from "../services/Retry";
-import { Context } from "../layout";
+import React, { useEffect, useRef, useState } from "react";
+import { useMotionValueEvent, useScroll } from "framer-motion";
+import { BiXCircle } from "react-icons/bi";
 import { getDate } from "@/helpers";
+import Image from "next/image";
+import List from "./List";
+import Retry from "../services/Retry";
 import footBall from "@/helpers/football";
-import { apiController } from "@/controllers";
+import Game from "./Game";
 
 export const sports = [
   {
@@ -40,84 +37,6 @@ export const sports = [
   { id: 8, item: "baseball" },
 ];
 
-const Game = ({ game, mkt, isLive }) => {
-  const [g, setG] = useState(game);
-  const { setGameId } = useContext(Context);
-
-  const getGame = async () => {
-    if (g.minute) {
-      try {
-        let { data } = await axios.get(
-          `https://api.betting-api.com/1xbet/football/live/${g.id}`,
-          {
-            headers: {
-              Authorization:
-                "50b134713d5b4f4fa563d9063c0be5b9820c6bac24aa4637bfde0bb96eb5e897",
-            },
-          }
-        );
-
-        console.log(data);
-        if (data) {
-          setG(data);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
-  // useEffect(() => {
-  //   if (g && index < 5) {
-  //     setTimeout(() => {
-  //       getGame();
-  //     }, 3000);
-  //   }
-  // }, [g]);
-
-  // useEffect(() => {
-  //   !g && setG(game);
-  // }, [game]);
-
-  return (
-    <div
-      className={`flex bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2 ${
-        isLive ? "dark:bg-[#010f12]" : "dark:bg-c4"
-      }`}
-    >
-      <div className="w-full flex gap-2 text-[11px]">
-        <span className="text-c2 ">{g.starts.split("T")[1].slice(0, -3)}</span>
-        <span className="w-[62%] overflow-hidden opacity-30 text-ellipsis whitespace-nowrap">
-          {g.league_name}
-        </span>
-      </div>
-      <div className="w-full flex justify-between items-center">
-        <div className="flex h-9 pr-3 flex-col justify-between w-[42%]">
-          {[0, 1].map((key) => (
-            <span
-              onClick={() => setGameId(g.event_id)}
-              className="flex pl-1 rounded-md active:bg-white/5 duration-200 pr-2 bg-white/0 gap-1 items-center"
-              key={key}
-            >
-              <Image
-                width={11}
-                height={10}
-                src={"/badge.svg"}
-                className="-translate-y-0.5"
-                alt=""
-              />
-              <span className="flex flex-1 pr-6 text-ellipsis whitespace-nowrap overflow-hidden text-[12px] leading-[20px] items-center justify-between">
-                {key ? g.away : g.home}
-              </span>
-            </span>
-          ))}
-        </div>
-        <Odds game={g} mkt={mkt} className={"w-[58%]"} />
-      </div>
-    </div>
-  );
-};
-
 const GameList = ({ title, globalGames, getGames }) => {
   const [mkt, setMkt] = useState("WDL");
   const [games, setGames] = useState(null);
@@ -125,20 +44,19 @@ const GameList = ({ title, globalGames, getGames }) => {
   const { scrollY } = useScroll();
   const header = useRef(null);
   const pos = useRef(null);
+  const isLive = title === "Live";
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     latest > pos.current
-      ? header.current.classList.add("isSticky")
-      : header.current.classList.remove("isSticky");
+      ? header.current.classList.add(isLive ? "isSticky2" : "isSticky")
+      : header.current.classList.remove(isLive ? "isSticky2" : "isSticky");
   });
 
   useEffect(() => {
     pos.current = header.current.offsetTop;
   }, [games]);
 
-  useEffect(() => {
-    setGames(globalGames);
-  }, [globalGames]);
+  useEffect(() => setGames(globalGames), [globalGames]);
 
   const changeSport = (id) => {
     getGames(id);
@@ -150,11 +68,24 @@ const GameList = ({ title, globalGames, getGames }) => {
       <header
         ref={header}
         className={`flex mb-px z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col bg-white pb-1 pt-5 ${
-          title === "Live" ? "dark:bg-c2/5" : "dark:bg-c4"
+          isLive ? "dark:bg-black/40" : "dark:bg-c4"
         }`}
       >
         <span className=" text-base gap-3 flex items-center pl-5">
-          <span className="">{title}</span>{" "}
+          {!isLive ? (
+            <>{title}</>
+          ) : (
+            <span className="flex mr-3">
+              <Image
+                src={"/tv.svg"}
+                className="scale-150 rotate-6"
+                width={11}
+                height={11}
+                alt=""
+              />
+              <span className="z-10 font-bold text-lg">{title}</span>
+            </span>
+          )}
           <span className="opacity-50">|</span>
           <List
             iClass="pt-0.5 pb-0.5 mt-0.5 text-[13px] gap-1 pr-3 pl-2"
@@ -178,46 +109,91 @@ const GameList = ({ title, globalGames, getGames }) => {
       <Retry
         state={games}
         loading={
-          <div className="flex flex-col mb-2 relative items-center w-full gap-px">
-            {Array(4)
-              .fill("")
-              .map((i, key) => (
-                <div
-                  key={key}
-                  className="flex dark:bg-c4 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2"
-                >
-                  <div className="w-[46%] rounded-md bg-slate-600/20 leading-[14px] mb-1 fade text-[12px]"></div>
-                  <div className="w-full flex justify-between items-center">
-                    <div className="flex h-10 flex-col justify-between w-[42%]">
-                      {[0, 1].map((key) => (
-                        <span
-                          className="flex bg-white/0 pr-1 w-full gap-1 items-center"
-                          key={key}
-                        >
-                          <Image
-                            width={11}
-                            height={10}
-                            src={"/badge.svg"}
-                            alt=""
-                          />
-                          <span className="fade rounded-md flex-1 bg-slate-600/20 text-[12px] leading-[15px] mr-1"></span>
-                        </span>
-                      ))}
+          <>
+            {isLive ? (
+              <div className="flex flex-col mb-2 relative items-center w-full gap-px">
+                {Array(4)
+                  .fill("")
+                  .map((i, key) => (
+                    <div
+                      key={key}
+                      className="flex dark:bg-c4/40 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2"
+                    >
+                      <div className="w-[46%] rounded-md bg-slate-600/10 leading-[14px] mb-1 fade text-[12px]"></div>
+                      <div className="w-full flex justify-between items-center">
+                        <div className="flex h-10 flex-col justify-between w-[42%]">
+                          {[0, 1].map((key) => (
+                            <span
+                              className="flex bg-white/0 pr-1 w-full gap-1 items-center"
+                              key={key}
+                            >
+                              <Image
+                                width={11}
+                                height={10}
+                                src={"/badge.svg"}
+                                alt=""
+                              />
+                              <span className="fade rounded-md flex-1 bg-slate-600/10 text-[12px] leading-[15px] mr-1"></span>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="w-[58%] flex gap-2">
+                          {Array(3)
+                            .fill("")
+                            .map((i, key2) => (
+                              <span
+                                key={key2}
+                                className="bg-slate-600/10 rounded-md fade flex-1 h-10"
+                              ></span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-[58%] flex gap-2">
-                      {Array(3)
-                        .fill("")
-                        .map((i, key2) => (
-                          <span
-                            key={key2}
-                            className="bg-slate-600/20 rounded-md fade flex-1 h-10"
-                          ></span>
-                        ))}
+                  ))}
+              </div>
+            ) : (
+              <div className="flex flex-col mb-2 relative items-center w-full gap-px">
+                {Array(4)
+                  .fill("")
+                  .map((i, key) => (
+                    <div
+                      key={key}
+                      className="flex dark:bg-c4 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2"
+                    >
+                      <div className="w-[46%] rounded-md bg-slate-600/20 leading-[14px] mb-1 fade text-[12px]"></div>
+                      <div className="w-full flex justify-between items-center">
+                        <div className="flex h-10 flex-col justify-between w-[42%]">
+                          {[0, 1].map((key) => (
+                            <span
+                              className="flex bg-white/0 pr-1 w-full gap-1 items-center"
+                              key={key}
+                            >
+                              <Image
+                                width={11}
+                                height={10}
+                                src={"/badge.svg"}
+                                alt=""
+                              />
+                              <span className="fade rounded-md flex-1 bg-slate-600/20 text-[12px] leading-[15px] mr-1"></span>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="w-[58%] flex gap-2">
+                          {Array(3)
+                            .fill("")
+                            .map((i, key2) => (
+                              <span
+                                key={key2}
+                                className="bg-slate-600/20 rounded-md fade flex-1 h-10"
+                              ></span>
+                            ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-          </div>
+                  ))}
+              </div>
+            )}
+          </>
         }
         error={
           <div className="relative fx w-full">
@@ -247,16 +223,13 @@ const GameList = ({ title, globalGames, getGames }) => {
         }
       >
         {typeof games === "object" && games && (
-          <div className="flex flex-col mb-2 relative items-center w-full gap-px">
+          <div className="flex flex-col mb-2 relative aft after:bg-c2 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px">
             {games.slice(0, 15).map((game, key) => (
               <Game key={key} isLive={title === "Live"} game={game} mkt={mkt} />
             ))}
-            <motion.button
-              whileTap={{ opacity: 0.3 }}
-              className="absolute bottom-0 bg-c2/5 text-[12px] pt-0.5 pb-1 rounded-t-xl px-3.5 text-c2"
-            >
+            <button className="absolute active:scale-90 duration-200 bottom-0 bg-c2/5 text-[12px] pt-0.5 pb-1 rounded-t-xl px-3.5 text-c2">
               view more
-            </motion.button>
+            </button>
           </div>
         )}
       </Retry>
@@ -265,7 +238,7 @@ const GameList = ({ title, globalGames, getGames }) => {
 };
 
 export default function GameDays() {
-  const [array, setArray] = useState(["Today"]);
+  const [array, setArray] = useState(["Live", "Today"]);
   const [games, setGames] = useState(null);
 
   const filterGames = (data, isoString, len = 7) => {

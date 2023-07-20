@@ -3,7 +3,7 @@ import axios from "axios";
 
 let marketoptions = {
   method: "GET",
-  url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets",
+  url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/",
   params: {},
   headers: {
     "X-RapidAPI-Key": process.env.X_RAPID_API_KEY,
@@ -12,7 +12,8 @@ let marketoptions = {
 };
 
 const getMatches = async (req, res) => {
-  const { sportId, live } = req.body;
+  const { sportId, live } = req.params;
+  marketoptions.url += "markets";
   marketoptions.params = {
     sport_id: sportId.toString(),
     is_have_odds: "true",
@@ -25,21 +26,19 @@ const getMatches = async (req, res) => {
   throw Error("No Internet");
 };
 
-// const getMatchestest = async (req, res) => {
-//   marketoptions.params = {
-//     sport_id: 1,
-//     is_have_odds: "true",
-//     event_type: "prematch",
-//   };
+export const getMatch = async (req, res) => {
+  const { id } = req.params;
+  marketoptions.url += "details";
+  marketoptions.params = { event_id: id };
 
-//   let { data } = await axios.request(marketoptions);
-//   if (data) return res.json(data);
+  const { data } = await axios.request(marketoptions);
+  if (data) return res.json(data);
 
-//   throw Error("No Internet");
-// };
+  throw Error("No Internet");
+};
 
 export default async function handler(req, res) {
-  if (req.method === "POST") return serverAsync(req, res, getMatches);
+  // if (req.params.type === "matches") return serverAsync(req, res, getMatches);
 
-  // if (req.method === "GET") return serverAsync(req, res, getMatchestest);
+  if (req.query.type === "match") return serverAsync(req, res, getMatch);
 }

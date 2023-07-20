@@ -1,5 +1,8 @@
 import { Ticket, User, connectMongo, isLoggedIn } from "@/database";
 import footBallGames from "@/helpers/football";
+import axios from "axios";
+
+const getOutcome = () => {};
 
 const generateCode = () => {
   const letters = "abcdefghijklmnpqrstuvwxyz";
@@ -32,7 +35,7 @@ const placeBet = async (req, res, id) => {
   let user = await User.findById(id, "active balance");
   if (!user) throw Error("Something went wrong");
 
-  // if (user.balance < stake) throw Error("Insufficient balance");
+  if (user.balance < stake) throw Error("Insufficient balance");
 
   let ticket = await Ticket.findOne({ slip });
 
@@ -49,7 +52,7 @@ const placeBet = async (req, res, id) => {
     totalOdds,
     stake,
   });
-  // user.balance -= stake;
+  user.balance -= stake;
   await user.save();
 
   res.json({
@@ -57,6 +60,7 @@ const placeBet = async (req, res, id) => {
     stake,
     code: ticket.code,
     toWin: (totalOdds * stake).toFixed(2),
+    balance: user.balance,
   });
 };
 
@@ -64,28 +68,99 @@ const getBets = async (req, res, id) => {
   const { type = "active", date } = req.body;
 
   if (type === "active") {
-    let { active } = await User.findById(id, "active").populate(
+    let { active, history } = await User.findById(id, "active").populate(
       "active.ticket"
     );
     let betlist = [];
 
-    active.forEach((betSlip) => {
+    // history = [
+    // {date: "94-34-30", betlist: [
+    // {code: "gfgf", games: [{}]}
+    // ]},
+    // {date: "94-34-30", betlist: [
+    // {code: "gfgf", games: [{}]}
+    // ]},
+    // {},
+    // ]
+
+    active.forEach(async (betSlip) => {
       let games = [];
+      let hist = false;
 
-      betSlip.ticket.slip.split("|").forEach((elem) => {
-        let g = footBallGames.events.filter(
-          (v) => v.event_id === parseInt(elem.split(",")[0])
+      for (let i = 0; i < betSlip.ticket.slip.split("|").length; i++) {
+        const [eventId, mkt, outcome] = betSlip.ticket.slip
+          .split("|")
+          [i].split(",");
+
+        //// ! development
+        // let g = footBallGames.events.filter(
+        //   (v) => v.event_id === parseInt(eventId)
+        // );
+        // games.push(g);
+
+        //// ! production
+        const g = await axios.get(
+          `/api/rapid?id=${parseInt(eventId)},type=match`
         );
-        games.push(g);
-      });
 
-      betlist.push({
-        games,
-        code: betSlip.ticket.code,
-        slip: betSlip.ticket.slip,
-        odds: betSlip.odds,
-        stake: betSlip.stake,
-      });
+        let { status, game } = getOutcome(g, outcome, mkt);
+
+        if (status) {
+        }
+
+        games.push({ status, game });
+      }
+
+      if (hist) {
+        let dateExists = false;
+        for (let i = 0; i < history.length; i++) {
+          if (history[i].date === new Date().toISOString()) {
+            history[i].games.push({
+              home,
+              away,
+              score,
+              corners,
+              sport_id,
+              mkt,
+            });
+            dateExists = true;
+          }
+        }
+
+        if (!dateExists) {
+          let newHistory = {
+            date: new Date().toISOString(),
+            betList: [
+              {
+                code: betSlip.ticket.code,
+                slip: betSlip.ticket.slip,
+                odds: betSlip.odds,
+                stake: betSlip.stake,
+                games: games.map((g) => {
+                  return {
+                    sport_id: g.sport_id,
+                    home: g.home,
+                    away: g.away,
+                    score,
+                    corners,
+                    mkt,
+                  };
+                }),
+              },
+            ],
+          };
+
+          history.unShift(newHistory);
+        }
+      } else {
+        betlist.push({
+          games,
+          code: betSlip.ticket.code,
+          slip: betSlip.ticket.slip,
+          odds: betSlip.odds,
+          stake: betSlip.stake,
+        });
+      }
     });
 
     res.status(200).json({ betlist: betlist.reverse() });

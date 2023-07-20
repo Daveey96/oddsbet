@@ -32,6 +32,22 @@ input {
   background: black !important;
   z-index: 22 !important;
 }
+.isSticky2 {
+  padding-top: 38px !important;
+  background: transparent !important;
+  z-index: 22 !important;
+}
+.isSticky2::after {
+  position: absolute;
+  content: "";
+  z-index: -2;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(24px);
+  background-color: #00000084;
+}
 input:focus {
   outline: 0;
 }

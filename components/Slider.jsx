@@ -13,6 +13,7 @@ import { apiController } from "@/controllers";
 import football from "@/helpers/football";
 import { weekDays } from "@/helpers";
 import { motion } from "framer-motion";
+import Svg from "./Svg";
 
 function Slider() {
   const [mounted, setMounted] = useState(false);
@@ -57,9 +58,7 @@ function Slider() {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      games === null && getGames();
-    }, 1000);
+    setTimeout(() => games === null && getGames(), 1000);
   }, [games]);
 
   useEffect(() => {
@@ -104,19 +103,19 @@ function Slider() {
       <Retry
         state={games}
         loading={
-          <div className="w-full h-52 rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
-            <div className="fx pt-10 flex-1 w-full relative">
+          <div className="w-full h-44 rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
+            <div className="fx pt-4 flex-1 w-full relative">
               {[0, 1].map((key2) => (
                 <div
                   key={key2}
                   className={`${
                     key2 && "order-3"
-                  } w-1/3 fx flex-col h-full overflow-hidden gap-2`}
+                  } w-1/3 fx flex-col h-full overflow-hidden`}
                 >
                   <span className="w-full flex-1 fx">
                     <Image
                       src={"/badge.svg"}
-                      width={50}
+                      width={40}
                       height={30}
                       priority
                       alt=""
@@ -125,10 +124,10 @@ function Slider() {
                   <SkeletonLoad className="text-sm w-[65%]" />
                 </div>
               ))}
-              <SkeletonLoad className="order-2 h-10 flex flex-1" />
+              <SkeletonLoad className="order-2 h-8 mt-3 flex flex-1" />
             </div>
             <SkeletonLoad className="absolute top-3 w-[60%] h-4 z-10" />
-            <div className="w-4/5 gap-2 flex h-10 mt-6">
+            <div className="w-4/5 gap-2 flex h-9 mt-3">
               {[0, 1, 2].map((key) => (
                 <SkeletonLoad className="h-full flex-1" key={key} />
               ))}
@@ -136,7 +135,7 @@ function Slider() {
           </div>
         }
         error={
-          <div className="w-full h-48 gap-2 fx rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
+          <div className="w-full h-44 gap-2 fx rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
             <BiXCircle className="text-3xl" />
             Something went wrong
             <button className="text-c2" onClick={() => getGames(sportId)}>
@@ -231,7 +230,7 @@ function Slider() {
               return (
                 <li
                   key={key}
-                  className="px-3 fade w-12 py-1 bg-c4 rounded-b-2xl rounded-t-md"
+                  className="px-3 fade w-12 py-0.5 bg-c4 rounded-b-2xl rounded-t-md"
                 ></li>
               );
             })}
@@ -243,14 +242,18 @@ function Slider() {
               <li
                 key={key}
                 onClick={() => changeSport(item.id)}
-                className="px-3 active:scale-90 duration-200 fx items-center gap-1 py-1 bg-c4 rounded-b-2xl rounded-t-md"
+                className={`px-3 active:scale-90 duration-200 fx items-center gap-1 py-1 bg-c4 rounded-b-2xl rounded-t-md ${
+                  sportId === item.id && "text-c2"
+                }`}
               >
                 {sportId === item.id ? (
                   <>
-                    {item.icon} {item.item}
+                    <Svg id={item.id} /> {item.item}
                   </>
                 ) : (
-                  <>{item.icon}</>
+                  <>
+                    <Svg id={item.id} />
+                  </>
                 )}
               </li>
             );

@@ -7,16 +7,15 @@ const userSchema = new Schema({
     unique: true,
   },
   password: String,
-  balance: Number,
   token: String,
   pin: Number,
-  demo: Boolean,
+  balance: Number,
   currentStage: Number,
   active: [
     {
       ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
-      stake: Number,
       totalOdds: Number,
+      stake: Number,
       odds: Array,
     },
   ],
@@ -26,8 +25,8 @@ const userSchema = new Schema({
       games: [
         {
           ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
-          stake: Number,
           totalOdds: Number,
+          stake: Number,
           odds: Array,
         },
       ],

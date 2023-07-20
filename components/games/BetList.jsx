@@ -224,7 +224,7 @@ const BetCode = ({ setBetList }) => {
 };
 
 export default function BetList({ toggle, setToggle }) {
-  const { user, betList, setBetList } = useContext(Context);
+  const { user, setUser, betList, setBetList } = useContext(Context);
   const [placeBet, setPlaceBet] = useState(false);
   const [successful, setSuccessful] = useState("");
   const [buttonText, setbuttonText] = useState("Place bet?");
@@ -265,7 +265,7 @@ export default function BetList({ toggle, setToggle }) {
 
   const submitBetSlip = async (e) => {
     e.stopPropagation();
-    setbuttonText("Adding ticket");
+    setbuttonText("Submitting ticket");
 
     let newBetList = [];
     let odds = [];
@@ -283,13 +283,17 @@ export default function BetList({ toggle, setToggle }) {
 
     if (data) {
       setBetList([]);
+      setUser({ ...user, balance: data.balance });
       setSuccessful({
         odds: data.odds,
         code: data.code,
         stake: data.stake,
         potWin: data.toWin,
       });
-    } else setbuttonText("Place bet?");
+    } else {
+      setPlaceBet(false);
+      setbuttonText("Place bet?");
+    }
   };
 
   const buttons = (key) => {
@@ -303,7 +307,7 @@ export default function BetList({ toggle, setToggle }) {
     setBetcodeLoad(betList.length > 0);
   }, [betList]);
 
-  useEffect(() => setStake(user?.balance || ""), []);
+  useEffect(() => setStake(user?.balance ? user?.balance.toString() : ""), []);
 
   return (
     <BlurredModal
@@ -312,11 +316,11 @@ export default function BetList({ toggle, setToggle }) {
         show: { y: "0%", opacity: 1 },
         exit: { y: "200%", opacity: 0 },
       }}
-      className="z-30 backdrop-blur-xl flex items-end"
-      iClass="overflow-hidden relative w-full bottom-0 fx flex-col "
-      variantKey="2"
-      state={toggle}
+      className="z-30 aft after:backdrop-blur-lg after:inset-0 flex items-end"
+      iClass="overflow-hidden z-10 relative w-full bottom-0 fx flex-col "
       onClick={() => setToggle(false)}
+      state={toggle}
+      variantKey="2"
     >
       <>
         <button className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-1 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"></button>
@@ -422,7 +426,9 @@ export default function BetList({ toggle, setToggle }) {
             <button className="w-1/3">Book bet</button>
             <button
               onClick={() => betList.length > 0 && setPlaceBet(true)}
-              disabled={betList.length < 1}
+              disabled={
+                betList.length > 0 && parseInt(stake) > 99 ? false : true
+              }
               className="w-2/3 disabled:opacity-50 bg-gradient-to-r rounded-tr-[20px] rounded-tl-[20px] from-c1/70 to-c2/50"
             >
               Place bet
@@ -447,7 +453,7 @@ export default function BetList({ toggle, setToggle }) {
         >
           {successful ? (
             <>
-              <h3 className="relative fx mt-7 mb-4 ">
+              <h3 className="relative fx mt-7 mb-4">
                 <BiCheckCircle className="text-white -left-4 opacity-10 absolute scale-[2] text-xl" />
                 <span className="z-10">Bet Successful</span>
               </h3>

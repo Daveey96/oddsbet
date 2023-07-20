@@ -5,25 +5,14 @@ import Footer from "./Footer";
 import { ThemeProvider } from "next-themes";
 import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
-import GameAnalysis from "../games/GameAnalysis";
 import Auth from "../Auth";
 import { BlurredModal } from "../Animated";
 import { userController } from "@/controllers";
+import Stats from "../games/Stats";
+import BetList from "../games/BetList";
+import Panel from "./Panel";
 
 export const Context = createContext(null);
-
-const SideBar = ({ className, children }) => {
-  return (
-    <aside
-      className={
-        "bg-c4 md:flex hidden rounded-2xl sticky top-12 h-[calc(100vh_-_60px)] flex-1 " +
-        className
-      }
-    >
-      {children}
-    </aside>
-  );
-};
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -59,15 +48,15 @@ export default function Layout({ children }) {
         <Nav />
         <Prompt />
         <main className="flex md:px-7 px-0 text-sm gap-3 bg-white dark:bg-black text-black dark:text-white">
-          <SideBar className={""}>left</SideBar>
+          <Panel />
           <div className="flex flex-col md:w-1/2 w-full">
             <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
               {children}
             </div>
-            <GameAnalysis />
+            <Stats />
             <Footer />
           </div>
-          <SideBar className={""}>right</SideBar>
+          <BetList className="" />
         </main>
         <Overlay />
         <Tab />

@@ -13,7 +13,6 @@ import { userController } from "@/controllers";
 export default function Auth() {
   const { setUser } = useContext(Context);
   const { backdrop, setBackdrop } = useContext(Context);
-
   const [currentStage, setCurrentStage] = useState(null);
 
   const [email, setEmail] = useState("");
@@ -80,12 +79,17 @@ export default function Auth() {
     setCurrentStage("loading");
     let data = await userController.getStage();
 
+    if (data.cookie) {
+      let { mail, balance, id } = data.user;
+      setUser({ email: mail, balance, id });
+      setBackdrop(false);
+      return;
+    }
+
     if (data) {
       setCurrentStage(data.stage);
-      data.email && setEmail(data.email);
-    } else {
-      setCurrentStage("error");
-    }
+      data?.email && setEmail(data.email);
+    } else setCurrentStage("error");
   };
 
   const changeMail = async () => {

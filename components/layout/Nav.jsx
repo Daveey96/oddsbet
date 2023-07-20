@@ -91,7 +91,7 @@ function Nav() {
         </Link>
         {user?.id ? (
           <span
-            className={`fx gap-1 relative text-base px-7 rounded-b-2xl z-30 bg-black h-full" ${
+            className={`fx gap-1 relative text-base pl-4 pr-3 rounded-b-2xl z-30 bg-black h-full" ${
               user.balance < 100 ? "text-red-600" : "text-green-600"
             }`}
           >

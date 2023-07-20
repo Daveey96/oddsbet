@@ -14,9 +14,6 @@ module.exports = {
         c3: "#00000b",
         c4: "#0e1219",
       },
-      fontFamily: {
-        kanit: ["kanit", "sans-serif"],
-      },
       fontSize: {
         120: "120%",
         115: "115%",
@@ -30,9 +27,6 @@ module.exports = {
         75: "75%",
       },
       borderRadius: {
-        inh: "inherit",
-      },
-      fill: {
         inh: "inherit",
       },
     },

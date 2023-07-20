@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React, { useState } from "react";
+import Svg from "../Svg";
 
 function List({
   list,
@@ -29,11 +30,10 @@ function List({
           key={key}
         >
           {icon && (
-            <Image
-              width={15}
-              height={15}
-              src={`/sport_icons_I/sport${i.id}.svg`}
-              alt={i.item}
+            <Svg
+              className={key !== active && "opacity-50"}
+              id={i.id}
+              size={12}
             />
           )}
           <>{i.item}</>
