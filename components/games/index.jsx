@@ -284,7 +284,7 @@ export default function GameDays() {
     if (data.events) {
       let genArray = [];
       let daysArr = [];
-      let day = -8;
+      let day = -14;
 
       for (let i = 0; i < 3; i++) {
         const { isoString, weekDay } = getDate(day);

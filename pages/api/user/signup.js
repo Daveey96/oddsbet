@@ -130,17 +130,12 @@ const getStage = async (req, res) => {
   let id = cookies.getCookie(req, res, "__sid");
 
   if (id) {
-    let {
-      currentStage = 0,
-      balance,
-      email,
-      _id,
-    } = await User.findById(id, "currentStage balance email");
+    let user = await User.findById(id, "currentStage balance email");
 
-    if (currentStage === 3) {
+    if (user?.currentStage === 3) {
       return res.json({
         cookie: true,
-        user: { id: _id, mail: email, balance },
+        user: { id: user._id, mail: user.email, balance: user.balance },
       });
     }
 
