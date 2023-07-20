@@ -50,12 +50,12 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed after:bg-black aft after:h-56 after:top-[97%] after:inset-x-0 px-[8vw] md:px-[3vw] items-end -bottom-1 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[23] flex justify-between md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none inset-x-4 bg-black text-white">
+      <div className="fixed after:bg-black aft after:h-56 after:top-[97%] after:inset-x-0 px-[5vw] max-w-[100vw] items-end -bottom-1 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[23] flex justify-between md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none bg-black text-white">
         {links.map((link, key) => (
           <Link
             href={link.path}
             key={key}
-            className={`fx w-[25%] pb-3.5 pt-4 gap-1 relative duration-200 active:scale-90 z-10 px-[2vw] md:h-7 md:pb-3 md:items-end `}
+            className={`fx pb-3.5 pt-4 gap-1 relative duration-200 active:scale-90 z-10 px-[2vw] md:h-7 md:pb-3 md:items-end `}
           >
             <svg
               className={`${pathName === link.path ? " fill-c2 " : "fill-c4"} `}

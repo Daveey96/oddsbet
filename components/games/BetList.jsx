@@ -99,7 +99,7 @@ const BetGame = ({ v, index, deleteGame }) => {
   const [dragStart, setDragStart] = useState(false);
 
   const dragEnded = (e, v) => {
-    if (Math.abs(v.velocity.x) > 800) {
+    if (Math.abs(v.velocity.x) > 200) {
       animate(x, Math.sign(v.velocity.x) * e.view.outerWidth * 2, {
         duration: 0.5,
       });
@@ -115,7 +115,7 @@ const BetGame = ({ v, index, deleteGame }) => {
       className={`relative w-full flex items-center overflow-hidden ${
         dragStart && "bg-red-600 "
       }`}
-      initial={{ height: "88px" }}
+      initial={{ height: "84px" }}
       exit={{ height: "0px", transition: { duration: 0.1 } }}
     >
       <motion.div
