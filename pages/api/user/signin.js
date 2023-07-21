@@ -33,7 +33,7 @@ const signin = async (req, res) => {
 };
 
 const signout = async (req, res) => {
-  cookies.setCookie(req, res, "__sid", null, 1000);
+  cookies.setCookie(req, res, "__sid");
   res.status(200).json({ message: "Logout Successful" });
 };
 

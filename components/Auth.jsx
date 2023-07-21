@@ -20,6 +20,7 @@ export default function Auth() {
   const [disabled, setDisabled] = useState(true);
   const [emailD, setEmailD] = useState(false);
   const [buttonText, setbuttonText] = useState("verify");
+  const [forgotPasswordState, setForgotPasswordState] = useState(false);
 
   const handleSubmit = async (e) => {
     currentStage !== 1 && e.preventDefault();
@@ -105,12 +106,6 @@ export default function Auth() {
     return false;
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      backdrop && getCurrentStage();
-    }, 1000);
-  }, [backdrop]);
-
   const validate = (v, type) => {
     type ? setEmail(v) : setPassword(v);
 
@@ -120,6 +115,12 @@ export default function Auth() {
     if (currentStage > 1 && !type)
       v.length > 6 ? setDisabled(false) : setDisabled(true);
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      backdrop && getCurrentStage();
+    }, 1000);
+  }, [backdrop]);
 
   return (
     <Retry
@@ -175,7 +176,7 @@ export default function Auth() {
             )}
             <button
               disabled={disabled}
-              className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-14"
+              className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-12"
             >
               {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
             </button>
@@ -446,7 +447,7 @@ function Input({
   );
 }
 
-export const ForgotPassword = () => {
+const ForgotPassword = () => {
   return (
     <motion.div
       initial={{ x: "-100%" }}

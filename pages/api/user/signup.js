@@ -51,13 +51,15 @@ const checkEmail = async (req, res) => {
   if (error) throw Error("Invalid request data");
 
   let user = await User.findOne({ email });
+
   if (user?.currentStage === 3) return res.json({ userRegistered: true });
 
+  if (user) throw Error("Something went wrong");
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  let mailSent = await sendMail(email, token);
-  if (!mailSent) throw Error("Couldn't send mail");
+  // let mailSent = await sendMail(email, token);
+  // if (!mailSent) throw Error("Couldn't send mail");
   console.log(token);
 
   let newUser = await User.create({
@@ -65,8 +67,6 @@ const checkEmail = async (req, res) => {
     token: hashedToken,
     currentStage: 1,
   });
-
-  console.log("created");
 
   cookies.setCookie(req, res, "__sid", newUser._id, 1000 * 3600 * 24 * 30);
   res.status(201).json({ message: "Mail sent", token });
@@ -132,6 +132,11 @@ const getStage = async (req, res) => {
   if (id) {
     let user = await User.findById(id, "currentStage balance email");
 
+    if (!user) {
+      cookies.deleteCookie(req, res, "__sid");
+      throw Error("Some error occured");
+    }
+
     if (user?.currentStage === 3) {
       return res.json({
         cookie: true,
@@ -139,7 +144,7 @@ const getStage = async (req, res) => {
       });
     }
 
-    res.json({ stage: currentStage, email });
+    res.json({ stage: user.currentStage, email: user.email });
   } else res.json({ stage: 0 });
 };
 

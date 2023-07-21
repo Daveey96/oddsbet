@@ -1,7 +1,7 @@
 import { condition } from "@/helpers";
 import React from "react";
 
-function Svg({ id = 1, size = "13px", className }) {
+function Svg({ id = 1, size = "13px", className = undefined }) {
   const { viewBox = "24", path } = condition(
     id,
     [1, 2, 3, 4, 5, 6, 7, 8],
