@@ -65,7 +65,7 @@ function Nav() {
     <>
       <Animated
         tag="nav"
-        className={`flex text-sm z-50 h-9 md:h-12 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
+        className={`flex text-sm z-50 md:h-12 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
           alert ? "opacity-10" : "opacity-100"
         }`}
         variants={{
@@ -78,7 +78,7 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className="justify-center h-9 px-2 md:px-0 flex md:ml-10 relative aft after:h-0 after:w-0 md:after:h-2 after:bottom-0 md:after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-lg z-10 duration-200 md:pt-3.5 md:rounded-none rounded-b-2xl backdrop-blur-xl"
+          className="justify-center -mt-1 px-2 h-9 md:px-0 flex md:ml-10 relative aft after:h-0 after:w-0 md:after:h-2 after:bottom-0 md:after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-lg z-10 duration-200 md:pt-3.5 md:rounded-none rounded-b-2xl backdrop-blur-xl"
         >
           <Image
             width={75}
@@ -91,7 +91,7 @@ function Nav() {
         </Link>
         {user?.id ? (
           <span
-            className={`fx gap-1 relative text-base pl-4 pr-3 rounded-b-2xl z-30 bg-black h-full" ${
+            className={`fx gap-1 relative text-base pl-3.5 pr-2.5 rounded-b-2xl z-30 bg-black h-full" ${
               user.balance < 100 ? "text-red-600" : "text-green-600"
             }`}
           >
@@ -110,7 +110,7 @@ function Nav() {
           <SkeletonLoad
             state={user !== null}
             tag="button"
-            className={"fx gap-1 pb-1 px-7 rounded-b-2xl z-30 bg-black h-full"}
+            className={"fx gap-1 pb-1 px-6 rounded-b-2xl z-30 bg-black h-8"}
             onClick={() => setBackdrop(!backdrop)}
           >
             {backdrop ? (

@@ -47,19 +47,18 @@ export default function Layout({ children }) {
       <ThemeProvider attribute="class">
         <Nav />
         <Prompt />
-        <main className="flex h-screen fixed inset-0 md:px-7 px-0 text-sm gap-3 bg-white dark:bg-black text-black dark:text-white">
+        <main className="flex md:px-7 px-0 justify-center text-sm gap-3 bg-white dark:bg-black text-black dark:text-white">
           <Panel />
           <div className="flex flex-col md:w-1/2 w-full">
             <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
               {children}
             </div>
-            <Stats />
             <Footer />
           </div>
-          <BetList className="" />
+          <Stats />
+          <Tab />
         </main>
         <Overlay />
-        <Tab />
         <BlurredModal
           state={backdrop}
           type={"allChidren"}
