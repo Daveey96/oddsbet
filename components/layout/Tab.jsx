@@ -1,13 +1,15 @@
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useContext, useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
 import BetList, { BetListButton } from "../games/BetList";
+import { Context } from ".";
 
 export default function Tab() {
   const { pathname, events } = useRouter();
   const [pathName, setPathName] = useState(pathname);
   const [toggle, setToggle] = useState(false);
+  const { ping } = useContext(Context);
 
   const links = [
     {
@@ -49,28 +51,28 @@ export default function Tab() {
   }, [events]);
 
   return (
-    <>
-      <div className="fixed gap-9 after:bg-black aft after:h-56 after:top-[97%] after:inset-x-0 px-[8vw] max-w-[100vw] min-w-[90vw] items-end -bottom-1 md:h-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-1/2 md:rounded-t-none md:bg-black/75 md:backdrop-blur-sm md:top-0 md:bottom-auto md:z-[55] z-[23] flex justify-between md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none bg-black text-white">
+    <div className="fixed -bottom-1 inset-x-0 flex justify-center z-[23]">
+      <div className="relative px-[2vw] max-w-[100vw] min-w-[90vw] md:min-w-[auto] flex md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none bg-black text-white">
         {links.map((link, key) => (
           <Link
             href={link.path}
             key={key}
-            className={`fx pb-3.5 pt-3 gap-1 relative duration-200 active:scale-90 z-10 px-[2vw] md:h-7 md:pb-3 md:items-end `}
+            className={`fx pb-3.5 pt-3 flex-1 gap-1 relative duration-200 active:scale-90 z-10 px-[2vw] md:h-7 md:pb-3 md:items-end ${
+              ping &&
+              "aft after:bg-rose-500 after:w-2.5 after:h-2.5 after:rounded-full after:-right-1 after:top-2"
+            }`}
           >
             <svg
-              className={`${pathName === link.path ? " fill-c2 " : "fill-c4"} `}
+              className={`${
+                pathName === link.path ? " fill-c2 " : "fill-white/20"
+              } `}
               width={"20px"}
               height={"20px"}
               viewBox={"0 0 24 24"}
             >
               {link.svgPath}
             </svg>
-            <span className="text-xs md:hidden mt-1">{link.text}</span>
-            {/* {key === 1 && (
-              <span className="bg-rose-700 py-px px-1.5 rounded-full absolute -right-2 -top-1">
-                2
-              </span>
-            )} */}
+            <span className="text-xs mt-1">{link.text}</span>
           </Link>
         ))}
         <AnimatePresence>
@@ -78,6 +80,6 @@ export default function Tab() {
         </AnimatePresence>
       </div>
       <BetList toggle={toggle} setToggle={(t) => setToggle(t)} />
-    </>
+    </div>
   );
 }

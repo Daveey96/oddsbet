@@ -1,7 +1,49 @@
-import { User, connectMongo, cookies, joiValidate } from "@/database";
+import {
+  User,
+  connectMongo,
+  cookies,
+  isLoggedIn,
+  joiValidate,
+} from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
+
+const emailDetails_I = (token) => {
+  return {
+    subject: "Sign in to Oddssbet",
+    html: `
+       <div
+          style="
+            margin: 30px 10px 0 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 17px;
+            gap: 0.5rem;
+          "
+        >
+          <h3>Your verification code is</h3>
+          <h3 style="font-size: 24px;">${token}</h3>
+        </div>
+      `,
+  };
+};
+
+const emailDetails_II = {
+  subject: "Password Reset",
+  html: `
+       <div
+          style="
+            padding: 30px 10px 0 10px;
+            font-size: 17px;
+            gap: 1.5rem;
+          "
+        >
+          <h3>Your sign in password has been changed successfully</h3>
+        </div>
+      `,
+};
 
 const generateToken = () => {
   let token = "";
@@ -9,7 +51,7 @@ const generateToken = () => {
   return token;
 };
 
-const sendMail = async (email, token) => {
+const sendMail = async (email, details) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -22,21 +64,8 @@ const sendMail = async (email, token) => {
     await transporter.sendMail({
       from: process.env.MAIL,
       to: email,
-      subject: "Sign in to Oddssbet",
-      html: `
-       <div
-          style="
-            margin: 50px 10px 0 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 17px;
-            gap: 0.5rem;
-          "
-        >
-          <h3>Your verification code is <br /> ${token}</h3>
-        </div>
-      `,
+      subject: details.subject,
+      html: details.html,
     });
     return true;
   } catch (error) {
@@ -58,7 +87,7 @@ const checkEmail = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  // let mailSent = await sendMail(email, token);
+  // let mailSent = await sendMail(email, emailDetails_I(token));
   // if (!mailSent) throw Error("Couldn't send mail");
   console.log(token);
 
@@ -69,11 +98,11 @@ const checkEmail = async (req, res) => {
   });
 
   cookies.setCookie(req, res, "__sid", newUser._id, 1000 * 3600 * 24 * 30);
-  res.status(201).json({ message: "Mail sent", token });
+  res.status(201).json({ message: "Mail sent" });
 };
 
 const verifyToken = async (req, res) => {
-  let { email, token } = req.body;
+  let { email, token, type } = req.body;
 
   const { error } = joiValidate({ email, token }, "email token");
   if (error) throw Error("Invalid request data");
@@ -85,7 +114,9 @@ const verifyToken = async (req, res) => {
   if (!checkPass) throw Error("Code is incorrect!");
 
   user.token = "";
-  user.currentStage = 2;
+  if (type) user.forgotPass = 2;
+  else user.currentStage = 2;
+
   await user.save();
 
   res.status(200).json({
@@ -130,21 +161,19 @@ const getStage = async (req, res) => {
   let id = cookies.getCookie(req, res, "__sid");
 
   if (id) {
-    let user = await User.findById(id, "currentStage balance email");
+    let user = await User.findById(id, "currentStage balance email forgotPass");
 
     if (!user) {
       cookies.deleteCookie(req, res, "__sid");
       throw Error("Some error occured");
-    }
-
-    if (user?.currentStage === 3) {
-      return res.json({
+    } else if (user?.forgotPass)
+      res.json({ forgotPass: user.forgotPass, email: user.email });
+    else if (user?.currentStage === 3) {
+      res.json({
         cookie: true,
         user: { id: user._id, mail: user.email, balance: user.balance },
       });
-    }
-
-    res.json({ stage: user.currentStage, email: user.email });
+    } else res.json({ stage: user.currentStage, email: user.email });
   } else res.json({ stage: 0 });
 };
 
@@ -157,8 +186,9 @@ const resendCode = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  let mailSent = await sendMail(email, token);
-  if (!mailSent) throw Error("Couldn't send mail");
+  // let mailSent = await sendMail(email, emailDetails_I(token));
+  // if (!mailSent) throw Error("Couldn't send mail");
+  console.log(token);
 
   user.token = hashedToken;
   await user.save();
@@ -176,7 +206,50 @@ const changeEmail = async (req, res) => {
   res.json({ message: "changed" });
 };
 
-const forgotPassword = async (req, res) => {};
+const confirmMail = async (req, res) => {
+  const { email } = req.body;
+
+  const { error } = joiValidate({ email });
+  if (error) throw Error("Invalid request data");
+
+  let user = await User.findOne({ email });
+
+  if (user?.currentStage !== 3) throw Error("Bad Request");
+
+  let token = generateToken();
+  let hashedToken = bcrypt.hashSync(token, 10);
+
+  // let mailSent = await sendMail(email, token);
+  // if (!mailSent) throw Error("Couldn't send mail");
+  console.log(token);
+
+  user.token = hashedToken;
+  user.forgotPass = 1;
+  await user.save();
+
+  cookies.setCookie(req, res, "__sid", user._id, 1000 * 3600 * 24 * 30);
+  res.status(201).json({ message: "Mail sent" });
+};
+
+const changePass = async (req, res, id) => {
+  let { pass, pass2 } = req.body;
+
+  let { error } = joiValidate({ pass, pass2 }, "password password");
+
+  console.log(error);
+  if (pass !== pass2 || error) throw Error("Invalid request data");
+
+  let user = await User.findOne(id);
+
+  password = bcrypt.hashSync(password, 12);
+  user.password = password;
+  await user.save();
+
+  // let mailSent = await sendMail(email, emailDetails_II);
+  // if (!mailSent) throw Error("Something went wrong");
+
+  res.status(200).json({ message: "Password changed" });
+};
 
 export default async function handler(req, res) {
   const connect = await connectMongo(res);
@@ -202,10 +275,15 @@ export default async function handler(req, res) {
   if (req.method === "GET" && req.headers?.type === "stage")
     return serverAsync(req, res, getStage);
 
-  // Finalise signup
-  if (req.method === "POST" && req.headers?.type === "forgotpassword")
-    return serverAsync(req, res, forgotPassword);
-
   // Change Email
   if (req.method === "DELETE") return serverAsync(req, res, changeEmail);
+
+  // ? Forgot Password
+  // Confirm Email
+  if (req.method === "POST" && req.headers?.type === "confirm")
+    return serverAsync(req, res, confirmMail);
+
+  // Change Password
+  if (req.method === "POST" && req.headers?.type === "change")
+    return isLoggedIn(req, res, changePass);
 }

@@ -1,7 +1,7 @@
 import { condition } from "@/helpers";
 import React from "react";
 
-function Svg({ id = 1, size = "13px", className = undefined }) {
+function Svg({ id = 1, size = "13px", className }) {
   const { viewBox = "24", path } = condition(
     id,
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -88,7 +88,7 @@ function Svg({ id = 1, size = "13px", className = undefined }) {
       viewBox={`0 0 ${viewBox} ${viewBox}`}
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={className ? className : undefined}
     >
       {path}
     </svg>

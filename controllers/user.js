@@ -71,8 +71,26 @@ const forgotPass = () =>
     return data;
   });
 
+const confirmEmail = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signup", details, {
+      headers: { type: "confirm" },
+    });
+    return data;
+  });
+
+const changePass = (details) =>
+  clientAsync(async () => {
+    const { data } = await axios.post("/api/user/signup", details, {
+      headers: { type: "change" },
+    });
+    return data;
+  });
+
 export const userController = {
   checkEmail,
+  confirmEmail,
+  changePass,
   signup,
   signin,
   signout,

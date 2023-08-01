@@ -58,8 +58,10 @@ export default function Stats() {
         <div className="flex-1 w-full overflow-hidden">
           <div className="flex flex-col overflow-y-scroll gap-20 h-full w-full">
             {Array(20)
-              .fill(<span>i am a boy</span>)
-              .map((v) => v)}
+              .fill("i am a boy")
+              .map((v, key) => (
+                <span key={key}>{v}</span>
+              ))}
           </div>
         </div>
         <button

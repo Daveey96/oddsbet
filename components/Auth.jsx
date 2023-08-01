@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext, useMemo, useRef } from "react";
 import Retry from "./services/Retry";
-import { AnimatePresence, motion } from "framer-motion";
-import { alertService } from "@/services";
+import { alertService, overlayService } from "@/services";
 import { Context } from "./layout";
 import { condition } from "@/helpers";
-import { FaChevronLeft } from "react-icons/fa";
+import { FaArrowLeft, FaChevronLeft } from "react-icons/fa";
 import { CircularLoader, DotLoader } from "./services/Loaders";
 import { BiEnvelope, BiLockOpenAlt, BiXCircle } from "react-icons/bi";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { userController } from "@/controllers";
+import { Page } from "./Animated";
 
 export default function Auth() {
   const { setUser } = useContext(Context);
@@ -17,13 +17,17 @@ export default function Auth() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [disabled, setDisabled] = useState(true);
   const [emailD, setEmailD] = useState(false);
+
   const [buttonText, setbuttonText] = useState("verify");
-  const [forgotPasswordState, setForgotPasswordState] = useState(false);
+  const [forgotPass, setForgotPass] = useState(null);
+  const [activePage, setActivePage] = useState(null);
 
   const handleSubmit = async (e) => {
     currentStage !== 1 && e.preventDefault();
+    overlayService.lay();
 
     if (currentStage === 0) {
       setEmailD(true);
@@ -48,6 +52,7 @@ export default function Auth() {
     } else if (currentStage === 1) {
       const data = await userController.verifyEmail({ email, token: e });
 
+      overlayService.clear();
       if (data) {
         alertService.success(data.message);
         setTimeout(() => {
@@ -74,6 +79,7 @@ export default function Auth() {
         setDisabled(false);
       }
     }
+    overlayService.clear();
   };
 
   const getCurrentStage = async () => {
@@ -84,6 +90,14 @@ export default function Auth() {
       let { mail, balance, id } = data.user;
       setUser({ email: mail, balance, id });
       setBackdrop(false);
+      return;
+    }
+
+    if (data.forgotPass) {
+      setEmail(data.email);
+      setbuttonText(data.forgotPass === 2 ? "Submit" : "verify");
+      setCurrentStage(3);
+      setForgotPass(data.forgotPass);
       return;
     }
 
@@ -116,11 +130,23 @@ export default function Auth() {
       v.length > 6 ? setDisabled(false) : setDisabled(true);
   };
 
+  const variants = {
+    0: ["-100%", "0%", "-100%"],
+    1: ["100%", "0%", "100%"],
+    2: ["100%", "0%", "100%"],
+  };
+
   useEffect(() => {
     setTimeout(() => {
       backdrop && getCurrentStage();
     }, 1000);
   }, [backdrop]);
+
+  useEffect(() => {
+    if (forgotPass !== null) setActivePage(2);
+    else if (currentStage === 1) setActivePage(1);
+    else setActivePage(0);
+  }, [currentStage, forgotPass]);
 
   return (
     <Retry
@@ -143,53 +169,56 @@ export default function Auth() {
         </span>
       }
     >
-      <AnimatePresence mode="popLayout">
-        {currentStage !== 1 ? (
-          <motion.form
-            onSubmit={handleSubmit}
-            initial={{ x: "-100%" }}
-            animate={{ x: "0%" }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 0.3 }}
-            key={239283736}
-            className="flex absolute top-0 w-full px-4 flex-col gap-1 mx- items-start"
-          >
-            <Input
-              value={email}
-              disabled={emailD}
-              setValue={(v) => validate(v, true)}
-              setD={(v) => setDisabled(v)}
-              setED={(v) => setEmailD(v)}
-              currentStage={currentStage}
-              changeMail={changeMail}
-            />
-            {currentStage > 1 && (
-              <Input value={password} setValue={validate} v />
-            )}
-            {currentStage === 3 && (
-              <button
-                onClick={(e) => e.preventDefault()}
-                className="bg-c2/5 -mt-3 text-sm text-c2 px-3 rounded-r-xl rounded-bl-xl rounded-tl-sm pt-1 pb-1 mb-3"
-              >
-                forgot password?
-              </button>
-            )}
-            <button
-              disabled={disabled}
-              className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-12"
-            >
-              {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
-            </button>
-          </motion.form>
-        ) : (
-          <Token
-            key={parseInt(Math.random() * 10000000)}
-            handleSubmit={handleSubmit}
-            email={email}
+      <Page
+        variants={variants}
+        state={activePage}
+        className={["", "px-10 gap-2", "px-5 overflow-hidden"]}
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="flex top-0 w-full px-4 flex-col gap-1 items-start"
+        >
+          <Input
+            value={email}
+            disabled={emailD}
+            setValue={(v) => validate(v, true)}
+            setD={(v) => setDisabled(v)}
+            setED={(v) => setEmailD(v)}
+            currentStage={currentStage}
             changeMail={changeMail}
           />
-        )}
-      </AnimatePresence>
+          {currentStage > 1 && <Input value={password} setValue={validate} v />}
+          {currentStage === 3 && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setForgotPass(0);
+              }}
+              className="bg-c2/5 duration-150 active:scale-90 text-sm text-c2 px-3 rounded-r-xl rounded-bl-xl rounded-tl-sm py-1 mb-3"
+            >
+              forgot password?
+            </button>
+          )}
+          <button
+            disabled={disabled}
+            className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-12"
+          >
+            {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
+          </button>
+        </form>
+        <Token
+          handleSubmit={handleSubmit}
+          email={email}
+          changeMail={changeMail}
+        />
+        <ForgotPassword
+          active={forgotPass}
+          // state={activePage}
+          mail={email}
+          bText={buttonText}
+          goBack={() => setForgotPass(null)}
+        />
+      </Page>
     </Retry>
   );
 }
@@ -264,13 +293,7 @@ function Token({ email, handleSubmit, changeMail }) {
   }, [buttonText]);
 
   return (
-    <motion.div
-      initial={{ x: "100%" }}
-      animate={{ x: "0%" }}
-      exit={{ x: "100%" }}
-      transition={{ duration: 0.3 }}
-      className="fx absolute top-0 flex-col px-11 gap-3 w-full "
-    >
+    <>
       <h2
         className={`${
           loading === "loading" && "opacity-20"
@@ -283,20 +306,28 @@ function Token({ email, handleSubmit, changeMail }) {
           </span>
         </span>
       </h2>
-      <div
-        className={`${loading === "loading" && "opacity-30"} w-full flex gap-4`}
-      >
+      <div className="relative w-full fx gap-4">
         {tokenArray.map((i, key) => (
           <span
             key={key}
             className={`flex-1 text-2xl fx h-20 duration-150 border-4  rounded-md ${
               isNaN(parseInt(i)) ? color[1] : color[0]
-            }`}
+            } ${loading === "loading" && "opacity-30"}`}
             onClick={() => input.current.focus()}
           >
             {i === "|" ? <span className="animate-pulse">{i}</span> : i}
           </span>
         ))}
+        {loading === "loading" && (
+          <div className="absolute fx z-10 bg-green-950/50 gap-2 pt-2 pb-2.5 px-5">
+            <CircularLoader
+              size={15}
+              depth={3}
+              className={"border-t-green-500"}
+            />
+            verifying
+          </div>
+        )}
       </div>
       <div
         className={`${
@@ -317,16 +348,6 @@ function Token({ email, handleSubmit, changeMail }) {
           {buttonText.slice(-3) === "ing" && <DotLoader />}
         </button>
       </div>
-      {loading === "loading" && (
-        <div className="absolute fx bg-green-950 gap-2 rounded-lg pt-2 pb-2.5 px-5 mb-8">
-          <CircularLoader
-            size={15}
-            depth={3}
-            className={"border-t-green-500"}
-          />
-          verifying
-        </div>
-      )}
       <input
         type="tel"
         ref={input}
@@ -338,7 +359,7 @@ function Token({ email, handleSubmit, changeMail }) {
           !isNaN(target.value) && setToken(target.value)
         }
       />
-    </motion.div>
+    </>
   );
 }
 
@@ -351,6 +372,7 @@ function Input({
   setD,
   setED,
   changeMail,
+  text,
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const emailInput = useRef(null);
@@ -398,7 +420,7 @@ function Input({
           disabled && "opacity-50"
         }`}
       >
-        Your {v ? "Password" : "Email"}
+        {text ? text : v ? "Your Password" : "Your Email"}
       </label>
       <label
         className={`text-c1 text-xl absolute left-0 px-5 fx  ${
@@ -420,7 +442,7 @@ function Input({
       {!v && disabled && (
         <button
           onClick={change}
-          className="py-1.5 absolute right-2 active:scale-90 duration-150 px-3 mr-2 shadow bg-c2/5 text-c2 rounded-l-xl rounded-tr-xl rounded-br-sm"
+          className="py-1.5 z-10 aft after:inset-0 after:backdrop-blur-3xl after:rounded-inh absolute right-2 active:scale-90 after:-z-[2] duration-150 px-3 mr-2 shadow bg-c2/5 text-c2 rounded-l-xl rounded-tr-xl rounded-br-sm"
         >
           change
         </button>
@@ -447,15 +469,165 @@ function Input({
   );
 }
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ goBack, active, bText, mail }) => {
+  const [activePage, setActivePage] = useState(null);
+
+  const [email, setEmail] = useState(mail || "");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [disabled, setDisabled] = useState(true);
+  const [buttonText, setbuttonText] = useState(bText);
+
+  const changeMail = async () => {
+    let data = await userController.changeMail();
+
+    if (data) {
+      setCurrentStage(0);
+      setbuttonText("verify");
+      setEmailD(false);
+      setDisabled(false);
+      return true;
+    }
+    return false;
+  };
+
+  const emailValidate = (v) => {
+    setEmail(v);
+
+    v.match("@gmail.com") ? setDisabled(false) : setDisabled(true);
+  };
+
+  const handleSubmit = async (e) => {
+    activePage !== 1 && e.preventDefault();
+    overlayService.lay();
+
+    if (activePage === 0) {
+      setDisabled(true);
+      setbuttonText("verifying");
+
+      const data = await userController.confirmEmail({ email });
+
+      if (data) {
+        setbuttonText("Submit");
+        setDisabled(true);
+        alertService.success(data.message);
+        setActivePage(1);
+      } else {
+        setDisabled(false);
+        setbuttonText("verify");
+      }
+    } else if (activePage === 1) {
+      const data = await userController.verifyEmail({
+        email,
+        token: e,
+        type: true,
+      });
+
+      overlayService.clear();
+      if (data) {
+        alertService.success(data.message);
+        setTimeout(() => {
+          setActivePage(2);
+        }, 500);
+        return true;
+      }
+      return false;
+    } else if (activePage === 2) {
+      setbuttonText("Submitting");
+      setDisabled(true);
+
+      const data = await userController.changePass({
+        password,
+        confirmPassword,
+      });
+
+      if (data) {
+        alertService.success(data.message);
+        setBackdrop(false);
+      } else {
+        setbuttonText("Submit");
+        setDisabled(false);
+      }
+    }
+    overlayService.clear();
+  };
+
+  const variants = {
+    0: ["-100%", "0%", "-100%"],
+    1: ["100%", "0%", "100%"],
+    2: ["-100%", "0%", "-100%"],
+  };
+
+  // useEffect(() => {
+  //   if (active) {
+  //     setActivePage(active);
+  //     setEmail(mail);
+  //     setbuttonText(bText);
+  //   } else setActivePage(0);
+  // }, [state]);
+
+  useEffect(() => {
+    password && password.length > 6 && password === confirmPassword
+      ? setDisabled(false)
+      : setDisabled(true);
+  }, [password, confirmPassword]);
+
   return (
-    <motion.div
-      initial={{ x: "-100%" }}
-      animate={{ x: "0%" }}
-      exit={{ x: "-100%" }}
-      transition={{ duration: 0.3 }}
-    >
-      <header>Password reset</header>
-    </motion.div>
+    <>
+      <header
+        onClick={goBack}
+        className="text-c2 relative flex mb-4 justify-start w-full items-center gap-2 text-base"
+      >
+        <FaArrowLeft className="text-[10px] mt-px" />
+        Forgot Password
+      </header>
+      <Page
+        variants={variants}
+        state={activePage}
+        className={["bg-slate-500", "px-10 gap-2 bg-slate-500", "bg-slate-500"]}
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full px-4 flex-col gap-1 items-start"
+        >
+          <Input value={email} setValue={emailValidate} />
+          <button
+            disabled={disabled}
+            className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-12"
+          >
+            {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
+          </button>
+        </form>
+        <Token
+          handleSubmit={handleSubmit}
+          changeMail={changeMail}
+          email={email}
+        />
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full px-4 flex-col gap-1 items-start"
+        >
+          <Input
+            value={password}
+            setValue={(v) => setPassword(v)}
+            text="Enter New Password"
+            v
+          />
+          <Input
+            value={confirmPassword}
+            text="Confirm Password"
+            setValue={(v) => setConfirmPassword(v)}
+            v
+          />
+          <button
+            disabled={disabled}
+            className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-12"
+          >
+            {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
+          </button>
+        </form>
+      </Page>
+    </>
   );
 };

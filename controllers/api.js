@@ -1,12 +1,10 @@
 import axios from "axios";
 import { clientAsync } from "@/helpers/asyncHandler";
 
-const getMatches = (sportId, live = false) => {
+const getMatches = (sportId = 1, live = false) => {
   return clientAsync(async () => {
-    const { data } = await axios.post(
-      "/api/rapid",
-      { sportId, live },
-      { headers: { v: "getMatches" } }
+    const { data } = await axios.get(
+      `/api/rapid?id=${sportId}&&live=${live}&&type=matches`
     );
     return data;
   }, false);

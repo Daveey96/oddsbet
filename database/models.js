@@ -11,6 +11,7 @@ const userSchema = new Schema({
   pin: Number,
   balance: Number,
   currentStage: Number,
+  forgotPass: Number,
   active: [
     {
       ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },

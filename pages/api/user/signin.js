@@ -5,12 +5,16 @@ import bcrypt from "bcryptjs";
 const getUser = async (req, res) => {
   let id = cookies.getCookie(req, res, "__sid");
   if (id) {
-    let user = await User.findById(id, "email balance currentStage");
+    let user = await User.findById(
+      id,
+      "email balance currentStage forgotPass active"
+    );
+    if (user.forgotPass) return res.json({ user: undefined });
+
     user && user?.currentStage === 3
       ? res.json({
-          id: user._id,
-          email: user.email,
-          balance: user.balance,
+          ping: user.activeBets.length > 0 ? true : false,
+          user: { id: user._id, email: user.email, balance: user.balance },
         })
       : res.json({ user: undefined });
   } else {
@@ -24,6 +28,11 @@ const signin = async (req, res) => {
 
   let pass = bcrypt.compareSync(password, user.password);
   if (!pass || !user) throw Error("Invalid email or password");
+
+  if (user.forgotPass) {
+    user.forgotPass = 0;
+    await user.save();
+  }
 
   cookies.setCookie(req, res, "__sid", user._id, 1000 * 3600 * 24 * 30);
   res.json({

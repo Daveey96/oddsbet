@@ -44,23 +44,23 @@ const Theme = () => {
   );
 };
 
-const Demo = () => {
-  // const { theme, setTheme } = useTheme();
+// const Demo = () => {
+//   // const { theme, setTheme } = useTheme();
 
-  return (
-    <button
-      // onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`dark:bg-black flex justify-start relative w-14 px-1.5 items-center py-1.5 rounded-xl `}
-    >
-      <span className="absolute tex left-2 text-black">off</span>
-      <span className="absolute right-2 text-white/20">off</span>
-      <motion.span
-        layout
-        className={`w-4 h-4 z-10 rounded-full bg-c2 flex `}
-      ></motion.span>
-    </button>
-  );
-};
+//   return (
+//     <button
+//       // onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+//       className={`dark:bg-black flex justify-start relative w-14 px-1.5 items-center py-1.5 rounded-xl `}
+//     >
+//       <span className="absolute tex left-2 text-black">off</span>
+//       <span className="absolute right-2 text-white/20">off</span>
+//       <motion.span
+//         layout
+//         className={`w-4 h-4 z-10 rounded-full bg-c2 flex `}
+//       ></motion.span>
+//     </button>
+//   );
+// };
 
 const PaymentPin = () => {
   return (
@@ -200,18 +200,20 @@ function Index() {
             <BiClipboard className="text-c1 text-base " /> About
           </span>
         </ul>
-        <button
-          className="text-red-700 font-bold mb-10 px-4 rounded-2xl py-3 mt-4"
-          onClick={() =>
-            promptService.prompt(
-              <>Are you sure you want to logout</>,
-              ["Yes", "No"],
-              logOut
-            )
-          }
-        >
-          Sign out
-        </button>
+        {user?.email && (
+          <button
+            className="text-red-700 font-bold mb-10 px-4 rounded-2xl py-3 mt-4"
+            onClick={() =>
+              promptService.prompt(
+                <>Are you sure you want to logout</>,
+                ["Yes", "No"],
+                logOut
+              )
+            }
+          >
+            Sign out
+          </button>
+        )}
       </div>
     </>
   );

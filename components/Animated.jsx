@@ -1,5 +1,6 @@
-import { motion, AnimatePresence } from "framer-motion";
-import React from "react";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
+import { useKeenSlider } from "keen-slider/react";
+import React, { useEffect, useRef, useState } from "react";
 
 const Animated = ({
   state,
@@ -41,29 +42,33 @@ const Animated = ({
 };
 
 export const Page = ({
-  className,
-  style,
+  state,
+  className = "",
   children,
   variants,
   transition,
-  onClick,
-  tag = "div",
-}) => {
-  let Element = motion[tag];
-  return (
-    <Element
-      style={style}
-      initial={variants.init}
-      animate={variants.show}
-      exit={variants.exit}
-      transition={transition}
-      onClick={onClick}
-      className={"absolute " + className}
-    >
-      {children}
-    </Element>
-  );
-};
+}) => (
+  <AnimatePresence mode="popLayout">
+    {children.map(
+      (child, key) =>
+        key === state && (
+          <motion.div
+            key={Math.floor(Math.random() * 1000000)}
+            initial={{ x: variants[key][0] }}
+            animate={{ x: variants[key][1] }}
+            exit={{ x: variants[key][2] }}
+            transition={transition || { duration: 0.3 }}
+            className={
+              "absolute flex top-0 left-0 w-full flex-col justify-start items-center " +
+                className[key] || className
+            }
+          >
+            {child}
+          </motion.div>
+        )
+    )}
+  </AnimatePresence>
+);
 
 export const BlurredModal = ({
   children,

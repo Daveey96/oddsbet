@@ -5,8 +5,8 @@ import { getDate } from "@/helpers";
 import Image from "next/image";
 import List from "./List";
 import Retry from "../services/Retry";
-import footBall from "@/helpers/football";
 import Game from "./Game";
+import { apiController } from "@/controllers";
 
 export const sports = [
   {
@@ -37,13 +37,51 @@ export const sports = [
   { id: 8, item: "baseball" },
 ];
 
-const GameList = ({ title, globalGames, getGames }) => {
+const filterGames = (data, isoString, len) => {
+  let dataArr = [];
+  let dataSpecialArr = [];
+  let filter = data.events.filter((v) => v.starts.split("T")[0] === isoString);
+  let l = filter.filter((v) => v.parent_id !== null);
+
+  filter.forEach((element) => {
+    if (element.parent_id) {
+      let r = filter.filter((v) => v.event_id === element.parent_id);
+      r[0].periods.num_0[element.resulting_unit.toLowerCase()] =
+        element.periods.num_0.totals;
+      dataSpecialArr.push(r[0]);
+    } else {
+      const g = l.filter((v) => v.parent_id === element.event_id);
+      if (!g) dataArr.push(element);
+    }
+  });
+
+  let Arr = [
+    ...dataSpecialArr,
+    ...dataArr.sort((a, b) => a.league_id - b.league_id),
+  ];
+
+  let initialLen = Arr.length;
+
+  if (len) Arr = Arr.slice(0, len);
+
+  return {
+    len: initialLen,
+    v: Arr.sort(
+      (a, b) =>
+        parseInt(a.starts.split("T")[1].slice(0, 2)) -
+        parseInt(b.starts.split("T")[1].slice(0, 2))
+    ),
+  };
+};
+
+const GameList = ({ title, globalGames, index }) => {
   const [mkt, setMkt] = useState("WDL");
   const [games, setGames] = useState(null);
   const [sportId, setSportId] = useState(1);
   const { scrollY } = useScroll();
   const header = useRef(null);
   const pos = useRef(null);
+  const len = useRef(0);
   const isLive = title === "Live";
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -51,6 +89,26 @@ const GameList = ({ title, globalGames, getGames }) => {
       ? header.current.classList.add(isLive ? "isSticky2" : "isSticky")
       : header.current.classList.remove(isLive ? "isSticky2" : "isSticky");
   });
+
+  const getGames = async (id) => {
+    setGames("loading");
+
+    const data = isLive
+      ? await apiController.getMatches(id, true)
+      : await apiController.getMatches(id);
+
+    if (data.events) {
+      let g = [];
+      if (isLive) g = filterGames(data, "live", 5);
+      else {
+        const { isoString } = getDate(index - 1);
+        g = filterGames(data, isoString, index === 1 ? 15 : 7);
+      }
+
+      len.current = g.len;
+      setGames(g.v);
+    } else setGames("error");
+  };
 
   useEffect(() => {
     pos.current = header.current.offsetTop;
@@ -63,13 +121,17 @@ const GameList = ({ title, globalGames, getGames }) => {
     setSportId(id);
   };
 
+  let classNames = [
+    isLive ? "dark:bg-c4/40" : "dark:bg-c4",
+    isLive ? "" : "bg-c4",
+    isLive ? "dark:bg-black/40" : "dark:bg-c4",
+  ];
+
   return (
     <>
       <header
         ref={header}
-        className={`flex mb-px z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col bg-white pb-1 pt-5 ${
-          isLive ? "dark:bg-black/40" : "dark:bg-c4"
-        }`}
+        className={`flex mb-px z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col pb-1 pt-5 ${classNames[2]}`}
       >
         <span className=" text-base gap-3 flex items-center pl-5">
           {!isLive ? (
@@ -109,96 +171,53 @@ const GameList = ({ title, globalGames, getGames }) => {
       <Retry
         state={games}
         loading={
-          <>
-            {isLive ? (
-              <div className="flex flex-col mb-2 relative items-center w-full gap-px">
-                {Array(4)
-                  .fill("")
-                  .map((i, key) => (
-                    <div
-                      key={key}
-                      className="flex dark:bg-c4/40 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2"
-                    >
-                      <div className="w-[46%] rounded-md bg-slate-600/10 leading-[14px] mb-1 fade text-[12px]"></div>
-                      <div className="w-full flex justify-between items-center">
-                        <div className="flex h-10 flex-col justify-between w-[42%]">
-                          {[0, 1].map((key) => (
-                            <span
-                              className="flex bg-white/0 pr-1 w-full gap-1 items-center"
-                              key={key}
-                            >
-                              <Image
-                                width={11}
-                                height={10}
-                                src={"/badge.svg"}
-                                alt=""
-                              />
-                              <span className="fade rounded-md flex-1 bg-slate-600/10 text-[12px] leading-[15px] mr-1"></span>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="w-[58%] flex gap-2">
-                          {Array(3)
-                            .fill("")
-                            .map((i, key2) => (
-                              <span
-                                key={key2}
-                                className="bg-slate-600/10 rounded-md fade flex-1 h-10"
-                              ></span>
-                            ))}
-                        </div>
-                      </div>
+          <div
+            className={`flex aft after:bg-c2 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 flex-col mb-2 relative items-center w-full gap-px`}
+          >
+            {Array(5)
+              .fill("")
+              .map((i, key) => (
+                <div
+                  key={key}
+                  className={`flex z-[1] w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2 ${classNames[0]}`}
+                >
+                  <div className="w-[46%] rounded-md bg-slate-600/25 leading-[14px] mb-1 fade text-[12px]"></div>
+                  <div className="w-full flex justify-between items-center">
+                    <div className="flex h-10 flex-col justify-between w-[42%]">
+                      {[0, 1].map((key) => (
+                        <span
+                          className="flex bg-white/0 pr-1 w-full gap-1 items-center"
+                          key={key}
+                        >
+                          <Image
+                            width={11}
+                            height={10}
+                            src={"/badge.svg"}
+                            alt=""
+                          />
+                          <span className="fade rounded-md flex-1 bg-slate-600/25 text-[12px] leading-[15px] mr-1"></span>
+                        </span>
+                      ))}
                     </div>
-                  ))}
-              </div>
-            ) : (
-              <div className="flex flex-col mb-2 relative items-center w-full gap-px">
-                {Array(4)
-                  .fill("")
-                  .map((i, key) => (
-                    <div
-                      key={key}
-                      className="flex dark:bg-c4 bg-white w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2"
-                    >
-                      <div className="w-[46%] rounded-md bg-slate-600/20 leading-[14px] mb-1 fade text-[12px]"></div>
-                      <div className="w-full flex justify-between items-center">
-                        <div className="flex h-10 flex-col justify-between w-[42%]">
-                          {[0, 1].map((key) => (
-                            <span
-                              className="flex bg-white/0 pr-1 w-full gap-1 items-center"
-                              key={key}
-                            >
-                              <Image
-                                width={11}
-                                height={10}
-                                src={"/badge.svg"}
-                                alt=""
-                              />
-                              <span className="fade rounded-md flex-1 bg-slate-600/20 text-[12px] leading-[15px] mr-1"></span>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="w-[58%] flex gap-2">
-                          {Array(3)
-                            .fill("")
-                            .map((i, key2) => (
-                              <span
-                                key={key2}
-                                className="bg-slate-600/20 rounded-md fade flex-1 h-10"
-                              ></span>
-                            ))}
-                        </div>
-                      </div>
+                    <div className="w-[58%] flex gap-2">
+                      {Array(3)
+                        .fill("")
+                        .map((i, key2) => (
+                          <span
+                            key={key2}
+                            className="bg-slate-600/25 rounded-md fade flex-1 h-10"
+                          ></span>
+                        ))}
                     </div>
-                  ))}
-              </div>
-            )}
-          </>
+                  </div>
+                </div>
+              ))}
+          </div>
         }
         error={
-          <div className="relative fx w-full">
-            <div className="flex flex-col mb-2 relative items-center w-full gap-px">
-              {Array(4)
+          <div className="relative w-full mb-2 aft after:bg-c2 after:left-[40%] after:-top-4 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28">
+            <div className="flex opacity-0 flex-col relative items-center w-full gap-px">
+              {Array(5)
                 .fill("")
                 .map((i, key) => (
                   <span
@@ -212,10 +231,12 @@ const GameList = ({ title, globalGames, getGames }) => {
                   </span>
                 ))}
             </div>
-            <div className="w-full h-full gap-2 fx md:rounded-b-2xl absolute bg-c4 inset-0 z-20 fx flex-col">
+            <div
+              className={`w-full h-full gap-2  fx md:rounded-b-2xl absolute  inset-0 z-20 fx flex-col ${classNames[0]}`}
+            >
               <BiXCircle className="text-3xl" />
               Something went wrong
-              <button className="text-c2" onClick={getGames}>
+              <button className="text-c2" onClick={() => getGames(sportId)}>
                 refresh
               </button>
             </div>
@@ -223,7 +244,9 @@ const GameList = ({ title, globalGames, getGames }) => {
         }
       >
         {typeof games === "object" && games && (
-          <div className="flex flex-col mb-2 relative aft after:bg-c2 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px">
+          <div
+            className={`flex flex-col mb-2 relative aft after:bg-c2 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px ${classNames[0]}`}
+          >
             {games.slice(0, 15).map((game, key) => (
               <Game key={key} isLive={title === "Live"} game={game} mkt={mkt} />
             ))}
@@ -238,81 +261,50 @@ const GameList = ({ title, globalGames, getGames }) => {
 };
 
 export default function GameDays() {
-  const [array, setArray] = useState(["Live", "Today"]);
   const [games, setGames] = useState(null);
-
-  const filterGames = (data, isoString, len = 7) => {
-    let dataArr = [];
-    let dataSpecialArr = [];
-    let filter = data.events.filter(
-      (v) => v.starts.split("T")[0] === isoString
-    );
-    let l = filter.filter((v) => v.parent_id !== null);
-
-    filter.forEach((element) => {
-      if (element.parent_id) {
-        let r = filter.filter((v) => v.event_id === element.parent_id);
-        r[0].periods.num_0[element.resulting_unit.toLowerCase()] =
-          element.periods.num_0.totals;
-        dataSpecialArr.push(r[0]);
-      } else {
-        const g = l.filter((v) => v.parent_id === element.event_id);
-        if (!g) dataArr.push(element);
-      }
-    });
-
-    const Arr = [
-      ...dataSpecialArr,
-      ...dataArr.sort((a, b) => a.league_id - b.league_id),
-    ]
-      .slice(0, len)
-      .sort(
-        (a, b) =>
-          parseInt(a.starts.split("T")[1].slice(0, 2)) -
-          parseInt(b.starts.split("T")[1].slice(0, 2))
-      );
-
-    return Arr;
-  };
+  const array = useRef(["Live", "Today"]);
+  const len = useRef(null);
 
   const getGames = async (id) => {
     setGames("loading");
 
-    // const data = await apiController.getMatches(1);
-    const data = footBall;
+    const data = await apiController.getMatches(id);
+    const liveData = await apiController.getMatches(id, true);
 
-    if (data.events) {
-      let genArray = [];
-      let daysArr = [];
-      let day = -14;
+    if (data.events && liveData.events) {
+      let daysArr = ["Live"];
+      let genArray = [filterGames(data, "live")];
 
       for (let i = 0; i < 3; i++) {
-        const { isoString, weekDay } = getDate(day);
-        const games = filterGames(data, isoString, 5);
+        const { isoString, weekDay } = getDate(i);
+        const games = filterGames(data, isoString);
         daysArr.push(i ? weekDay : "Today");
         genArray.push(games);
-        day++;
+        i++;
       }
 
-      setArray(["Live", ...daysArr]);
+      array.current = daysArr;
       setGames(genArray);
     } else setGames("error");
   };
 
   useEffect(() => {
     setTimeout(() => {
-      games === null && getGames();
+      games === null && getGames(1);
     }, 3000);
   }, [games]);
 
   return (
     <>
-      {array.map((title, key) => (
+      {array.current.map((title, key) => (
         <GameList
-          title={title}
-          key={key}
-          globalGames={games && games[key]}
           getGames={getGames}
+          title={title}
+          index={key}
+          key={key}
+          globalGames={
+            typeof games === "object" && games !== null ? games[key] : games
+          }
         />
       ))}
     </>

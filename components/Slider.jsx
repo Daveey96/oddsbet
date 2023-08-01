@@ -19,10 +19,6 @@ function Slider() {
   const [mounted, setMounted] = useState(false);
   const [sliderRef, instanceRef] = useKeenSlider(
     {
-      // slideChanged() {
-      //   console.log("slide changed");
-      //   console.log(instanceRef);
-      // },
       loop: true,
       dragSpeed: 2,
       rubberband: false,
@@ -62,9 +58,7 @@ function Slider() {
   }, [games]);
 
   useEffect(() => {
-    setTimeout(() => {
-      !mounted && setMounted(true);
-    }, 1000);
+    !mounted && setMounted(true);
   }, [mounted]);
 
   return (
@@ -224,7 +218,7 @@ function Slider() {
       </Retry>
       {games === null ? (
         <ul className="px-5 mb-4 mt-1 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2">
-          {Array(6)
+          {Array(4)
             .fill("")
             .map((i, key) => {
               return (
@@ -237,23 +231,21 @@ function Slider() {
         </ul>
       ) : (
         <ul className="px-5 mb-4 mt-0.5 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
-          {sports.map((item, key) => {
+          {["Uefa Nations League", "English legaue", ""].map((item, key) => {
             return (
               <li
                 key={key}
-                onClick={() => changeSport(item.id)}
+                // onClick={() => changeSport(item.id)}
                 className={`px-3 active:scale-90 duration-200 fx items-center gap-1 py-1 bg-c4 rounded-b-2xl rounded-t-md ${
-                  sportId === item.id && "text-c2"
+                  !key && "text-c2"
                 }`}
               >
-                {sportId === item.id ? (
+                {!key ? (
                   <>
-                    <Svg id={item.id} /> {item.item}
+                    <Svg id={1} /> {item.item}
                   </>
                 ) : (
-                  <>
-                    <Svg id={item.id} />
-                  </>
+                  <Svg id={1} />
                 )}
               </li>
             );
