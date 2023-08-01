@@ -50,7 +50,7 @@ export default function Layout({ children }) {
       <ThemeProvider attribute="class">
         <Nav />
         <Prompt />
-        <main className="w-screen z-[5] h-[100vh] fixed top-0 left-0 scroll-smooth overflow-y-scroll overflow-x-hidden lg:relative lg:flex lg:px-7 lg:gap-3">
+        <main className="z-[5] inset-0 fixed scroll-smooth overflow-y-scroll overflow-x-hidden lg:relative lg:flex lg:px-7 lg:gap-3">
           <div className="relative flex flex-col w-full lg:w-[50%]">
             <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
               {children}
