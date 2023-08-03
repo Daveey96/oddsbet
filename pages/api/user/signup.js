@@ -181,7 +181,8 @@ const resendCode = async (req, res) => {
   let id = cookies.getCookie(req, res, "__sid");
 
   let user = await User.findById(id);
-  if (!user || user.currentStage !== 1) throw Error("Something went wrong");
+  if (!user || user[user.forgotPass ? "forgotPass" : "currentStage"] !== 1)
+    throw Error("Something went wrong");
 
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
@@ -198,12 +199,18 @@ const resendCode = async (req, res) => {
 
 const changeEmail = async (req, res) => {
   const id = cookies.getCookie(req, res, "__sid");
-  if (id) {
+  let user = await User.findById(id, "forgotPass token");
+
+  if (user?.forgotPass === 1) {
+    user.token = "";
+    user.forgotPass = 0;
+    await user.save();
+  } else if (id) {
     cookies.setCookie(req, res, "__sid", id, 0);
     await User.deleteOne({ _id: id });
   }
 
-  res.json({ message: "changed" });
+  res.json({ message: "success" });
 };
 
 const confirmMail = async (req, res) => {
@@ -232,23 +239,27 @@ const confirmMail = async (req, res) => {
 };
 
 const changePass = async (req, res, id) => {
-  let { pass, pass2 } = req.body;
+  let { password, confirmPassword } = req.body;
 
-  let { error } = joiValidate({ pass, pass2 }, "password password");
+  let { error } = joiValidate(
+    { password, confirmPassword },
+    "password confirmPassword"
+  );
 
-  console.log(error);
-  if (pass !== pass2 || error) throw Error("Invalid request data");
+  if (password !== confirmPassword || error)
+    throw Error(error?.details[0]?.message || "Invalid request data");
 
-  let user = await User.findOne(id);
+  let user = await User.findById(id);
 
-  password = bcrypt.hashSync(password, 12);
-  user.password = password;
+  let pass = bcrypt.hashSync(password, 12);
+  user.password = pass;
+  user.forgotPass = 0;
   await user.save();
 
   // let mailSent = await sendMail(email, emailDetails_II);
   // if (!mailSent) throw Error("Something went wrong");
 
-  res.status(200).json({ message: "Password changed" });
+  res.status(200).json({ message: "Password changed", password });
 };
 
 export default async function handler(req, res) {

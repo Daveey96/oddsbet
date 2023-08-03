@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
 import { BiXCircle } from "react-icons/bi";
 import { getDate } from "@/helpers";
 import Image from "next/image";
@@ -7,6 +6,7 @@ import List from "./List";
 import Retry from "../services/Retry";
 import Game from "./Game";
 import { apiController } from "@/controllers";
+import { useRouter } from "next/router";
 
 export const sports = [
   {
@@ -75,20 +75,12 @@ const filterGames = (data, isoString, len) => {
 };
 
 const GameList = ({ title, globalGames, index }) => {
+  const isLive = title === "Live";
   const [mkt, setMkt] = useState("WDL");
   const [games, setGames] = useState(null);
   const [sportId, setSportId] = useState(1);
-  const { scrollY } = useScroll();
   const header = useRef(null);
-  const pos = useRef(null);
   const len = useRef(0);
-  const isLive = title === "Live";
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    latest > pos.current
-      ? header.current.classList.add(isLive ? "isSticky2" : "isSticky")
-      : header.current.classList.remove(isLive ? "isSticky2" : "isSticky");
-  });
 
   const getGames = async (id) => {
     setGames("loading");
@@ -111,8 +103,26 @@ const GameList = ({ title, globalGames, index }) => {
   };
 
   useEffect(() => {
-    pos.current = header.current.offsetTop;
-  }, [games]);
+    const pos = document.getElementById(`container${index}`).offsetTop;
+    const scrollElement = document.getElementById("scroll-container");
+
+    scrollElement.scrollTop > pos
+      ? header.current.classList.add(isLive ? "isSticky2" : "isSticky")
+      : header.current.classList.remove(isLive ? "isSticky2" : "isSticky");
+
+    scrollElement.addEventListener("scroll", (e) => {
+      if (header.current !== null) {
+        e.target.scrollTop > pos
+          ? !header.current.classList.contains(
+              isLive ? "isSticky2" : "isSticky"
+            ) && header.current.classList.add(isLive ? "isSticky2" : "isSticky")
+          : header.current.classList.contains(
+              isLive ? "isSticky2" : "isSticky"
+            ) &&
+            header.current.classList.remove(isLive ? "isSticky2" : "isSticky");
+      }
+    });
+  }, []);
 
   useEffect(() => setGames(globalGames), [globalGames]);
 
@@ -128,10 +138,10 @@ const GameList = ({ title, globalGames, index }) => {
   ];
 
   return (
-    <>
+    <div id={`container${index}`} className="relative">
       <header
         ref={header}
-        className={`flex mb-px z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col pb-1 pt-5 ${classNames[2]}`}
+        className={`flex mb-px duration-150 z-20 md:rounded-t-2xl sticky w-full -top-[1px] flex-col pb-1 pt-5 ${classNames[2]}`}
       >
         <span className=" text-base gap-3 flex items-center pl-5">
           {!isLive ? (
@@ -141,8 +151,8 @@ const GameList = ({ title, globalGames, index }) => {
               <Image
                 src={"/tv.svg"}
                 className="scale-150 rotate-6"
-                width={11}
                 height={11}
+                width={11}
                 alt=""
               />
               <span className="z-10 font-bold text-lg">{title}</span>
@@ -256,7 +266,7 @@ const GameList = ({ title, globalGames, index }) => {
           </div>
         )}
       </Retry>
-    </>
+    </div>
   );
 };
 

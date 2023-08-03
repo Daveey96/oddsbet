@@ -1,6 +1,5 @@
-import { motion, AnimatePresence, useMotionValue } from "framer-motion";
-import { useKeenSlider } from "keen-slider/react";
-import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
 
 const Animated = ({
   state,
@@ -41,26 +40,20 @@ const Animated = ({
   );
 };
 
-export const Page = ({
-  state,
-  className = "",
-  children,
-  variants,
-  transition,
-}) => (
+export const Page = ({ state, className = "", children, variants }) => (
   <AnimatePresence mode="popLayout">
     {children.map(
       (child, key) =>
         key === state && (
           <motion.div
-            key={Math.floor(Math.random() * 1000000)}
-            initial={{ x: variants[key][0] }}
-            animate={{ x: variants[key][1] }}
-            exit={{ x: variants[key][2] }}
-            transition={transition || { duration: 0.3 }}
+            key={key}
+            initial={{ x: variants[key] === 1 ? "100%" : "-100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: variants[key] === 1 ? "100%" : "-100%" }}
+            transition={{ duration: 0.3 }}
             className={
-              "absolute flex top-0 left-0 w-full flex-col justify-start items-center " +
-                className[key] || className
+              "flex w-full flex-col justify-start items-center " +
+              className[key]
             }
           >
             {child}

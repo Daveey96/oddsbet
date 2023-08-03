@@ -14,6 +14,7 @@ export const joiValidate = (data, params = "email") => {
   const objects = {
     email: Joi.string().email().min(12).lowercase().required(),
     password: Joi.string().min(6).required(),
+    confirmPassword: Joi.string().min(6).required(),
     token: Joi.string().length(4),
   };
 

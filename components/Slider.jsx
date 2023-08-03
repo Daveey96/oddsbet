@@ -63,7 +63,7 @@ function Slider() {
 
   return (
     <>
-      <div className="mt-10 md:mt-14 gap-3 shadow-[7px_8px_5px_0_inset] shadow-black flex items-center justify-start pl-8">
+      <div className="mt-10 md:mt-14 gap-3 flex items-center justify-start pl-8">
         {[
           <>
             <FaFireAlt className="text-c2" />

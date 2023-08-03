@@ -118,7 +118,7 @@ function Nav() {
                 <BiArrowToLeft className="mt-0.5" /> back
               </>
             ) : (
-              "register"
+              "sign up | in"
             )}
           </SkeletonLoad>
         )}
