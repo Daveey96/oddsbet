@@ -9,9 +9,7 @@ const placeBet = (details) =>
 
 const loadBet = (details) =>
   clientAsync(async () => {
-    const { data } = await axios.get(
-      `api/bets?path=${details.path}&type=${details?.type}&date=${details?.date}`
-    );
+    const { data } = await axios.get(`api/bets?code=${details.code}&type=load`);
     return data;
   });
 
@@ -24,7 +22,7 @@ const deleteBet = (details) =>
 const getBets = (details) =>
   clientAsync(async () => {
     const { data } = await axios.get(
-      `/api/bets?path=${details.path}&type=${details?.type}&date=${details?.date}`
+      `/api/bets?active=${details.active}&type=get&date=${details?.date}`
     );
     return data;
   });

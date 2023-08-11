@@ -9,7 +9,7 @@ import { Context } from ".";
 import Alert from "../services/Alert";
 import { SkeletonLoad } from "../services/Loaders";
 
-export const Naira = (className) => (
+export const Naira = ({ className }) => (
   <svg
     fill="currentColor"
     width="12px"
@@ -78,7 +78,7 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className="justify-center -mt-1 px-2 h-9 md:px-0 flex md:ml-10 relative aft after:h-0 after:w-0 md:after:h-2 after:bottom-0 md:after:w-1/2 after:from-c2 after:to-c1 after:bg-gradient-to-r md:backdrop-blur-none after:blur-lg z-10 duration-200 md:pt-3.5 md:rounded-none rounded-b-2xl backdrop-blur-xl"
+          className="justify-center -mt-1 px-2 h-9 md:px-0 flex md:ml-10 relative z-10 rounded-b-2xl bg-c3 dark:bg-transparent dark:backdrop-blur-xl"
         >
           <Image
             width={75}
@@ -91,12 +91,12 @@ function Nav() {
         </Link>
         {user?.id ? (
           <span
-            className={`fx gap-1 relative text-base pl-3.5 pr-2.5 rounded-b-2xl z-30 bg-black h-full" ${
+            className={`fx gap-1 relative text-base pl-5 pr-4 rounded-b-2xl z-30 bg-black h-full" ${
               user.balance < 100 ? "text-red-600" : "text-green-600"
             }`}
           >
-            <Naira />
-            <span>{user.balance.toFixed(2)}</span>
+            <Naira className="mb-1" />
+            <span className="mb-[5px]">{user.balance.toFixed(2)}</span>
             {/* {user.balance < 100 && (
               <Link
                 href={"/profile/deposit"}
@@ -110,7 +110,9 @@ function Nav() {
           <SkeletonLoad
             state={user !== null}
             tag="button"
-            className={"fx gap-1 pb-1 px-6 rounded-b-2xl z-30 bg-black h-8"}
+            className={
+              "fx text-white rounded-t-none gap-1 pb-1 px-6 rounded-b-2xl z-30 bg-black h-8"
+            }
             onClick={() => setBackdrop(!backdrop)}
           >
             {backdrop ? (
@@ -118,7 +120,10 @@ function Nav() {
                 <BiArrowToLeft className="mt-0.5" /> back
               </>
             ) : (
-              "sign up | in"
+              <>
+                join <span className="opacity-10 mx-1.5">|</span>
+                <span className="text-c2">login</span>
+              </>
             )}
           </SkeletonLoad>
         )}

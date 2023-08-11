@@ -1,3 +1,4 @@
+import { Games } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import axios from "axios";
 
@@ -13,6 +14,7 @@ let marketoptions = {
 
 const getMatches = async (req, res) => {
   const { id, live } = req.query;
+
   marketoptions.url += "markets";
   marketoptions.params = {
     sport_id: id.toString(),
@@ -20,8 +22,20 @@ const getMatches = async (req, res) => {
     event_type: live ? "live" : "prematch",
   };
 
-  console.log(id, live);
-  let { data } = await axios.request(marketoptions);
+  if (!live) {
+    const games = Games.findOne({ "data.id": id });
+
+    if (games?.games) res.json({ games: games.games });
+    else {
+      const { data } = await axios.request(marketoptions);
+
+      await Games.create({ data });
+      res.json(data);
+    }
+    return;
+  }
+
+  const { data } = await axios.request(marketoptions);
   if (data) return res.json(data);
 
   throw Error("No Internet");
@@ -39,7 +53,6 @@ export const getMatch = async (req, res) => {
 };
 
 export default async function handler(req, res) {
-  console.log(req);
   if (req.query.type === "matches") return serverAsync(req, res, getMatches);
 
   if (req.query.type === "match") return serverAsync(req, res, getMatch);

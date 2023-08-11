@@ -8,6 +8,7 @@ import React, { useContext, useMemo, useState, useEffect, useRef } from "react";
 import { Context } from "../layout";
 import Animated, { BlurredModal } from "../Animated";
 import {
+  BiBookAdd,
   BiCheck,
   BiCheckCircle,
   BiEditAlt,
@@ -20,6 +21,12 @@ import {
 import { CircularLoader } from "../services/Loaders";
 import Link from "next/link";
 import { betController } from "@/controllers";
+import {
+  BsFillKeyboardFill,
+  BsKeyboard,
+  BsTicketDetailed,
+} from "react-icons/bs";
+import { FaTicketAlt } from "react-icons/fa";
 
 const variants = {
   initial: { opacity: 0 },
@@ -67,7 +74,10 @@ export const BetListButton = ({ toggle, setToggle }) => {
               initial="initial"
               animate="animate"
               exit="exit"
-              onClick={() => setToggle(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setToggle(true);
+              }}
               whileTap={{ scale: 1.1 }}
               style={{ x: "-50%", left: "50%" }}
               className={`absolute fx rounded-xl z-20 ${
@@ -201,12 +211,12 @@ const BetCode = ({ setBetList }) => {
   }, [value]);
 
   return (
-    <div className="mt-3 mx-[20%] relative fx gap-4 mb-10">
+    <div className="mt-3 mx-[20%] relative fx gap-4 mb-4">
       <input
         type="text"
         ref={input}
         placeholder="Enter code"
-        className="py-3 disabled:opacity-30 duration-150 text-center w-full text-base border-gray-800 px-3 focus:border-c2 border-b-2 h-full"
+        className="py-3 disabled:opacity-30 duration-150 text-center w-full text-base border-gray-800 px-3 focus:border-c2 border-2 rounded-2xl h-full"
         maxLength={5}
         value={value}
         disabled={load}
@@ -307,232 +317,255 @@ export default function BetList({ toggle, setToggle }) {
     setBetcodeLoad(betList.length > 0);
   }, [betList]);
 
+  useEffect(() => {
+    window.addEventListener("click", () => {
+      toggle && setToggle(false);
+      console.log("yess");
+    });
+  }, []);
+
   useEffect(() => setStake(user?.balance ? user?.balance.toString() : ""), []);
 
   return (
-    <BlurredModal
-      variants={{
-        init: { y: "200%", opacity: 0 },
-        show: { y: "0%", opacity: 1 },
-        exit: { y: "200%", opacity: 0 },
-      }}
-      className="z-30 aft after:backdrop-blur-lg after:inset-0 flex items-end"
-      iClass="overflow-hidden z-10 relative w-full bottom-0 fx flex-col "
-      onClick={() => setToggle(false)}
-      state={toggle}
-      variantKey="2"
-    >
-      <>
-        <button className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-1 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"></button>
-        <header className="px-5 pt-8 bg-black text-lg justify-center w-full flex">
-          <span
-            onClick={(e) => e.stopPropagation()}
-            className="fx text-base text-c2 absolute gap-0.5 opacity-60"
-          >
-            {[<BiEditAlt key={10} />, <BiTrashAlt key={12} />].map((i, key) => (
-              <button
-                className={`w-8 h-8 active:scale-95 active:bg-white/20 duration-150 rounded-full fx ${
-                  key === 0 && !betcodeLoad
-                    ? "bg-c2/10 active:bg-white/20"
-                    : "bg-white/0"
-                }`}
-                key={key}
-                onClick={() => buttons(key)}
-              >
-                {i}
-              </button>
-            ))}
-          </span>
-          <span className="justify-between px-3 pb-3 flex items-center w-full">
-            <span>
-              {betList.length}{" "}
-              <span className="opacity-60">
-                bet{betList.length !== 1 && "s"}
-              </span>
-            </span>
-            <span className="fx gap-3">
-              <span>{betList.length > 1 && totalOdds}</span>
-            </span>
-          </span>
-        </header>
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="max-h-[60vh] items-center bg-black/80 overflow-y-scroll w-full"
-        >
-          {betcodeLoad ? (
-            <AnimatePresence>
-              {betList.map((mv, key) => (
-                <BetGame
-                  v={mv}
-                  deleteGame={removeGame}
-                  index={key}
-                  key={`${mv.id}${mv.mkt}`}
-                />
-              ))}
-            </AnimatePresence>
-          ) : (
-            <BetCode setBetList={(v) => setBetList(v)} />
-          )}
-        </div>
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="flex aft bg-black pt-2  flex-col relative w-full w-full-c after:bottom-[99%] after:h-12 after:from-transparent after:to-black after:w-full after:bg-gradient-to-b"
-        >
-          <div className="flex justify-between mb-3 px-4 items-center">
-            <span className=" px-5 py-1 min-w-[100px] relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-[1px] border-r-[1px] border-r-c2 fx border-l-c1">
-              <span className="">{stake}</span>
-              {stake.length < 1 && (
-                <span className="opacity-20 absolute">min 100</span>
-              )}
-              <motion.span
-                animate={{ opacity: [0, 0.2] }}
-                transition={{ repeatType: "mirror", repeat: Infinity }}
-                className=""
-              >
-                _
-              </motion.span>
-              {stake && (
-                <button
-                  onClick={() => buttonClicked("del")}
-                  className="absolute left-[105%] bg-red-950 rounded-r-3xl after:rounded-r-3xl rounded-l-lg px-3 h-full aft after:w-1/2 after:right-0 after:bg-black/30 after:h-full after:top-0 text-xl"
-                >
-                  <BiX />
-                </button>
-              )}
-            </span>
-            <span className="">
-              <span className="mr-3 opacity-30 text-sm">to Win</span>
-              <span className="text-green-500 mr-2 text-lg ">{potWin}</span>
-            </span>
-          </div>
-          <div className="gap-1 flex flex-col px-3 w-full overflow-hidden justify-center mb-2">
-            {[["+1000", "+500", "+100", ".", 0, "00"], Array(9).fill("")].map(
-              (buttons, key) => (
-                <div key={key} className="flex justify-center gap-1">
-                  {buttons.map((button, key2) => (
-                    <button
-                      key={key2}
-                      className={`py-1 fx flex-[2] bg-slate-600/10 rounded-lg`}
-                      onClick={() => buttonClicked(key ? key2 + 1 : button)}
-                    >
-                      {key ? key2 + 1 : button}
-                    </button>
-                  ))}
-                </div>
-              )
-            )}
-          </div>
-          <div className="h-12 h-full-c">
-            <button className="w-1/3">Book bet</button>
-            <button
-              onClick={() => betList.length > 0 && setPlaceBet(true)}
-              disabled={
-                betList.length > 0 && parseInt(stake) > 99 ? false : true
-              }
-              className="w-2/3 disabled:opacity-50 bg-gradient-to-r rounded-tr-[20px] rounded-tl-[20px] from-c1/70 to-c2/50"
-            >
-              Place bet
-            </button>
-          </div>
-        </div>
-      </>
-      <Animated
-        onClick={(e) => {
-          e.stopPropagation();
-          setPlaceBet(false);
-        }}
-        variants={variants}
-        state={placeBet}
-        variantKey="2"
-        layout
-        className="inset-0 absolute bg-black/80 z-10 flex items-end justify-center"
-      >
+    <AnimatePresence>
+      {toggle && (
         <motion.div
-          variants={childVariants}
-          className="fx flex-col w-full bg-black"
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: "100%", opacity: 0 }}
+          transition={{ ease: "anticipate" }}
+          className="z-[22] bg-black pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
+          onClick={(e) => e.stopPropagation()}
         >
-          {successful ? (
-            <>
-              <h3 className="relative fx mt-7 mb-4">
-                <BiCheckCircle className="text-white -left-4 opacity-10 absolute scale-[2] text-xl" />
-                <span className="z-10">Bet Successful</span>
-              </h3>
-              <div className="flex flex-col mt-4 px-10 w-full">
-                {[
-                  { title: "Odds", value: successful.odds },
-                  { title: "Stake", value: successful.stake },
-                  { title: "Potential Win", value: successful.potWin },
-                  { title: "Code", value: successful.code },
-                ].map((v, key) => {
-                  return (
-                    <div
-                      key={key}
-                      className="py-3 justify-between items-center flex flex-1 w-full"
-                    >
-                      <span className="text-white/50">{v.title}</span>
-                      {key === 3 ? (
-                        <span className="fx text-c2 gap-2">
-                          <BiShareAlt />
-                          <span>{v.value}</span>
-                        </span>
-                      ) : (
-                        <span className="text-c2">{v.value}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <div
-                onClick={(e) => e.preventDefault()}
-                className="flex gap-2 h-12 mb-2 mt-7 w-full px-8"
-              >
-                <Link
-                  href={"/bets"}
-                  onClick={reset}
-                  className="fx h-full w-3/4 px-14 rounded-lg bg-c2/10 text-c2"
-                >
-                  view bets
-                </Link>
-                <button
-                  onClick={reset}
-                  className="h-full bg-red-600/10 text-xl text-red-600 px-8 flex-1 rounded-lg"
-                >
-                  <BiXCircle />
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
+          <>
+            <button
+              onClick={() => setToggle(false)}
+              className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-1 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"
+            ></button>
+            <header className="px-5 pt-8 text-lg justify-center w-full flex">
               <span
-                className="py-9 fx w-full"
                 onClick={(e) => e.stopPropagation()}
+                className="fx text-base text-c2 absolute gap-0.5 opacity-60"
               >
-                {buttonText}
+                {[<BiEditAlt key={10} />, <BiTrashAlt key={12} />].map(
+                  (i, key) => (
+                    <button
+                      className={`w-8 h-8 active:scale-95 active:bg-white/20 duration-150 rounded-full fx ${
+                        key === 0 && !betcodeLoad
+                          ? "bg-c2/10 active:bg-white/20"
+                          : "bg-white/0"
+                      }`}
+                      key={key}
+                      onClick={() => buttons(key)}
+                    >
+                      {i}
+                    </button>
+                  )
+                )}
               </span>
-              <div className="w-4/5 flex gap-2">
-                <button
-                  onClick={submitBetSlip}
-                  className="bg-green-500/10 text-green-500 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
-                >
-                  {buttonText === "Place bet?" ? (
-                    <>
-                      <BiCheck /> Yes
-                    </>
-                  ) : (
-                    <CircularLoader depth={2} className={"border-green-400"} />
+              <span className="justify-between px-3 pb-3 flex items-center w-full">
+                <span>
+                  {betList.length}{" "}
+                  <span className="opacity-60">
+                    bet{betList.length !== 1 && "s"}
+                  </span>
+                </span>
+                <span className="fx gap-3">
+                  <span>{betList.length > 1 && totalOdds}</span>
+                </span>
+              </span>
+            </header>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[60vh] items-center overflow-y-scroll w-full"
+            >
+              {betcodeLoad ? (
+                <AnimatePresence>
+                  {betList.map((mv, key) => (
+                    <BetGame
+                      v={mv}
+                      deleteGame={removeGame}
+                      index={key}
+                      key={`${mv.id}${mv.mkt}`}
+                    />
+                  ))}
+                </AnimatePresence>
+              ) : (
+                <BetCode setBetList={(v) => setBetList(v)} />
+              )}
+            </div>
+            {/* <div className="flex justify-between mb-3 px-4 items-center">
+                <span className=" px-5 py-1 min-w-[100px] relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-[1px] border-r-[1px] border-r-c2 fx border-l-c1">
+                  <span className="">{stake}</span>
+                  {stake.length < 1 && (
+                    <span className="opacity-20 absolute">min 100</span>
                   )}
-                </button>
-                <button
-                  onClick={() => setPlaceBet(false)}
-                  className="bg-red-500/10 text-red-500 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
-                >
-                  <BiX /> No
-                </button>
-              </div>
-            </>
-          )}
+                  <motion.span
+                    animate={{ opacity: [0, 0.2] }}
+                    transition={{ repeatType: "mirror", repeat: Infinity }}
+                    className=""
+                  >
+                    _
+                  </motion.span>
+                  {stake && (
+                    <button
+                      onClick={() => buttonClicked("del")}
+                      className="absolute left-[105%] bg-red-950 rounded-r-3xl after:rounded-r-3xl rounded-l-lg px-3 h-full aft after:w-1/2 after:right-0 after:bg-black/30 after:h-full after:top-0 text-xl"
+                    >
+                      <BiX />
+                    </button>
+                  )}
+                </span>
+                <span className="">
+                  <span className="mr-3 opacity-30 text-sm">to Win</span>
+                  <span className="text-green-500 mr-2 text-lg ">{potWin}</span>
+                </span>
+              </div> */}
+            {/* <div className="gap-1 flex flex-col px-3 w-full overflow-hidden justify-center mb-2">
+                {[
+                  ["+1000", "+500", "+100", ".", 0, "00"],
+                  Array(9).fill(""),
+                ].map((buttons, key) => (
+                  <div key={key} className="flex justify-center gap-1">
+                    {buttons.map((button, key2) => (
+                      <button
+                        key={key2}
+                        className={`py-1 fx flex-[2] bg-slate-600/10 rounded-lg`}
+                        onClick={() => buttonClicked(key ? key2 + 1 : button)}
+                      >
+                        {key ? key2 + 1 : button}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div> */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="h-12 fx w-full gap-5"
+            >
+              {[<BsTicketDetailed key={0} />, <BsKeyboard key={1} />].map(
+                (jsx, key) => (
+                  <button
+                    className={`text-xl ${key === 0 ? "" : "order-3"}`}
+                    key={key}
+                  >
+                    {jsx}
+                  </button>
+                )
+              )}
+              <button
+                onClick={() => betList.length > 0 && setPlaceBet(true)}
+                disabled={
+                  betList.length > 0 && parseInt(stake) > 99 ? false : true
+                }
+                className=" disabled:opacity-50 px-5 py-2 bg-gradient-to-r rounded-t-[20px] rounded-b-lg from-c1 to-c2"
+              >
+                Place bet
+              </button>
+            </div>
+          </>
+          {/* <Animated
+            onClick={(e) => {
+              e.stopPropagation();
+              setPlaceBet(false);
+            }}
+            variants={variants}
+            state={placeBet}
+            variantKey="2"
+            layout
+            className="inset-0 absolute bg-black/80 z-10 flex items-end justify-center"
+          >
+            <motion.div
+              variants={childVariants}
+              className="fx flex-col w-full bg-black"
+            >
+              {successful ? (
+                <>
+                  <h3 className="relative fx mt-7 mb-4">
+                    <BiCheckCircle className="text-white -left-4 opacity-10 absolute scale-[2] text-xl" />
+                    <span className="z-10">Bet Successful</span>
+                  </h3>
+                  <div className="flex flex-col mt-4 px-10 w-full">
+                    {[
+                      { title: "Odds", value: successful.odds },
+                      { title: "Stake", value: successful.stake },
+                      { title: "Potential Win", value: successful.potWin },
+                      { title: "Code", value: successful.code },
+                    ].map((v, key) => {
+                      return (
+                        <div
+                          key={key}
+                          className="py-3 justify-between items-center flex flex-1 w-full"
+                        >
+                          <span className="text-white/50">{v.title}</span>
+                          {key === 3 ? (
+                            <span className="fx text-c2 gap-2">
+                              <BiShareAlt />
+                              <span>{v.value}</span>
+                            </span>
+                          ) : (
+                            <span className="text-c2">{v.value}</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div
+                    onClick={(e) => e.preventDefault()}
+                    className="flex gap-2 h-12 mb-2 mt-7 w-full px-8"
+                  >
+                    <Link
+                      href={"/bets"}
+                      onClick={reset}
+                      className="fx h-full w-3/4 px-14 rounded-lg bg-c2/10 text-c2"
+                    >
+                      view bets
+                    </Link>
+                    <button
+                      onClick={reset}
+                      className="h-full bg-red-600/10 text-xl text-red-600 px-8 flex-1 rounded-lg"
+                    >
+                      <BiXCircle />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span
+                    className="py-9 fx w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {buttonText}
+                  </span>
+                  <div className="w-4/5 flex gap-2">
+                    <button
+                      onClick={submitBetSlip}
+                      className="bg-green-500/10 text-green-500 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
+                    >
+                      {buttonText === "Place bet?" ? (
+                        <>
+                          <BiCheck /> Yes
+                        </>
+                      ) : (
+                        <CircularLoader
+                          depth={2}
+                          className={"border-green-400"}
+                        />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setPlaceBet(false)}
+                      className="bg-red-500/10 text-red-500 flex-1 fx gap-0.5 py-2 rounded-t-2xl"
+                    >
+                      <BiX /> No
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </Animated> */}
         </motion.div>
-      </Animated>
-    </BlurredModal>
+      )}
+    </AnimatePresence>
   );
 }

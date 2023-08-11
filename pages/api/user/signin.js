@@ -13,7 +13,7 @@ const getUser = async (req, res) => {
 
     user && user?.currentStage === 3
       ? res.json({
-          ping: user.activeBets.length > 0 ? true : false,
+          // ping: user.activeBets.length > 0 ? true : false,
           user: { id: user._id, email: user.email, balance: user.balance },
         })
       : res.json({ user: undefined });

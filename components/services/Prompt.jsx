@@ -43,7 +43,7 @@ export default function Prompt() {
         initial={"initChild"}
         animate={"showChild"}
         exit={"exitChild"}
-        className="w-5/6 flex h-32 flex-col rounded-3xl bg-c4"
+        className="w-5/6 flex h-32 flex-col rounded-3xl bg-c3 dark:bg-c4"
       >
         <span className="z-10 flex-1 fx w-full">{prompt?.message}</span>
         <div className="flex w-full justify-center gap-4">
@@ -56,8 +56,8 @@ export default function Prompt() {
                   prompt?.type
                     ? "bg-c2 text-white"
                     : key
-                    ? "text-red-500 bg-red-500/5"
-                    : `bg-green-500/5 ${
+                    ? "text-red-500 dark:bg-red-500/5 bg-red-500/25"
+                    : `dark:bg-green-500/5 bg-green-500/25 ${
                         load ? "text-green-500/0" : "text-green-500"
                       }`
                 }`}

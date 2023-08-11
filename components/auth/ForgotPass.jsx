@@ -137,7 +137,7 @@ export default function ForgotPassword({ goBack, active, mail, change }) {
             )}
             <button
               disabled={disabled}
-              className="bg-green-500 w-full duration-100 disabled:opacity-50 fx h-12"
+              className="bg-green-500 text-white w-full duration-100 disabled:opacity-70 dark:disabled:opacity-50 fx h-12"
             >
               {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
             </button>

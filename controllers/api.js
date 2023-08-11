@@ -4,7 +4,7 @@ import { clientAsync } from "@/helpers/asyncHandler";
 const getMatches = (sportId = 1, live = false) => {
   return clientAsync(async () => {
     const { data } = await axios.get(
-      `/api/rapid?id=${sportId}&&live=${live}&&type=matches`
+      `/api/rapid?id=${sportId}&live=${live}&type=matches`
     );
     return data;
   }, false);

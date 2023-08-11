@@ -112,8 +112,9 @@ const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
           key={key}
           disabled={!locked(key)}
           onClick={() => addGame(odd.toFixed(2), key)}
-          className={`bg-black h-10 active:scale-110 duration-150 text-sm w-full rounded-md relative fx ${
-            key === active && "from-c1/75 to-c2/75 bg-gradient-to-br"
+          className={`bg-black/20 dark:bg-black h-10 active:scale-110 duration-150 text-sm w-full rounded-md relative fx ${
+            key === active &&
+            "dark:from-c1/90 from-c1 to-c2 dark:to-c2/90 bg-gradient-to-br text-white"
           } `}
         >
           {locked(key) ? odd.toFixed(2) : <BiLockAlt className="opacity-60" />}
@@ -226,7 +227,7 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
               <button
                 disabled={!locked(key)}
                 onClick={() => addGame(odds[v][key], key)}
-                className={`bg-black h-10 text-sm w-full rounded-md relative fx ${
+                className={`bg-black/20 dark:bg-black h-10 text-sm w-full rounded-md relative fx ${
                   key === active && "from-c1/75 to-c2/75 bg-gradient-to-br"
                 } `}
               >

@@ -202,6 +202,7 @@ const changeEmail = async (req, res) => {
   let user = await User.findById(id, "forgotPass token");
 
   if (user?.forgotPass === 1) {
+    cookies.setCookie(req, res, "__sid", id, 0);
     user.token = "";
     user.forgotPass = 0;
     await user.save();

@@ -1,5 +1,13 @@
-import { Ticket, User, connectMongo, isLoggedIn } from "@/database";
-import footBallGames from "@/helpers/football";
+import {
+  ActiveBets,
+  History,
+  Ticket,
+  User,
+  connectMongo,
+  isLoggedIn,
+} from "@/database";
+import { getDate } from "@/helpers";
+import footBallGames from "@/helpers/json/football";
 import axios from "axios";
 
 const getOutcome = () => {};
@@ -10,7 +18,7 @@ const generateCode = () => {
   let n = 0;
   let l = 0;
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     let x = Math.random().toFixed(2);
 
     if (n === 3) x = 1;
@@ -65,32 +73,18 @@ const placeBet = async (req, res, id) => {
 };
 
 const getBets = async (req, res, id) => {
-  const { type = "active", date } = req.body;
+  const { active, date } = req.query;
 
-  if (type === "active") {
-    let { active, history } = await User.findById(id, "active").populate(
-      "active.ticket"
-    );
+  if (active) {
+    let active = await ActiveBets.find({ id });
     let betlist = [];
 
-    // history = [
-    // {date: "94-34-30", betlist: [
-    // {code: "gfgf", games: [{}]}
-    // ]},
-    // {date: "94-34-30", betlist: [
-    // {code: "gfgf", games: [{}]}
-    // ]},
-    // {},
-    // ]
-
     active.forEach(async (betSlip) => {
+      let slip = betSlip.ticket.slip.split("|");
       let games = [];
-      let hist = false;
 
-      for (let i = 0; i < betSlip.ticket.slip.split("|").length; i++) {
-        const [eventId, mkt, outcome] = betSlip.ticket.slip
-          .split("|")
-          [i].split(",");
+      for (let i = 0; i < slip.length; i++) {
+        const [eventId, mkt, outcome] = slip[i].split(",");
 
         //// ! development
         // let g = footBallGames.events.filter(
@@ -100,82 +94,78 @@ const getBets = async (req, res, id) => {
 
         //// ! production
         const g = await axios.get(
-          `/api/rapid?id=${parseInt(eventId)},type=match`
+          `/api/rapid?id=${parseInt(eventId)}&type=match`
         );
 
         let { status, game } = getOutcome(g, outcome, mkt);
 
-        if (status) {
-        }
+        if (status === "lost") {
+          let history = History.findOne({ date: getDate().isoString });
 
-        games.push({ status, game });
-      }
-
-      if (hist) {
-        let dateExists = false;
-        for (let i = 0; i < history.length; i++) {
-          if (history[i].date === new Date().toISOString()) {
-            history[i].games.push({
-              home,
-              away,
-              score,
-              corners,
-              sport_id,
-              mkt,
-            });
-            dateExists = true;
+          if (history) {
           }
+        } else {
+          games.push({ status, game });
         }
-
-        if (!dateExists) {
-          let newHistory = {
-            date: new Date().toISOString(),
-            betList: [
-              {
-                code: betSlip.ticket.code,
-                slip: betSlip.ticket.slip,
-                odds: betSlip.odds,
-                stake: betSlip.stake,
-                games: games.map((g) => {
-                  return {
-                    sport_id: g.sport_id,
-                    home: g.home,
-                    away: g.away,
-                    score,
-                    corners,
-                    mkt,
-                  };
-                }),
-              },
-            ],
-          };
-
-          history.unShift(newHistory);
-        }
-      } else {
-        betlist.push({
-          games,
-          code: betSlip.ticket.code,
-          slip: betSlip.ticket.slip,
-          odds: betSlip.odds,
-          stake: betSlip.stake,
-        });
       }
+
+      // if (hist) {
+      //   let dateExists = false;
+      //   for (let i = 0; i < history.length; i++) {
+      //     if (history[i].date === new Date().toISOString()) {
+      //       history[i].games.push({
+      //         home,
+      //         away,
+      //         score,
+      //         corners,
+      //         sport_id,
+      //         mkt,
+      //       });
+      //       dateExists = true;
+      //     }
+      //   }
+
+      //   if (!dateExists) {
+      //     let newHistory = {
+      //       date: new Date().toISOString(),
+      //       betList: [
+      //         {
+      //           code: betSlip.ticket.code,
+      //           slip: betSlip.ticket.slip,
+      //           odds: betSlip.odds,
+      //           stake: betSlip.stake,
+      //           games: games.map((g) => {
+      //             return {
+      //               sport_id: g.sport_id,
+      //               home: g.home,
+      //               away: g.away,
+      //               score,
+      //               corners,
+      //               mkt,
+      //             };
+      //           }),
+      //         },
+      //       ],
+      //     };
+
+      //     history.unShift(newHistory);
+      //   }
+      // } else {
+      //   betlist.push({
+      //     games,
+      //     code: betSlip.ticket.code,
+      //     slip: betSlip.ticket.slip,
+      //     odds: betSlip.odds,
+      //     stake: betSlip.stake,
+      //   });
+      // }
     });
 
     res.status(200).json({ betlist: betlist.reverse() });
   } else {
-    let { history } = await User.findById(id, "history").populate(
-      "history.games.ticket"
-    );
+    let history = await History.findOne({ id, date });
 
-    const games = history.forEach((day) => {
-      if (day.date === date) {
-        return day.games;
-      }
-    });
-
-    res.json({ games });
+    res.json({ games: history.games });
   }
 };
 
@@ -227,15 +217,13 @@ export default async function handler(req, res) {
   const connect = await connectMongo(res);
   if (!connect) throw Error("Server error");
 
-  if (req.method === "POST" && req.headers.type === "place")
-    return isLoggedIn(req, res, placeBet);
+  if (req.method === "POST") return isLoggedIn(req, res, placeBet);
 
-  if (req.method === "POST" && req.headers.type === "load")
+  if (req.method === "GET" && req.query.type === "load")
     return isLoggedIn(req, res, loadBet);
 
-  if (req.method === "POST" && req.headers.type === "get")
+  if (req.method === "GET" && req.query.type === "get")
     return isLoggedIn(req, res, getBets);
 
-  if (req.method === "POST" && req.headers.type === "delete")
-    return isLoggedIn(req, res, deleteBet);
+  if (req.method === "DELETE") return isLoggedIn(req, res, deleteBet);
 }

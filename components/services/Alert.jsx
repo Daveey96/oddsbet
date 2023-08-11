@@ -35,13 +35,15 @@ export default function Alert({ onAlert }) {
             exit={{ opacity: 0, y: "-100%" }}
             key={38373}
             className={`rounded-b-xl whitespace-nowrap relative fx overflow-hidden gap-2 px-7 py-2 ${
-              alert.type === "success" ? "bg-[#022502]" : "bg-[#200202]"
+              alert.type === "success"
+                ? " bg-white text-green-500 dark:text-white font-bold dark:font-normal dark:bg-[#022502]"
+                : "bg-white text-red-600 dark:text-white font-bold dark:font-normal dark:bg-[#200202]"
             } `}
           >
             {alert.type === "success" ? (
-              <BiCheckCircle className="absolute text-3xl left-2 text-green-700/50" />
+              <BiCheckCircle className="absolute text-3xl left-2 text-green-700/10 dark:text-green-700/50 " />
             ) : (
-              <BiXCircle className="absolute text-3xl left-2 text-red-700/20      " />
+              <BiXCircle className="absolute text-3xl left-2 text-red-700/20" />
             )}
             <span className="z-10 text-sm">{alert.message}</span>
           </motion.span>

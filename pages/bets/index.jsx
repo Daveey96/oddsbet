@@ -13,6 +13,7 @@ import { getDate } from "@/helpers";
 import { alertService, promptService } from "@/services";
 import { calcWinPotential } from "@/components/games/BetList";
 import { betController } from "@/controllers";
+import { FaAngleDoubleRight, FaChevronRight } from "react-icons/fa";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -283,32 +284,46 @@ function Index() {
   return (
     <>
       <DateList />
-      <ul
-        style={{ width: "95%" }}
-        className="flex justify-start mb-5 pb-1 w-full px-4"
-      >
-        {["active", "settled"].map((v, key) => (
-          <li
+      <div className="flex overflow-x-scroll no-bars overflow-y-hidden justify-start mb-5 pb-1 w-[95%] px-4">
+        <button
+          className={`px-5 py-2 fx active:scale-90 duration-150 rounded-xl ${
+            active === 0 ? "bg-c2/5 text-c2" : "text-white/30"
+          }`}
+          onClick={() => setActive(0)}
+        >
+          active
+        </button>
+        <button
+          className={`px-5 py-2 fx gap-1 active:scale-90 duration-150 rounded-xl ${
+            active === 1 ? "bg-c2/5 text-c2" : "text-white/30"
+          }`}
+          onClick={() => setActive(1)}
+        >
+          history <FaChevronRight className="text-[7px]" />
+        </button>
+
+        {["all", "won", "lost"].map((v, key) => (
+          <button
             key={key}
-            className={`px-5 py-2 fx active:scale-90 duration-150 rounded-xl ${
-              key === active ? "bg-c2/5 text-c2" : "text-white/30"
+            className={`px-5 py-2 fx gap-1 active:scale-90 duration-150 rounded-xl ${
+              key + 1 === active ? "bg-c2/5 text-c2" : "text-white/30"
             }`}
-            onClick={() => setActive(key)}
+            onClick={() => setActive(key + 1)}
           >
             {v}
-          </li>
+          </button>
         ))}
-      </ul>
+      </div>
       <div className="flex mb-28 items-center flex-col gap-4 w-full">
         <Retry
           state={activeBets}
           loading={
             <span className="mt-20 fx gap-3">
-              <CircularLoader size={35} depth={6} color />
+              <CircularLoader size={35} depth={4} color />
             </span>
           }
           error={
-            <span className="fx flex-col text-sm mt-9 gap-2">
+            <span className="fx flex-col text-sm mt-10 gap-2">
               <BiXCircle className="text-3xl opacity-25" />
               Something went wrong
               <button onClick={getBets} className=" text-c2">

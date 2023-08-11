@@ -28,26 +28,21 @@ input {
   background: transparent;
 }
 .isSticky {
-  padding-top: 38px !important;
-  background: black !important;
-  z-index: 22 !important;
+  @apply bg-c3 shadow-lg shadow-black/60 pt-[38px] z-[22] dark:bg-black;
 }
 .isSticky2 {
-  padding-top: 38px !important;
-  background: transparent !important;
-  z-index: 22 !important;
+  @apply bg-red-600 pt-[38px] z-[22] dark:bg-black/40;
 }
 .isSticky2::after {
-  position: absolute;
-  content: "";
-  z-index: -2;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  backdrop-filter: blur(24px);
-  background-color: #00000084;
+  @apply hidden dark:flex inset-0 -z-[2] content-[""] absolute backdrop-blur-[24px] bg-[#00000084];
 }
+.isNotSticky {
+  @apply bg-c3 pt-5 z-20 dark:bg-c4;
+}
+.isNotSticky2 {
+  @apply bg-red-600 pt-5 z-20 dark:bg-transparent;
+}
+
 input:focus {
   outline: 0;
 }

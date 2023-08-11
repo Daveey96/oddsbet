@@ -18,8 +18,9 @@ module.exports = {
       colors: {
         c1: "#1a1fa4",
         c2: "#06b6d4",
-        c3: "#00000b",
+        c3: "#e6e6e6",
         c4: "#0e1219",
+        c5: "#d2d2d2",
       },
       fontSize: {
         120: "120%",

@@ -17,8 +17,8 @@ export default function Token({ email, handleSubmit, changeMail }) {
     ["success", "error", "*"],
     [
       ["border-green-600", "border-green-600"],
-      ["border-red-600", "border-red-600/75"],
-      ["border-gray-600", "border-gray-600/20"],
+      ["border-red-600", "dark:border-red-600/75 border-red-500"],
+      ["border-gray-600", "dark:border-gray-600/20 border-gray-600/40"],
     ]
   );
 
@@ -103,14 +103,11 @@ export default function Token({ email, handleSubmit, changeMail }) {
           </span>
         ))}
         {loading === "loading" && (
-          <div className="absolute fx z-10 bg-green-950 rounded-md gap-2 pt-2 pb-2.5 px-5">
-            <CircularLoader
-              size={15}
-              depth={3}
-              className={"border-t-green-500"}
-            />
-            verifying
-          </div>
+          <CircularLoader
+            size={29}
+            depth={3}
+            className={"border-t-green-500 z-10 absolute mt-0.5"}
+          />
         )}
       </div>
       <div
