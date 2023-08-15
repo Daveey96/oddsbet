@@ -56,7 +56,7 @@ export default function Tab() {
 
   return (
     <>
-      <div className="fixed -bottom-1 inset-x-0 flex justify-center z-[23]">
+      <div className="fixed -bottom-1 inset-x-0 flex justify-center z-[27]">
         <div
           className={`relative px-[2vw] duration-150 max-w-[100vw] min-w-[90vw] md:min-w-[auto] flex md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none text-white ${
             toggle ? "bg-c4" : "bg-black"

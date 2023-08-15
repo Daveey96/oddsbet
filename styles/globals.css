@@ -27,6 +27,15 @@ input {
   font-size: inherit;
   background: transparent;
 }
+.text-11 {
+  @apply text-[11px] leading-3;
+}
+.text-10 {
+  @apply text-[10px] leading-3;
+}
+.text-9 {
+  @apply text-[9px] leading-3;
+}
 .isSticky {
   @apply bg-c3 shadow-lg shadow-black/60 pt-[38px] z-[22] dark:bg-black;
 }

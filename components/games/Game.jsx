@@ -3,6 +3,7 @@ import Odds from "./Odds";
 import { useContext, useState } from "react";
 import { Context } from "../layout";
 import { BiChart, BiReflectHorizontal, BiRocket } from "react-icons/bi";
+import { categories } from "../Slider";
 
 const Game = ({ game, mkt, isLive, last }) => {
   const [g, setG] = useState(game);
@@ -48,20 +49,10 @@ const Game = ({ game, mkt, isLive, last }) => {
         </div>
         <Odds game={g} isLive={isLive} mkt={mkt} className={"w-[58%]"} />
       </div>
-      <div className="flex justify-between mt-1.5 ">
-        <div className="flex gap-2">
-          {data.map(({ text, icon }, key) => (
-            <span
-              key={key}
-              className="flex gap-1 items-center px-3 py-0.5 rounded-2xl bg-black/40 text-[10px]"
-            >
-              {icon} {text}
-            </span>
-          ))}
-        </div>
-        <button className="text-[10px] fx gap-1 text-c2 bg-c2/5 px-2 py-0.5 rounded-l-xl rounded-tr-xl ">
-          <BiChart /> match details
-        </button>
+      <div className="flex mt-0.5 items-center gap-2 ">
+        {">"} {categories.icons[2]}
+        {categories.icons[0]}
+        {categories.icons[3]}
       </div>
     </div>
   );

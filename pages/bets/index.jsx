@@ -7,13 +7,12 @@ import {
   BiXCircle,
 } from "react-icons/bi";
 import { CircularLoader } from "@/components/services/Loaders";
-import Image from "next/image";
 import Retry from "@/components/services/Retry";
 import { getDate } from "@/helpers";
 import { alertService, promptService } from "@/services";
 import { calcWinPotential } from "@/components/games/BetList";
 import { betController } from "@/controllers";
-import { FaAngleDoubleRight, FaChevronRight } from "react-icons/fa";
+import { FaChevronRight } from "react-icons/fa";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -198,7 +197,7 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
 const DateList = () => {
   const container = useRef(null);
   const cDate = useRef(null);
-  let months = [
+  const months = [
     "Jan",
     "Feb",
     "Mar",
@@ -242,17 +241,20 @@ const DateList = () => {
   }, []);
 
   return (
-    <header className="w-full z-20 flex mt-3 flex-col items-center ">
-      <span className="mt-4">{months[new Date().getMonth()]}</span>
+    <header className="w-full z-20 flex mt-6 flex-col items-center ">
+      <span className="">{months[new Date().getMonth()]}</span>
       <div
         ref={container}
-        className="w-full pb-3 pt-2 scroll-smooth px-3 no-bars overflow-x-scroll space-x-3 whitespace-nowrap "
+        className="w-full pb-3 pt-1 scroll-smooth px-3 no-bars overflow-x-scroll space-x-2.5 whitespace-nowrap "
       >
         {dateArray.map((dates, key) => (
           <button
-            className={`from-black active:scale-110 duration-200 bg-gradient-to-b relative rounded-2xl text-sm gap-2 w-16 h-16 ${
+            className={`from-black relative active:scale-110 duration-200 bg-gradient-to-b rounded-b-2xl text-xs gap-2 w-14 h-14 ${
               active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
-            }`}
+            } ${
+              dates.split(" ")[1] === currentDate.toString() &&
+              "aft after:-bottom-1 after:-translate-x-1/2 after:left-1/2 after:h-0.5 after:w-2/5 after:rounded-xl after:bg-c1"
+            } `}
             key={key}
             ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
             onClick={() => activate(dates.split(" ")[1])}

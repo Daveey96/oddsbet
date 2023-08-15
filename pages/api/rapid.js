@@ -2,15 +2,24 @@ import { Games } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import axios from "axios";
 
-let marketoptions = {
+const axios = require("axios");
+
+const options = {
   method: "GET",
-  url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/",
-  params: {},
+  url: "https://sportscore1.p.rapidapi.com/sports/1/teams",
+  params: { page: "1" },
   headers: {
-    "X-RapidAPI-Key": process.env.X_RAPID_API_KEY,
-    "X-RapidAPI-Host": "pinnacle-odds.p.rapidapi.com",
+    "X-RapidAPI-Key": "c2aa108c95msh29c47e2bedfb607p14abe5jsn30c27e7eee9b",
+    "X-RapidAPI-Host": "sportscore1.p.rapidapi.com",
   },
 };
+
+try {
+  const response = await axios.request(options);
+  console.log(response.data);
+} catch (error) {
+  console.error(error);
+}
 
 const getMatches = async (req, res) => {
   const { id, live } = req.query;

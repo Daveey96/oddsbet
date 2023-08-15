@@ -25,6 +25,7 @@ import {
   BsFillKeyboardFill,
   BsKeyboard,
   BsTicketDetailed,
+  BsTicketFill,
 } from "react-icons/bs";
 import { FaTicketAlt } from "react-icons/fa";
 
@@ -238,8 +239,9 @@ export default function BetList({ toggle, setToggle }) {
   const [placeBet, setPlaceBet] = useState(false);
   const [successful, setSuccessful] = useState("");
   const [buttonText, setbuttonText] = useState("Place bet?");
+  const [keyboard, setkeyboard] = useState(false);
 
-  const [stake, setStake] = useState("");
+  const [stake, setStake] = useState("100");
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
   const potWin = useMemo(
     () => calcWinPotential(stake, totalOdds),
@@ -334,7 +336,7 @@ export default function BetList({ toggle, setToggle }) {
           animate={{ y: "0%", opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
           transition={{ ease: "anticipate" }}
-          className="z-[22] bg-black pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
+          className="z-[26] bg-black pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
           onClick={(e) => e.stopPropagation()}
         >
           <>
@@ -342,7 +344,7 @@ export default function BetList({ toggle, setToggle }) {
               onClick={() => setToggle(false)}
               className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-1 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"
             ></button>
-            <header className="px-5 pt-8 text-lg justify-center w-full flex">
+            <header className=" pt-4 text-sm justify-center w-full flex">
               <span
                 onClick={(e) => e.stopPropagation()}
                 className="fx text-base text-c2 absolute gap-0.5 opacity-60"
@@ -363,16 +365,76 @@ export default function BetList({ toggle, setToggle }) {
                   )
                 )}
               </span>
-              <span className="justify-between px-3 pb-3 flex items-center w-full">
+              <span className="justify-between pb-3 ml-5 flex items-center w-full">
                 <span>
                   {betList.length}{" "}
                   <span className="opacity-60">
                     bet{betList.length !== 1 && "s"}
                   </span>
                 </span>
-                <span className="fx gap-3">
-                  <span>{betList.length > 1 && totalOdds}</span>
-                </span>
+                <label
+                  className="pr-5 mt-2 relative text-sm"
+                  onBlur={() => setkeyboard(false)}
+                >
+                  <span
+                    onClick={() => setkeyboard(!keyboard)}
+                    className={`px-3 py-0.5 border-c2 text-white rounded-md border-2 ${
+                      !stake && "text-opacity-50"
+                    }`}
+                  >
+                    {stake ? stake : "min 100"}
+                  </span>
+                  <Animated
+                    id="keyboard"
+                    state={keyboard}
+                    className={"absolute fx right-0 w-screen top-[130%] z-10"}
+                    variants={{
+                      init: { y: -10, x: 5, opacity: 0 },
+                      show: { y: 0, x: 0, opacity: 1 },
+                      exit: { y: -10, x: 5, opacity: 0 },
+                    }}
+                  >
+                    <div className="gap-1 rounded-3xl py-3 bg-c4 flex flex-col px-3 w-[95%] overflow-hidden justify-center">
+                      {/* <div className="flex justify-center gap-1">
+                        <button
+                          className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-black/20 rounded-lg`}
+                        >
+                          <BiEditAlt />
+                        </button>
+                        <button
+                          className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-black/20 rounded-lg`}
+                          onClick={() => buttonClicked("del")}
+                        >
+                          X
+                        </button>
+                        <button
+                          className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-green-500 rounded-lg`}
+                          onClick={() => setkeyboard(false)}
+                        >
+                          Done
+                        </button>
+                      </div> */}
+                      {[
+                        ["+1000", "+500", "+100", ".", 0, "00"],
+                        Array(9).fill(""),
+                      ].map((buttons, key) => (
+                        <div key={key} className="flex justify-center gap-1">
+                          {buttons.map((button, key2) => (
+                            <button
+                              key={key2}
+                              className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-black/20 rounded-lg`}
+                              onClick={() =>
+                                buttonClicked(key ? key2 + 1 : button)
+                              }
+                            >
+                              {key ? key2 + 1 : button}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </Animated>
+                </label>
               </span>
             </header>
             <div
@@ -394,71 +456,33 @@ export default function BetList({ toggle, setToggle }) {
                 <BetCode setBetList={(v) => setBetList(v)} />
               )}
             </div>
-            {/* <div className="flex justify-between mb-3 px-4 items-center">
-                <span className=" px-5 py-1 min-w-[100px] relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-[1px] border-r-[1px] border-r-c2 fx border-l-c1">
-                  <span className="">{stake}</span>
-                  {stake.length < 1 && (
-                    <span className="opacity-20 absolute">min 100</span>
-                  )}
-                  <motion.span
-                    animate={{ opacity: [0, 0.2] }}
-                    transition={{ repeatType: "mirror", repeat: Infinity }}
-                    className=""
-                  >
-                    _
-                  </motion.span>
-                  {stake && (
-                    <button
-                      onClick={() => buttonClicked("del")}
-                      className="absolute left-[105%] bg-red-950 rounded-r-3xl after:rounded-r-3xl rounded-l-lg px-3 h-full aft after:w-1/2 after:right-0 after:bg-black/30 after:h-full after:top-0 text-xl"
-                    >
-                      <BiX />
-                    </button>
-                  )}
-                </span>
-                <span className="">
-                  <span className="mr-3 opacity-30 text-sm">to Win</span>
-                  <span className="text-green-500 mr-2 text-lg ">{potWin}</span>
-                </span>
-              </div> */}
-            {/* <div className="gap-1 flex flex-col px-3 w-full overflow-hidden justify-center mb-2">
-                {[
-                  ["+1000", "+500", "+100", ".", 0, "00"],
-                  Array(9).fill(""),
-                ].map((buttons, key) => (
-                  <div key={key} className="flex justify-center gap-1">
-                    {buttons.map((button, key2) => (
-                      <button
-                        key={key2}
-                        className={`py-1 fx flex-[2] bg-slate-600/10 rounded-lg`}
-                        onClick={() => buttonClicked(key ? key2 + 1 : button)}
-                      >
-                        {key ? key2 + 1 : button}
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div> */}
             <div
               onClick={(e) => e.stopPropagation()}
-              className="h-12 fx w-full gap-5"
+              className="flex relative items-center px-4 justify-between w-full "
             >
-              {[<BsTicketDetailed key={0} />, <BsKeyboard key={1} />].map(
-                (jsx, key) => (
-                  <button
-                    className={`text-xl ${key === 0 ? "" : "order-3"}`}
-                    key={key}
+              {[0, 1].map((key) => (
+                <button
+                  className={`flex border-t-2 border-c4 ${
+                    key ? "pr-1 pl-4 items-end" : "pr-4 pl-1 items-start"
+                  } pt-1.5 text-10 text-white/50 flex-col ${
+                    key === 0 ? "" : "order-3"
+                  }`}
+                  key={key}
+                >
+                  {key && "to Win"}
+                  <span
+                    className={`${key ? "text-c2" : "text-white"} text-base`}
                   >
-                    {jsx}
-                  </button>
-                )
-              )}
+                    {key ? potWin : betList.length > 1 && totalOdds}
+                  </span>
+                </button>
+              ))}
               <button
                 onClick={() => betList.length > 0 && setPlaceBet(true)}
                 disabled={
                   betList.length > 0 && parseInt(stake) > 99 ? false : true
                 }
-                className=" disabled:opacity-50 px-5 py-2 bg-gradient-to-r rounded-t-[20px] rounded-b-lg from-c1 to-c2"
+                className="order-2 disabled:opacity-50 px-5 py-2 bg-gradient-to-r rounded-t-[20px] rounded-b-lg from-c1 to-c2"
               >
                 Place bet
               </button>

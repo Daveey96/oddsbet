@@ -78,7 +78,7 @@ function Nav() {
       >
         <Link
           href={"/"}
-          className="justify-center -mt-1 px-2 h-9 md:px-0 flex md:ml-10 relative z-10 rounded-b-2xl bg-c3 dark:bg-transparent dark:backdrop-blur-xl"
+          className="justify-center -mt-1 px-2 h-9 md:px-0 flex md:ml-10 relative z-10 rounded-b-2xl "
         >
           <Image
             width={75}
