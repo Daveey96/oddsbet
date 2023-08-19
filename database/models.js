@@ -14,16 +14,18 @@ const userSchema = new Schema({
   forgotPass: Number,
 });
 
-const ticketSchema = new Schema(
-  {
-    code: String,
-    slip: {
-      type: String,
-      required: true,
+const ticketSchema = new Schema({
+  ticketId: String,
+  code: String,
+  slip: [
+    {
+      id: String,
+      mkt: String,
+      outcome: String,
     },
-  },
-  { timestamps: true }
-);
+  ],
+  createdAt: { default: Date.now, type: Date, expires: "168h" },
+});
 
 const gameSchema = new Schema({
   data: Object,
@@ -31,7 +33,7 @@ const gameSchema = new Schema({
 });
 
 const activeBetsSchema = new Schema({
-  id: Schema.Types.ObjectId,
+  userId: Schema.Types.ObjectId,
   ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
   totalOdds: Number,
   stake: Number,

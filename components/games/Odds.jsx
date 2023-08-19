@@ -3,17 +3,21 @@ import { BiDownArrow, BiLockAlt } from "react-icons/bi";
 import { Context } from "../layout";
 import { condition } from "@/helpers";
 
-const market = (g, v) => {
-  if (!g) return false;
+export const market = (game, v, first) => {
+  if (!game) return false;
+  let g = first ? game.periods.num_1 : game.periods.num_0;
+
   const getAll = (mkt) => {
     if (!mkt) return Array(3).fill(null);
     let odds = [];
-    const values = Object.values(mkt).map((value) => value);
+    const values =
+      v === "OU" ? Object.values(mkt).map((value) => value) : [mkt];
     values.forEach(
       (i) =>
-        i.points.toString().length === 3 &&
-        odds.push([i.points, i.over, i.under])
+        i.points.toString().length < 4 && odds.push([i.points, i.over, i.under])
     );
+
+    odds = odds.sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
     return odds;
   };
 
@@ -42,15 +46,15 @@ const market = (g, v) => {
       odds: [g.win1X?.v, g.winX2?.v, g.win12?.v],
     };
   }
-  if (v === "OU" || v === "HOU" || v === "AOU") {
+  if (v === "OU" || v === "HOU" || v === "AOU" || v === "COR") {
     return {
       name: ["", "Over", "Under"],
       tag: ["", "over", "under"],
       odds: getAll(
         condition(
           v,
-          ["OU", "HOU", "AOU"],
-          [g?.totals, g?.team_total?.home, g?.team_total?.away]
+          ["OU", "HOU", "AOU", "COR"],
+          [g?.totals, g?.team_total?.home, g?.team_total?.away, g?.totals]
         ),
         "over",
         "under"
@@ -256,7 +260,7 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
 
 export default function Odds({ className, game, slider, isLive, mkt = "WDL" }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const currentMkt = useMemo(() => market(game.periods.num_0, mkt), [mkt]);
+  const currentMkt = useMemo(() => market(game, mkt), [mkt]);
 
   return (
     <div className={"fx gap-1 relative " + className}>

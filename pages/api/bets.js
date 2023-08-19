@@ -38,28 +38,30 @@ const generateCode = () => {
 };
 
 const placeBet = async (req, res, id) => {
-  const { slip, stake, odds, totalOdds } = req.body;
+  const { ticketId, slip, stake, odds, totalOdds, confirm } = req.body;
 
-  let user = await User.findById(id, "active balance");
+  let user = await User.findById(id, "balance");
   if (!user) throw Error("Something went wrong");
 
   if (user.balance < stake) throw Error("Insufficient balance");
 
-  let ticket = await Ticket.findOne({ slip });
+  let ticket = await Ticket.findOne({ ticketId });
 
   if (!ticket) {
     const code = generateCode();
-    const newTicket = new Ticket({ code, slip });
-    await newTicket.save();
+
+    let newTicket = await Ticket.create({ ticketId, code, slip });
     ticket = newTicket;
   }
 
-  user.active.push({
+  await ActiveBets.create({
+    userId: user._id,
     ticket: ticket._id,
-    odds,
     totalOdds,
     stake,
+    odds,
   });
+
   user.balance -= stake;
   await user.save();
 

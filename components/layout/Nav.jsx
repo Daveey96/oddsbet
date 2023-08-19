@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
@@ -63,41 +63,48 @@ function Nav() {
 
   return (
     <>
-      <Animated
-        tag="nav"
-        className={`flex text-sm z-50 md:h-12 justify-between fixed duration-300 inset-x-0 top-0 px-4 ${
-          alert ? "opacity-10" : "opacity-100"
-        }`}
-        variants={{
-          init: { y: "-100%" },
-          show: { y: "0%" },
-          exit: { y: "-100%" },
-        }}
-        state={visible}
-        transition={{ duration: 0.1 }}
+      <nav
+        className={`flex text-sm z-50 md:h-12 justify-between fixed inset-x-2 top-0 `}
       >
-        <Link
-          href={"/"}
-          className="justify-center -mt-1 px-2 h-9 md:px-0 flex md:ml-10 relative z-10 rounded-b-2xl "
-        >
-          <Image
-            width={75}
-            height={10}
-            priority
-            className="scale-75 md:scale-110"
-            src={"/logo.svg"}
-            alt="Oddsbet logo"
-          />
-        </Link>
-        {user?.id ? (
-          <span
-            className={`fx gap-1 relative text-base pl-5 pr-4 rounded-b-2xl z-30 bg-black h-full" ${
-              user.balance < 100 ? "text-red-600" : "text-green-600"
-            }`}
-          >
-            <Naira className="mb-1" />
-            <span className="mb-[5px]">{user.balance.toFixed(2)}</span>
-            {/* {user.balance < 100 && (
+        <AnimatePresence>
+          {visible && (
+            <>
+              <motion.div
+                className={`justify-center absolute top-0 left-0 -mt-0.5 px-2 h-8 md:px-0 flex md:ml-10 z-10 ${
+                  alert ? "opacity-10" : "opacity-100"
+                }`}
+                initial={{ y: "-100%" }}
+                animate={{ y: "0%" }}
+                exit={{ y: "-100%" }}
+                transition={{ duration: 0.1 }}
+              >
+                <Image
+                  width={75}
+                  height={10}
+                  priority
+                  className="scale-75 md:scale-110"
+                  src={"/logo.svg"}
+                  alt="Oddsbet logo"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ y: "-100%" }}
+                animate={{ y: "0%" }}
+                exit={{ y: "-100%" }}
+                transition={{ duration: 0.1 }}
+                className={`absolute top-0 mr-2 right-0 fx z-10 ${
+                  alert ? "opacity-10" : "opacity-100"
+                }`}
+              >
+                {user?.id ? (
+                  <span
+                    className={`fx gap-1 relative text-base pl-5 pr-4 rounded-b-2xl z-30 bg-black h-" ${
+                      user.balance < 100 ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
+                    <Naira className="mb-1" />
+                    <span className="mb-[5px]">{user.balance.toFixed(2)}</span>
+                    {/* {user.balance < 100 && (
               <Link
                 href={"/profile/deposit"}
                 className="active:opacity-20 bg-c1 rounded-r-full rounded-l-[6000px] px-5 text-sm text-white absolute right-[95%] py-0.5"
@@ -105,29 +112,33 @@ function Nav() {
                 deposit
               </Link>
             )} */}
-          </span>
-        ) : (
-          <SkeletonLoad
-            state={user !== null}
-            tag="button"
-            className={
-              "fx text-white rounded-t-none gap-1 pb-1 px-6 rounded-b-2xl z-30 bg-black h-8"
-            }
-            onClick={() => setBackdrop(!backdrop)}
-          >
-            {backdrop ? (
-              <>
-                <BiArrowToLeft className="mt-0.5" /> back
-              </>
-            ) : (
-              <>
-                join <span className="opacity-10 mx-1.5">|</span>
-                <span className="text-c2">login</span>
-              </>
-            )}
-          </SkeletonLoad>
-        )}
-      </Animated>
+                  </span>
+                ) : (
+                  <SkeletonLoad
+                    state={user !== null}
+                    tag="button"
+                    className={
+                      "fx text-white gap-1 pb-1 px-6 rounded-b-2xl z-30 bg-black h-8"
+                    }
+                    onClick={() => setBackdrop(!backdrop)}
+                  >
+                    {backdrop ? (
+                      <>
+                        <BiArrowToLeft className="mt-0.5" /> back
+                      </>
+                    ) : (
+                      <>
+                        join <span className="opacity-10 mx-1.5">|</span>
+                        <span className="text-c2">login</span>
+                      </>
+                    )}
+                  </SkeletonLoad>
+                )}
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </nav>
       <AnimatePresence>
         <Alert onAlert={() => setAlert(true)} />
       </AnimatePresence>

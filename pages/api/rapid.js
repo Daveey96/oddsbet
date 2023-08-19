@@ -2,49 +2,49 @@ import { Games } from "@/database";
 import { serverAsync } from "@/helpers/asyncHandler";
 import axios from "axios";
 
-const axios = require("axios");
-
-const options = {
+const apiI_options = {
   method: "GET",
-  url: "https://sportscore1.p.rapidapi.com/sports/1/teams",
-  params: { page: "1" },
+  url: "https://sofascore.p.rapidapi.com/teams/search",
+  params: { name: "Chelsea" },
   headers: {
-    "X-RapidAPI-Key": "c2aa108c95msh29c47e2bedfb607p14abe5jsn30c27e7eee9b",
-    "X-RapidAPI-Host": "sportscore1.p.rapidapi.com",
+    "X-RapidAPI-Key": process.env.X_RAPID_API_KEY,
+    "X-RapidAPI-Host": "sofascore.p.rapidapi.com",
   },
 };
 
-try {
-  const response = await axios.request(options);
-  console.log(response.data);
-} catch (error) {
-  console.error(error);
-}
+const apiII_options = {
+  method: "GET",
+  headers: {
+    "X-RapidAPI-Key": process.env.X_RAPID_API_KEY,
+    "X-RapidAPI-Host": "pinnacle-odds.p.rapidapi.com",
+  },
+};
 
 const getMatches = async (req, res) => {
   const { id, live } = req.query;
 
-  marketoptions.url += "markets";
-  marketoptions.params = {
+  apiII_options.url = "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets";
+  apiII_options.params = {
     sport_id: id.toString(),
     is_have_odds: "true",
-    event_type: live ? "live" : "prematch",
+    // event_type: live ? "live" : "prematch",
   };
 
-  if (!live) {
-    const games = Games.findOne({ "data.id": id });
+  // if (!live) {
+  //   const games = Games.findOne({ "data.id": id });
 
-    if (games?.games) res.json({ games: games.games });
-    else {
-      const { data } = await axios.request(marketoptions);
+  //   if (games?.games) res.json({ games: games.games });
+  //   else {
+  //     const { data } = await axios.request(apiII_options);
 
-      await Games.create({ data });
-      res.json(data);
-    }
-    return;
-  }
+  //     await Games.create({ data });
+  //     res.json(data);
+  //   }
+  //   return;
+  // }
 
-  const { data } = await axios.request(marketoptions);
+  console.log(apiII_options);
+  const { data } = await axios.request(apiII_options);
   if (data) return res.json(data);
 
   throw Error("No Internet");
@@ -52,16 +52,17 @@ const getMatches = async (req, res) => {
 
 export const getMatch = async (req, res) => {
   const { id } = req.params;
-  marketoptions.url += "details";
-  marketoptions.params = { event_id: id };
+  apiII_options.url += "details";
+  apiII_options.params = { event_id: id };
 
-  const { data } = await axios.request(marketoptions);
+  const { data } = await axios.request(apiII_options);
   if (data) return res.json(data);
 
   throw Error("No Internet");
 };
 
 export default async function handler(req, res) {
+  console.log(req.query);
   if (req.query.type === "matches") return serverAsync(req, res, getMatches);
 
   if (req.query.type === "match") return serverAsync(req, res, getMatch);

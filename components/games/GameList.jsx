@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Retry from "../services/Retry";
 import List from "./List";
@@ -7,33 +7,107 @@ import football from "@/helpers/json/football";
 import { BiXCircle } from "react-icons/bi";
 import { getDate } from "@/helpers";
 import { apiController } from "@/controllers";
-import { filterGames, sports } from ".";
+import { Context, filterGames } from "../layout";
 
-export default function GameList({ title, globalGames, index, last }) {
+export const sports = [
+  {
+    id: 1,
+    item: "soccer",
+    markets: [
+      { item: "WDL", v: "WDL" },
+      { item: "Double Chance", v: "DB" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    id: 3,
+    item: "basketball",
+    markets: [
+      { item: "Winner", v: "WL" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    id: 2,
+    item: "tennis",
+    markets: [
+      { item: "WDL", v: "WDL" },
+      { item: "Double Chance", v: "DB" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    id: 6,
+    item: "handball",
+    markets: [
+      { item: "WDL", v: "WDL" },
+      { item: "Double Chance", v: "DB" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    id: 7,
+    item: "mixed martial Arts",
+    markets: [
+      { item: "WDL", v: "WDL" },
+      { item: "Double Chance", v: "DB" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    id: 8,
+    item: "baseball",
+    markets: [
+      { item: "WDL", v: "WDL" },
+      { item: "Double Chance", v: "DB" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+];
+
+export default function GameList({ gGames, index, last }) {
+  const { games, title } = gGames;
+  const { globalGames, getGlobalGames } = useContext(Context);
   const isLive = title === "Live";
   const [mkt, setMkt] = useState("WDL");
-  const [games, setGames] = useState(null);
   const [sportId, setSportId] = useState(1);
   const header = useRef(null);
   const len = useRef(0);
 
-  const getGames = async (id) => {
-    setGames("loading");
+  // const getGames = async (id) => {
+  //   setGames("loading");
 
-    const data = isLive ? await apiController.getMatches(id, true) : football;
-    // : await apiController.getMatches(id);
+  //   const data = isLive ? await apiController.getMatches(id, true) : football;
+  //   // : await apiController.getMatches(id);
 
-    if (data.events) {
-      let g = [];
-      if (isLive) g = filterGames(data, "live", 5);
-      else {
-        const { isoString } = getDate(index - 1);
-        g = filterGames(data, isoString, index === 1 ? 15 : 7);
-      }
+  //   if (data.events) {
+  //     let g = [];
+  //     if (isLive) g = filterGames(data, "live", 5);
+  //     else {
+  //       const { isoString } = getDate(index - 1);
+  //       g = filterGames(data, isoString, index === 1 ? 15 : 7);
+  //     }
 
-      len.current = g.len;
-      setGames(g.v);
-    } else setGames("error");
+  //     len.current = g.len;
+  //     setGames(g.v);
+  //   } else setGames("error");
+  // };
+
+  const changeSport = (id) => {
+    // getGames(id);
+    setSportId(id);
   };
 
   useEffect(() => {
@@ -68,22 +142,12 @@ export default function GameList({ title, globalGames, index, last }) {
     });
   }, []);
 
-  useEffect(() => setGames(globalGames), [globalGames]);
-  // useEffect(() => getGames(), []);
-
-  const changeSport = (id) => {
-    getGames(id);
-    setSportId(id);
-  };
-
   let classNames = [
     isLive ? "dark:bg-c4/40" : "dark:bg-transparent",
     isLive ? "dark:bg-c4/40" : "bg-c4",
     isLive ? "dark:bg-black/40" : "dark:bg-c4",
     isLive ? "dark:bg-c4/40" : "dark:bg-c4",
   ];
-
-  //   if (games?.len === 0) return null;
 
   return (
     <div
@@ -99,7 +163,9 @@ export default function GameList({ title, globalGames, index, last }) {
         <span className=" text-base gap-1.5 flex items-center pl-4">
           {!isLive ? (
             <span className="flex items-center pr-1 gap-1">
-              {title.split(" ")[0]}
+              {title.split(" ")[0] === "Today"
+                ? title.split(" ")[0]
+                : title.split(" ")[0].slice(0, 3)}
               <span className="text-white/30 mt-0.5 text-sm">
                 {title.split(" ")[1]}
               </span>
@@ -152,8 +218,8 @@ export default function GameList({ title, globalGames, index, last }) {
           />
         </span>
         <List
-          className={"mt-1 mb-1 py-1 px-2"}
-          iClass="px-3.5 py-1 bg-gray-700/5 active:opacity-10 opacity-100 rounded-lg shadow-[0px_2px_2px_1px] shadow-black/20 duration-200"
+          className={"mt-px text-[13px] mb-0.5 py-1 px-2"}
+          iClass="px-2.5 py-0.5 bg-gray-700/5 active:opacity-10 opacity-100 rounded-lg shadow-[0px_2px_2px_1px] shadow-black/20 duration-200"
           activeClass={"text-c2"}
           inActiveClass={"text-white/40"}
           onClick={(v) => setMkt(v)}
@@ -228,7 +294,10 @@ export default function GameList({ title, globalGames, index, last }) {
             >
               <BiXCircle className="text-3xl" />
               Something went wrong
-              <button className="text-c2" onClick={() => getGames(sportId)}>
+              <button
+                className="text-c2"
+                onClick={() => getGlobalGames(sportId)}
+              >
                 refresh
               </button>
             </div>

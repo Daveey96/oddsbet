@@ -1,75 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { getDate } from "@/helpers";
-import football from "@/helpers/json/football";
+import React, { useContext, useEffect } from "react";
 import GameList from "./GameList";
-
-export const sports = [
-  {
-    id: 1,
-    item: "soccer",
-    markets: [
-      { item: "WDL", v: "WDL" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    id: 3,
-    item: "basketball",
-    markets: [
-      { item: "Winner", v: "WL" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    id: 2,
-    item: "tennis",
-    markets: [
-      { item: "WDL", v: "WDL" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    id: 6,
-    item: "handball",
-    markets: [
-      { item: "WDL", v: "WDL" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    id: 7,
-    item: "mixed martial Arts",
-    markets: [
-      { item: "WDL", v: "WDL" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    id: 8,
-    item: "baseball",
-    markets: [
-      { item: "WDL", v: "WDL" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-];
+import { Context } from "../layout";
 
 // const filterGames = (data, isoString, len) => {
 //   let dataArr = [];
@@ -107,65 +38,23 @@ export const sports = [
 //     ),
 //   };
 // };
-export const filterGames = (data, isoString, len) => {
-  let filter = data.events.filter((v) => v.starts.split("T")[0] === isoString);
-  // .filter((v) => v?.parent_id !== null);
-
-  let initialLen = filter.length;
-  if (len) filter = filter.slice(0, len);
-
-  return {
-    len: initialLen,
-    v: filter,
-  };
-};
 
 export default function GameDays() {
-  const [games, setGames] = useState(null);
-  const array = useRef(["Live", "Today"]);
-
-  const getGames = async (id) => {
-    setGames("loading");
-
-    const data = football;
-    // const liveData = await apiController.getMatches(id, true);
-
-    if (data.events) {
-      let daysArr = ["Live"];
-      let genArray = [null];
-
-      for (let i = 0; i < 10; i++) {
-        const { isoString, weekDay } = getDate(i);
-        const games = filterGames(data, isoString, 5);
-        const md = `${isoString.split("-")[1]}/${isoString.split("-")[2]}`;
-
-        if (games.len > 0) {
-          daysArr.push(i ? `${weekDay} ${md}` : `Today ${md}`);
-          genArray.push(games);
-        }
-      }
-
-      array.current = daysArr;
-      setGames(genArray);
-    } else setGames("error");
-  };
+  const { globalGames, getGlobalGames } = useContext(Context);
 
   useEffect(() => {
-    games === null && getGames(1);
-  }, [games]);
+    if (globalGames[1].games === null) getGlobalGames(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalGames]);
 
   return (
     <>
-      {array.current.map((title, key) => (
+      {globalGames.map((v, key) => (
         <GameList
-          getGames={getGames}
-          title={title}
           index={key}
           key={key}
-          last={key === array.current.length - 1}
-          globalGames={
-            typeof games === "object" && games !== null ? games[key] : games
-          }
+          last={key === globalGames.length - 1}
+          gGames={v}
         />
       ))}
     </>

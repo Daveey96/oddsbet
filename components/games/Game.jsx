@@ -7,7 +7,7 @@ import { categories } from "../Slider";
 
 const Game = ({ game, mkt, isLive, last }) => {
   const [g, setG] = useState(game);
-  const { setGameId } = useContext(Context);
+  const { setGame } = useContext(Context);
 
   const data = [
     { text: "rocket odds", icon: <BiRocket /> },
@@ -30,7 +30,7 @@ const Game = ({ game, mkt, isLive, last }) => {
         <div className="flex h-9 pr-3 flex-col justify-between w-[42%]">
           {[0, 1].map((key) => (
             <span
-              onClick={() => setGameId(g.event_id)}
+              onClick={() => setGame(g)}
               className="flex pl-1 rounded-md active:bg-white/5 duration-200 pr-2 bg-white/0 gap-1 items-center"
               key={key}
             >

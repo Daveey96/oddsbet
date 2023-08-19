@@ -17,9 +17,8 @@ function TopSlider() {
       slideChanged() {
         if (instanceRef?.current) {
           setActive(
-            instanceRef.current.track.details.abs > 3
-              ? instanceRef.current.track.details.abs % 4
-              : instanceRef.current.track.details.abs
+            Math.abs(instanceRef.current.track.details.abs) %
+              (instanceRef.current.track.details.length + 1)
           );
         }
       },
@@ -56,9 +55,7 @@ function TopSlider() {
     ]
   );
 
-  useEffect(() => {
-    setTimeout(() => setMounted(true), 1000);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="mt-10 relative w-[98%] fx">
@@ -67,10 +64,10 @@ function TopSlider() {
           <div ref={sliderRef} className="w-[98%] keen-slider h-24 mb-2">
             {[
               "img1.webp",
-              "img5.webp",
+              "img4.webp",
               "img2.webp",
               "img3.webp",
-              "img4.webp",
+              "img5.webp",
             ].map((url, key) => (
               <div key={key} className="keen-slider__slide fx ">
                 <div className="w-[98vw] fx h-full rounded-xl bg-c4/30 overflow-hidden">

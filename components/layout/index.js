@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import Tab from "./Tab";
 import Nav from "./Nav";
 import Footer from "./Footer";
@@ -7,19 +7,74 @@ import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
 import { BlurredModal } from "../Animated";
 import { userController } from "@/controllers";
+import { AnimatePresence } from "framer-motion";
 import Stats from "../games/Stats";
 import Panel from "./Panel";
 import Auth from "../auth";
-import { AnimatePresence } from "framer-motion";
+import { getDate } from "@/helpers";
+import football from "@/helpers/json/football";
 
 export const Context = createContext(null);
+
+export const filterGames = (data, isoString, len) => {
+  let games = data.events.filter(
+    (v) => v.starts.split("T")[0] === isoString && v.parent_id === null
+  );
+
+  let initialLen = games.length;
+  if (len) games = games.slice(0, len);
+
+  return {
+    len: initialLen,
+    v: games,
+  };
+};
 
 export default function Layout({ children }) {
   const [betList, setBetList] = useState([]);
   const [user, setUser] = useState(null);
-  const [gameId, setGameId] = useState(null);
+  const [game, setGame] = useState(null);
   const [backdrop, setBackdrop] = useState(false);
   const [ping, setPing] = useState(false);
+  const [globalGames, setGlobalGames] = useState([
+    { title: "Live", games: null },
+    { title: "Today", games: null },
+  ]);
+  let specials = useRef([]);
+
+  const getGlobalGames = async (id) => {
+    setGlobalGames([
+      { title: "Live", games: "loading" },
+      { title: "Today", games: "loading" },
+    ]);
+
+    const data = football;
+    // const liveData = await apiController.getMatches(id, true);
+
+    if (data.events) {
+      let genArray = [{ title: "Live", games: null }];
+
+      for (let i = 0; i < 8; i++) {
+        const { isoString, weekDay } = getDate(i);
+        const games = filterGames(data, isoString, 5);
+        const md = `${isoString.split("-")[1]}/${isoString.split("-")[2]}`;
+
+        if (games.len > 0) {
+          genArray.push({
+            title: i ? `${weekDay} ${md}` : `Today ${md}`,
+            games,
+          });
+        }
+      }
+
+      specials.current = data.events.filter((v) => v.parent_id);
+      setGlobalGames(genArray);
+    } else
+      setGlobalGames([
+        { title: "Live", games: "error" },
+        { title: "Today", games: "error" },
+      ]);
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -40,8 +95,11 @@ export default function Layout({ children }) {
         setUser,
         betList,
         setBetList,
-        gameId,
-        setGameId,
+        game,
+        setGame,
+        globalGames,
+        getGlobalGames,
+        specials,
         backdrop,
         setBackdrop,
         ping,
@@ -51,7 +109,7 @@ export default function Layout({ children }) {
       <ThemeProvider attribute="class">
         <Nav />
         <Prompt />
-        <div className="h-[200vh] flex flex-col w-full">
+        <div className="h-[100vh] flex flex-col w-full">
           <main className="z-[5] dark:bg-black bg-c3 inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
             <div
               id="scroll-container"
@@ -68,9 +126,6 @@ export default function Layout({ children }) {
               <Stats />
             </div>
           </main>
-          <div>
-            <span>fgkrtk</span>
-          </div>
         </div>
         <Overlay />
         <BlurredModal

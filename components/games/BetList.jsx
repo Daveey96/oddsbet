@@ -6,28 +6,18 @@ import {
 } from "framer-motion";
 import React, { useContext, useMemo, useState, useEffect, useRef } from "react";
 import { Context } from "../layout";
-import Animated, { BlurredModal } from "../Animated";
+import Animated from "../Animated";
 import {
-  BiBookAdd,
-  BiCheck,
-  BiCheckCircle,
+  BiCog,
   BiEditAlt,
   BiFootball,
-  BiShareAlt,
   BiTrashAlt,
   BiX,
   BiXCircle,
 } from "react-icons/bi";
 import { CircularLoader } from "../services/Loaders";
-import Link from "next/link";
 import { betController } from "@/controllers";
-import {
-  BsFillKeyboardFill,
-  BsKeyboard,
-  BsTicketDetailed,
-  BsTicketFill,
-} from "react-icons/bs";
-import { FaTicketAlt } from "react-icons/fa";
+import { condition } from "@/helpers";
 
 const variants = {
   initial: { opacity: 0 },
@@ -37,12 +27,6 @@ const variants = {
   init2: { opacity: 0 },
   show2: { opacity: 1 },
   exit2: { opacity: 0 },
-};
-
-const childVariants = {
-  init2: { y: "200%", opacity: 0 },
-  show2: { y: "0%", opacity: 1, transition: { ease: "anticipate" } },
-  exit2: { y: "200%", opacity: 0, transition: { ease: "easeInOut" } },
 };
 
 function findTotalOdds(betList) {
@@ -123,22 +107,17 @@ const BetGame = ({ v, index, deleteGame }) => {
 
   return (
     <motion.div
-      className={`relative w-full flex items-center overflow-hidden ${
-        dragStart && "bg-red-600 "
-      }`}
-      initial={{ height: "84px" }}
+      className={`relative h-[70px] w-full flex items-center overflow-hidden`}
+      initial={{ height: "70px" }}
+      animate={{ height: "70px" }}
       exit={{ height: "0px", transition: { duration: 0.1 } }}
     >
       <motion.div
         drag="x"
         onDragEnd={dragEnded}
-        whileDrag={{
-          backgroundColor: "rgba(0,0,0,1)",
-          transition: { duration: 0 },
-        }}
         style={{ x }}
         onDragStart={() => setDragStart(true)}
-        className={`px-5 z-[1] w-full justify-between absolute items-center h-full flex `}
+        className={`px-5 z-[1] relative aft after:left-0 after:h-2/5 after:w-1 after:rounded-r-3xl after:bg-white/30 bg-black w-full justify-between items-center h-full flex `}
       >
         <span className="flex w-3/4 flex-col gap-1">
           <span className="flex w-full items-center text-c2">
@@ -147,16 +126,22 @@ const BetGame = ({ v, index, deleteGame }) => {
                 Live
               </span>
             )} */}
-            <BiFootball className="mr-0.5 text-c1/60" />
-            <span className="flex items-center gap-3">{v.outcome}</span>
+            <BiFootball className="mr-0.5 text-c1" />
+            <span className="flex items-center capitalize gap-1">
+              {v.outcome}
+            </span>
           </span>
-          <span className="w-full whitespace-nowrap text-ellipsis overflow-hidden">
+          <span className="w-full ml-2 whitespace-nowrap text-ellipsis overflow-hidden">
             {v.home} <span className="text-c2">vs</span> {v.away}
           </span>
         </span>
-        <span className="mr-2 fx text-white/60">{v.odd}</span>
+        <span className="mr-2 fx">{v.odd}</span>
       </motion.div>
-      <div className="absolute flex w-full justify-between">
+      <div
+        className={`absolute flex inset-x-0 h-[97%] w-full justify-between ${
+          dragStart ? "bg-red-600" : "bg-black"
+        }`}
+      >
         {dragStart &&
           [0, 1].map((key) => (
             <span key={key} className="fx w-1/4 text-2xl">
@@ -168,15 +153,12 @@ const BetGame = ({ v, index, deleteGame }) => {
   );
 };
 
-export function calcWinPotential(totalOdds, stake) {
-  let pWin = (totalOdds * parseFloat(stake === "" ? 0 : stake))
-    .toFixed(2)
-    .toString()
-    .split(".");
-  if (pWin[0].length < 4) return pWin.join(".");
+const format = (v) => {
+  let f = v.split(".");
+  if (f[0].length < 4) return f.join(".");
 
-  if (parseInt(pWin[0]) > 50000000) pWin[0] = "50000000";
-  let arr = pWin[0].split("").reverse();
+  if (parseInt(f[0]) > 50000000) f[0] = "50000000";
+  let arr = f[0].split("").reverse();
   let len = arr.length;
   let count = 0;
 
@@ -186,7 +168,14 @@ export function calcWinPotential(totalOdds, stake) {
     len -= 3;
   }
 
-  return `${arr.reverse().join("")}.${pWin[1]}`;
+  let l = f[1] ? `.${f[1]}` : "";
+  return `${arr.reverse().join("")}${l}`;
+};
+
+export function calcWinPotential(totalOdds, stake) {
+  return format(
+    (totalOdds * parseFloat(stake === "" ? 0 : stake)).toFixed(2).toString()
+  );
 }
 
 const BetCode = ({ setBetList }) => {
@@ -212,7 +201,7 @@ const BetCode = ({ setBetList }) => {
   }, [value]);
 
   return (
-    <div className="mt-3 mx-[20%] relative fx gap-4 mb-4">
+    <div className="mt-3 mx-[20%] relative fx gap-4 ">
       <input
         type="text"
         ref={input}
@@ -236,24 +225,18 @@ const BetCode = ({ setBetList }) => {
 
 export default function BetList({ toggle, setToggle }) {
   const { user, setUser, betList, setBetList } = useContext(Context);
-  const [placeBet, setPlaceBet] = useState(false);
+  const [placeBet, setPlaceBet] = useState(true);
   const [successful, setSuccessful] = useState("");
-  const [buttonText, setbuttonText] = useState("Place bet?");
   const [keyboard, setkeyboard] = useState(false);
 
   const [stake, setStake] = useState("100");
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
+  const [betcodeLoad, setBetcodeLoad] = useState(betList.length > 0);
   const potWin = useMemo(
     () => calcWinPotential(stake, totalOdds),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [stake, betList]
   );
-  const [betcodeLoad, setBetcodeLoad] = useState(betList.length > 0);
-
-  const reset = () => {
-    setSuccessful("");
-    setbuttonText("Place bet?");
-    setToggle(false);
-  };
 
   const buttonClicked = (button) => {
     if (button === "del") {
@@ -276,18 +259,21 @@ export default function BetList({ toggle, setToggle }) {
   };
 
   const submitBetSlip = async (e) => {
-    e.stopPropagation();
-    setbuttonText("Submitting ticket");
+    setPlaceBet(true);
 
     let newBetList = [];
+    let nBetList = [];
     let odds = [];
 
-    betList.forEach((elem) => {
-      newBetList.push(`${elem.id},${elem.mkt},${elem.outcome}`);
-      odds.push(elem.odd);
+    betList.forEach((id, mkt, outcome, odd) => {
+      newBetList.push(`${id},${mkt},${outcome}`);
+      nBetList.push({ id, mkt, outcome });
+      odds.push(odd);
     });
+
     const data = await betController.placeBet({
-      slip: newBetList.join("|"),
+      ticketId: newBetList.join("|"),
+      slip: nBetList,
       odds,
       totalOdds: parseFloat(totalOdds),
       stake: parseFloat(stake),
@@ -304,7 +290,6 @@ export default function BetList({ toggle, setToggle }) {
       });
     } else {
       setPlaceBet(false);
-      setbuttonText("Place bet?");
     }
   };
 
@@ -320,10 +305,7 @@ export default function BetList({ toggle, setToggle }) {
   }, [betList]);
 
   useEffect(() => {
-    window.addEventListener("click", () => {
-      toggle && setToggle(false);
-      console.log("yess");
-    });
+    window.addEventListener("click", () => toggle && setToggle(false));
   }, []);
 
   useEffect(() => setStake(user?.balance ? user?.balance.toString() : ""), []);
@@ -339,51 +321,43 @@ export default function BetList({ toggle, setToggle }) {
           className="z-[26] bg-black pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
           onClick={(e) => e.stopPropagation()}
         >
-          <>
-            <button
-              onClick={() => setToggle(false)}
-              className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-1 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"
-            ></button>
-            <header className=" pt-4 text-sm justify-center w-full flex">
-              <span
-                onClick={(e) => e.stopPropagation()}
-                className="fx text-base text-c2 absolute gap-0.5 opacity-60"
-              >
-                {[<BiEditAlt key={10} />, <BiTrashAlt key={12} />].map(
-                  (i, key) => (
-                    <button
-                      className={`w-8 h-8 active:scale-95 active:bg-white/20 duration-150 rounded-full fx ${
-                        key === 0 && !betcodeLoad
-                          ? "bg-c2/10 active:bg-white/20"
-                          : "bg-white/0"
-                      }`}
-                      key={key}
-                      onClick={() => buttons(key)}
-                    >
-                      {i}
-                    </button>
-                  )
-                )}
-              </span>
-              <span className="justify-between pb-3 ml-5 flex items-center w-full">
-                <span>
-                  {betList.length}{" "}
-                  <span className="opacity-60">
-                    bet{betList.length !== 1 && "s"}
-                  </span>
-                </span>
-                <label
-                  className="pr-5 mt-2 relative text-sm"
-                  onBlur={() => setkeyboard(false)}
+          <header className=" pt-4 text-sm relative justify-center w-full flex">
+            <span className="fx text-sm mt-1 absolute gap-2.5">
+              {[
+                <BiEditAlt key={10} />,
+                <BiCog key={14} />,
+                <BiTrashAlt key={12} />,
+              ].map((i, key) => (
+                <button
+                  className={`w-6 h-6 active:scale-95 active:bg-white/20 duration-150 rounded-md fx ${
+                    key === 0 && !betcodeLoad
+                      ? "bg-c1 text-c2 active:bg-white/20"
+                      : "bg-c4"
+                  }`}
+                  key={key}
+                  onClick={() => buttons(key)}
                 >
-                  <span
-                    onClick={() => setkeyboard(!keyboard)}
-                    className={`px-3 py-0.5 border-c2 text-white rounded-md border-2 ${
+                  {i}
+                </button>
+              ))}
+            </span>
+            <span className="justify-between mb-1 px-5 h-8 flex items-end w-full">
+              <span className="mb-px">
+                {betList.length}{" "}
+                <span className="opacity-60">
+                  bet{betList.length !== 1 && "s"}
+                </span>
+              </span>
+              {betList.length > 0 && (
+                <div className=" relative text-sm">
+                  <button
+                    onClick={() => setkeyboard(true)}
+                    className={`px-3 min-w-[70px] py-0.5 border-c2 text-white rounded-md border-[3px] ${
                       !stake && "text-opacity-50"
                     }`}
                   >
-                    {stake ? stake : "min 100"}
-                  </span>
+                    {stake ? format(stake) : "min 100"}
+                  </button>
                   <Animated
                     id="keyboard"
                     state={keyboard}
@@ -394,100 +368,111 @@ export default function BetList({ toggle, setToggle }) {
                       exit: { y: -10, x: 5, opacity: 0 },
                     }}
                   >
-                    <div className="gap-1 rounded-3xl py-3 bg-c4 flex flex-col px-3 w-[95%] overflow-hidden justify-center">
-                      {/* <div className="flex justify-center gap-1">
-                        <button
-                          className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-black/20 rounded-lg`}
-                        >
-                          <BiEditAlt />
-                        </button>
-                        <button
-                          className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-black/20 rounded-lg`}
-                          onClick={() => buttonClicked("del")}
-                        >
-                          X
-                        </button>
-                        <button
-                          className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-green-500 rounded-lg`}
-                          onClick={() => setkeyboard(false)}
-                        >
-                          Done
-                        </button>
-                      </div> */}
+                    <div className="gap-1 flex-col rounded-2xl py-2 bg-c4 flex px-2 w-[95%] overflow-hidden justify-center">
                       {[
-                        ["+1000", "+500", "+100", ".", 0, "00"],
-                        Array(9).fill(""),
+                        ["+1000", "+500", "+100", "00", 0, ".", "cancel"],
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, "done"],
                       ].map((buttons, key) => (
-                        <div key={key} className="flex justify-center gap-1">
-                          {buttons.map((button, key2) => (
-                            <button
-                              key={key2}
-                              className={`py-1 active:scale-75 duration-150 fx flex-[2] bg-black/20 rounded-lg`}
-                              onClick={() =>
-                                buttonClicked(key ? key2 + 1 : button)
-                              }
-                            >
-                              {key ? key2 + 1 : button}
-                            </button>
-                          ))}
+                        <div
+                          key={key}
+                          className="flex justify-center w-full gap-1"
+                        >
+                          {buttons.map((button, key2) =>
+                            condition(
+                              button,
+                              ["done", "cancel", "*"],
+                              [
+                                <button
+                                  key={key2}
+                                  className={`py-1 active:scale-75 px-3 duration-150 fx bg-white/5 rounded-lg`}
+                                  onClick={() => setkeyboard(false)}
+                                >
+                                  Done
+                                </button>,
+                                <button
+                                  key={key2}
+                                  className={`py-1 bg-red-600 text-lg active:scale-75 duration-150 fx px-3 rounded-lg`}
+                                  onClick={() => buttonClicked("del")}
+                                >
+                                  <BiX />
+                                </button>,
+                                <button
+                                  key={key2}
+                                  className={`py-1 active:scale-75 duration-150 fx bg-black/40 rounded-lg ${
+                                    button === "." ? "flex-1" : "flex-[2]"
+                                  }`}
+                                  onClick={() => buttonClicked(button)}
+                                >
+                                  {button}
+                                </button>,
+                              ]
+                            )
+                          )}
                         </div>
                       ))}
                     </div>
                   </Animated>
-                </label>
-              </span>
-            </header>
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="max-h-[60vh] items-center overflow-y-scroll w-full"
-            >
-              {betcodeLoad ? (
-                <AnimatePresence>
-                  {betList.map((mv, key) => (
-                    <BetGame
-                      v={mv}
-                      deleteGame={removeGame}
-                      index={key}
-                      key={`${mv.id}${mv.mkt}`}
-                    />
-                  ))}
-                </AnimatePresence>
-              ) : (
-                <BetCode setBetList={(v) => setBetList(v)} />
+                </div>
               )}
+            </span>
+            <button
+              onClick={() => setToggle(false)}
+              className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-0.5 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"
+            ></button>
+          </header>
+          {betList.length > 0 && (
+            <div className="w-[94%] mr-1 flex justify-start items-center text-xs from-c1 to-c2 bg-gradient-to-r rounded-md py-1 px-3">
+              Add more to get bigger bonuses
             </div>
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="flex relative items-center px-4 justify-between w-full "
-            >
-              {[0, 1].map((key) => (
+          )}
+          <motion.div
+            layout
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[60vh] pb-3 no-bars h-auto overflow-x-hidden items-center overflow-y-scroll w-full"
+          >
+            {betcodeLoad ? (
+              <AnimatePresence>
+                {betList.map((mv, key) => (
+                  <BetGame
+                    v={mv}
+                    deleteGame={removeGame}
+                    index={key}
+                    key={`${mv.id}${mv.mkt}`}
+                  />
+                ))}
+              </AnimatePresence>
+            ) : (
+              <BetCode setBetList={(v) => setBetList(v)} />
+            )}
+          </motion.div>
+          <div className="fx aft after:bottom-[95%] after:h-8 after:from-transparent after:to-black after:bg-gradient-to-b after:inset-x-0 relative px-4 z-10 pt-2 w-full ">
+            {betList.length > 0 && (
+              <>
                 <button
-                  className={`flex border-t-2 border-c4 ${
-                    key ? "pr-1 pl-4 items-end" : "pr-4 pl-1 items-start"
-                  } pt-1.5 text-10 text-white/50 flex-col ${
-                    key === 0 ? "" : "order-3"
-                  }`}
-                  key={key}
+                  className={`fx text-base text-c2 h-full pr-6 pl-2 right-0 absolute`}
                 >
-                  {key && "to Win"}
-                  <span
-                    className={`${key ? "text-c2" : "text-white"} text-base`}
-                  >
-                    {key ? potWin : betList.length > 1 && totalOdds}
-                  </span>
+                  {betList.length > 1 && totalOdds}
                 </button>
-              ))}
-              <button
-                onClick={() => betList.length > 0 && setPlaceBet(true)}
-                disabled={
-                  betList.length > 0 && parseInt(stake) > 99 ? false : true
-                }
-                className="order-2 disabled:opacity-50 px-5 py-2 bg-gradient-to-r rounded-t-[20px] rounded-b-lg from-c1 to-c2"
-              >
-                Place bet
-              </button>
-            </div>
-          </>
+                <span
+                  className={`fx flex-col z-10 h-full absolute left-0 pr-5 pl-3`}
+                >
+                  <span className="text-xs absolute bottom-[95%] left-0 bg-c1 rounded-r-xl rounded-tl-xl px-3 pt-0.5 pb-px">
+                    To Win
+                  </span>
+                  <span className={`text-base`}>{potWin}</span>
+                </span>
+              </>
+            )}
+            <button
+              onClick={() => betList.length > 0 && submitBetSlip()}
+              disabled={
+                betList.length > 0 && parseInt(stake) > 99 ? false : true
+              }
+              className="order-2 active:scale-75 duration-150 disabled:opacity-50 px-5 pt-2 pb-1.5 mb-0.5 bg-gradient-to-r rounded-t-[20px] rounded-b-lg from-c1 to-c2"
+            >
+              <span> Place bet</span>
+            </button>
+          </div>
           {/* <Animated
             onClick={(e) => {
               e.stopPropagation();
