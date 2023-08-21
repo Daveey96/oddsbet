@@ -1,18 +1,17 @@
 import {
   ActiveBets,
+  Games,
   History,
   Ticket,
   User,
   connectMongo,
   isLoggedIn,
 } from "@/database";
-import { getDate } from "@/helpers";
-import footBallGames from "@/helpers/json/football";
-import axios from "axios";
 
-const getOutcome = (id, outcome, mkt) => {
+const getOutcome = async (id, outcome, mkt) => {
   //// ! development
-  let game = footBallGames.events.filter((v) => v.event_id === parseInt(id))[0];
+  let { data } = await Games.findOne({ id: 1 });
+  let game = data.filter((v) => v.event_id === parseInt(id))[0];
 
   return { status: "not start", game };
   //// ! production
@@ -186,10 +185,11 @@ const loadBet = async (req, res) => {
   if (!codeAvail) throw Error("No games found");
 
   let games = [];
+  let { data } = await Games.findOne({ id: 1 });
 
   for (let i = 0; i < codeAvail.slip.split("|").length; i++) {
     const [id, mkt, outcome] = codeAvail.slip.split("|")[i].split(",");
-    const { home, away, starts, sport_id } = footBallGames.events.filter(
+    const { home, away, starts, sport_id } = data.filter(
       (v) => v.event_id === parseInt(id)
     )[0];
 
