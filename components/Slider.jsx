@@ -1,16 +1,15 @@
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Retry from "./services/Retry";
 import Odds from "./games/Odds";
 import { useKeenSlider } from "keen-slider/react";
 import { SkeletonLoad } from "./services/Loaders";
 import { BiRightArrowAlt, BiXCircle } from "react-icons/bi";
 import { BsSlashCircle } from "react-icons/bs";
-import "keen-slider/keen-slider.min.css";
-import football from "@/helpers/json/football";
 import { weekDays } from "@/helpers";
-import { motion } from "framer-motion";
 import Svg from "./Svg";
+import { Context } from "./layout";
+import "keen-slider/keen-slider.min.css";
 
 export const categories = {
   icons: [
@@ -24,8 +23,8 @@ export const categories = {
           y2="485.1"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#68176f" offset="0" />
-          <stop stop-color="#f00" offset="1" />
+          <stop stopColor="#68176f" offset="0" />
+          <stop stopColor="#f00" offset="1" />
         </linearGradient>
       </defs>
       <path
@@ -43,8 +42,8 @@ export const categories = {
           y2="508"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00daae" offset="0" />
-          <stop stop-color="#0000ab" offset="1" />
+          <stop stopColor="#00daae" offset="0" />
+          <stop stopColor="#0000ab" offset="1" />
         </linearGradient>
       </defs>
       <path
@@ -87,9 +86,9 @@ export const categories = {
 function Slider() {
   const [mounted, setMounted] = useState(false);
   const [activeLeague, setActiveLeague] = useState(0);
+  const { globalGames, getGlobalGames } = useContext(Context);
 
   const [games, setGames] = useState(null);
-  const [sportId, setSportId] = useState(1);
   const [active, setActive] = useState(0);
   const leagues = useRef({ v: [], pos: [] });
 
@@ -109,35 +108,36 @@ function Slider() {
       );
     },
   });
-  const getGames = async () => {
-    setGames("loading");
 
-    // let data = await apiController.getMatches(id, true);
-    let data = football;
+  const getGames = async (data) => {
+    console.log(data);
+    let g = data.slice(0, 20);
+    g.sort((a, b) => a.league_name.localeCompare(b.league_name));
 
-    if (data.events) {
-      let g = data.events.slice(0, 20);
-      g.sort((a, b) => a.league_name.localeCompare(b.league_name));
+    let array = [];
+    let pos = [];
 
-      let array = [];
-      let pos = [];
+    g.forEach((f, i) => {
+      if (!array.includes(f.league_name)) {
+        array.push(f.league_name);
+        pos.push(i);
+      }
+    });
 
-      g.forEach((f, i) => {
-        if (!array.includes(f.league_name)) {
-          array.push(f.league_name);
-          pos.push(i);
-        }
-      });
+    leagues.current = { v: array, pos };
 
-      leagues.current = { v: array, pos };
-
-      setGames(g);
-    } else setGames("error");
+    setGames(g);
   };
 
   useEffect(() => {
-    games === null && getGames();
-  }, [games]);
+    if (
+      globalGames[1].games === null ||
+      globalGames[1].games === "error" ||
+      globalGames[1].games === "loading"
+    )
+      setGames(globalGames[1].games);
+    else getGames(globalGames[1].games);
+  }, [globalGames]);
 
   useEffect(() => {
     !mounted && setMounted(true);
@@ -211,7 +211,7 @@ function Slider() {
           <div className="w-full h-44 gap-2 fx rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
             <BiXCircle className="text-3xl" />
             Something went wrong
-            <button className="text-c2" onClick={() => getGames(sportId)}>
+            <button className="text-c2" onClick={() => getGlobalGames(1)}>
               refresh
             </button>
           </div>
@@ -293,22 +293,24 @@ function Slider() {
           <div className="w-full h-44 gap-2 fx rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
             <BsSlashCircle className="text-3xl" />
             There are no games currently available
-            <button className="text-c2" onClick={() => getGames(sportId)}>
+            <button className="text-c2" onClick={() => getGlobalGames(1)}>
               refresh
             </button>
           </div>
         )}
       </Retry>
-      {games === null ? (
+      {games === null || games === "loading" ? (
         <ul className="px-5 mb-4 mt-1 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2">
-          {Array(4)
+          {Array(5)
             .fill("")
             .map((i, key) => {
               return (
                 <li
                   key={key}
-                  className="px-3 fade w-12 py-0.5 bg-c4 rounded-b-2xl rounded-t-md"
-                ></li>
+                  className={`px-3 fade w-9 first-of-type:w-16 py-1.5 dark:bg-c4/60 text-white/0 rounded-b-2xl rounded-t-md`}
+                >
+                  lo
+                </li>
               );
             })}
         </ul>

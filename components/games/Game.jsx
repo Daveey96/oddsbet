@@ -2,17 +2,11 @@ import Image from "next/image";
 import Odds from "./Odds";
 import { useContext, useState } from "react";
 import { Context } from "../layout";
-import { BiChart, BiReflectHorizontal, BiRocket } from "react-icons/bi";
 import { categories } from "../Slider";
 
 const Game = ({ game, mkt, isLive, last }) => {
   const [g, setG] = useState(game);
   const { setGame } = useContext(Context);
-
-  const data = [
-    { text: "rocket odds", icon: <BiRocket /> },
-    { text: "specials", icon: <BiReflectHorizontal /> },
-  ];
 
   return (
     <div

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Animated from "../Animated";
 import { Context } from "../layout";
 import { FaTshirt } from "react-icons/fa";
@@ -8,7 +8,7 @@ import { market } from "./Odds";
 import { BiChevronLeftCircle, BiInfoCircle } from "react-icons/bi";
 
 export default function Stats() {
-  const { game, setGame, globalGames, specials } = useContext(Context);
+  const { game, setGame, specials } = useContext(Context);
   const [mainActive, setMainActive] = useState(0);
   const [active, setActive] = useState(0);
   const [head, setHead] = useState(false);

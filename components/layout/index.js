@@ -6,28 +6,19 @@ import { ThemeProvider } from "next-themes";
 import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
 import { BlurredModal } from "../Animated";
-import { userController } from "@/controllers";
+import { apiController, userController } from "@/controllers";
 import { AnimatePresence } from "framer-motion";
 import Stats from "../games/Stats";
 import Panel from "./Panel";
 import Auth from "../auth";
 import { getDate } from "@/helpers";
-import football from "@/helpers/json/football";
 
 export const Context = createContext(null);
 
-export const filterGames = (data, isoString, len) => {
-  let games = data.events.filter(
+export const filterGames = (data, isoString) => {
+  return data.filter(
     (v) => v.starts.split("T")[0] === isoString && v.parent_id === null
   );
-
-  let initialLen = games.length;
-  if (len) games = games.slice(0, len);
-
-  return {
-    len: initialLen,
-    v: games,
-  };
 };
 
 export default function Layout({ children }) {
@@ -48,18 +39,17 @@ export default function Layout({ children }) {
       { title: "Today", games: "loading" },
     ]);
 
-    const data = football;
-    // const liveData = await apiController.getMatches(id, true);
+    const { data } = await apiController.getGlobalGames(id);
 
-    if (data.events) {
+    if (data) {
       let genArray = [{ title: "Live", games: null }];
 
       for (let i = 0; i < 8; i++) {
         const { isoString, weekDay } = getDate(i);
-        const games = filterGames(data, isoString, 5);
+        const games = filterGames(data, isoString);
         const md = `${isoString.split("-")[1]}/${isoString.split("-")[2]}`;
 
-        if (games.len > 0) {
+        if (games.length > 0) {
           genArray.push({
             title: i ? `${weekDay} ${md}` : `Today ${md}`,
             games,
@@ -67,7 +57,7 @@ export default function Layout({ children }) {
         }
       }
 
-      specials.current = data.events.filter((v) => v.parent_id);
+      specials.current = data.filter((v) => v.parent_id);
       setGlobalGames(genArray);
     } else
       setGlobalGames([

@@ -15,7 +15,8 @@ const loadBet = (details) =>
 
 const deleteBet = (details) =>
   clientAsync(async () => {
-    const { data } = await axios.delete(`/api/bets?code=${details?.code}`);
+    console.log(details.aid);
+    const { data } = await axios.delete(`/api/bets?aid=${details?.aid}`);
     return data;
   });
 

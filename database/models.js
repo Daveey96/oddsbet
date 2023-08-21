@@ -15,29 +15,30 @@ const userSchema = new Schema({
 });
 
 const ticketSchema = new Schema({
-  ticketId: String,
+  tid: String,
   code: String,
   slip: [
     {
       id: String,
       mkt: String,
       outcome: String,
+      odd: String,
     },
   ],
-  createdAt: { default: Date.now, type: Date, expires: "168h" },
+  createdAt: { default: Date.now, type: Date, expires: 2000 },
 });
 
 const gameSchema = new Schema({
-  data: Object,
-  createdAt: { default: Date.now, type: Date, expires: "1m" },
+  id: Number,
+  data: Array,
 });
 
 const activeBetsSchema = new Schema({
-  userId: Schema.Types.ObjectId,
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
   totalOdds: Number,
+  toWin: Number,
   stake: Number,
-  odds: Array,
 });
 
 const historySchema = new Schema({

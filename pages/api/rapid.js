@@ -1,4 +1,5 @@
 import { Games } from "@/database";
+import { getDate } from "@/helpers";
 import { serverAsync } from "@/helpers/asyncHandler";
 import axios from "axios";
 
@@ -50,6 +51,39 @@ const getMatches = async (req, res) => {
   throw Error("No Internet");
 };
 
+const getGlobalGames = async (req, res) => {
+  const { id } = req.query;
+
+  const games = await Games.findOne({ id });
+
+  if (games) res.json({ data: games.data });
+  else {
+    apiII_options.url = "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets";
+    apiII_options.params = {
+      sport_id: id.toString(),
+      is_have_odds: "true",
+      event_type: "prematch",
+    };
+    const { data } = await axios.request(apiII_options);
+
+    const events = data.events.filter(
+      (g) =>
+        g.starts.includes(getDate().isoString) ||
+        g.starts.includes(getDate(1).isoString) ||
+        g.starts.includes(getDate(2).isoString) ||
+        g.starts.includes(getDate(3).isoString) ||
+        g.starts.includes(getDate(4).isoString) ||
+        g.starts.includes(getDate(5).isoString) ||
+        g.starts.includes(getDate(6).isoString) ||
+        g.starts.includes(getDate(7).isoString)
+    );
+
+    let d = await Games.create({ id, data: events });
+
+    res.json({ data: d.data });
+  }
+};
+
 export const getMatch = async (req, res) => {
   const { id } = req.params;
   apiII_options.url += "details";
@@ -62,8 +96,9 @@ export const getMatch = async (req, res) => {
 };
 
 export default async function handler(req, res) {
-  console.log(req.query);
   if (req.query.type === "matches") return serverAsync(req, res, getMatches);
 
   if (req.query.type === "match") return serverAsync(req, res, getMatch);
+
+  if (req.query.type === "global") return serverAsync(req, res, getGlobalGames);
 }

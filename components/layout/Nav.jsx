@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import Link from "next/link";
-import Animated from "../Animated";
 import { BiArrowToLeft } from "react-icons/bi";
 import { Context } from ".";
 import Alert from "../services/Alert";
 import { SkeletonLoad } from "../services/Loaders";
+import { format } from "@/helpers";
 
 export const Naira = ({ className }) => (
   <svg
@@ -98,12 +97,14 @@ function Nav() {
               >
                 {user?.id ? (
                   <span
-                    className={`fx gap-1 relative text-base pl-5 pr-4 rounded-b-2xl z-30 bg-black h-" ${
+                    className={`fx gap-1 relative text-base px-4 rounded-b-2xl z-30 bg-black h-" ${
                       user.balance < 100 ? "text-red-600" : "text-green-600"
                     }`}
                   >
                     <Naira className="mb-1" />
-                    <span className="mb-[5px]">{user.balance.toFixed(2)}</span>
+                    <span className="mb-[5px]">
+                      {format(user.balance.toString())}
+                    </span>
                     {/* {user.balance < 100 && (
               <Link
                 href={"/profile/deposit"}

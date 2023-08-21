@@ -1,7 +1,3 @@
-export const filterDate = (v) => {
-  return v ? v.date_start.split("T")[1].slice(0, 5) : "";
-};
-
 export const condition = (v, values, output) => {
   for (let i = 0; i < values.length; i++) {
     if (v === values[i])
@@ -75,4 +71,23 @@ export const getDate = (d = 0) => {
     weekDay: weekDays[weekDay],
     isoString: `${year}-${normalize(m + 1)}-${normalize(r)}`,
   };
+};
+
+export const format = (v) => {
+  let f = v.toString().split(".");
+  if (f[0].length < 4) return f.join(".");
+
+  if (parseInt(f[0]) > 50000000) f[0] = "50000000";
+  let arr = f[0].split("").reverse();
+  let len = arr.length;
+  let count = 0;
+
+  while (len > 3) {
+    count === 1 ? arr.splice(7, 0, ",") : arr.splice(3, 0, ",");
+    count = 1;
+    len -= 3;
+  }
+
+  let l = f[1] ? `.${f[1]}` : "";
+  return `${arr.reverse().join("")}${l}`;
 };

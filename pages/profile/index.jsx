@@ -25,6 +25,7 @@ import { Context } from "@/components/layout";
 import { useRouter } from "next/navigation";
 import { SkeletonLoad } from "@/components/services/Loaders";
 import { userController } from "@/controllers";
+import { format } from "@/helpers";
 
 const Theme = () => {
   const { theme, setTheme } = useTheme();
@@ -43,24 +44,6 @@ const Theme = () => {
     </button>
   );
 };
-
-// const Demo = () => {
-//   // const { theme, setTheme } = useTheme();
-
-//   return (
-//     <button
-//       // onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-//       className={`dark:bg-black flex justify-start relative w-14 px-1.5 items-center py-1.5 rounded-xl `}
-//     >
-//       <span className="absolute tex left-2 text-black">off</span>
-//       <span className="absolute right-2 text-white/20">off</span>
-//       <motion.span
-//         layout
-//         className={`w-4 h-4 z-10 rounded-full bg-c2 flex `}
-//       ></motion.span>
-//     </button>
-//   );
-// };
 
 const PaymentPin = () => {
   return (
@@ -115,7 +98,7 @@ export default function Index() {
             <div className="pb-6 fx pt-4 w-full text-center text-green-500 text-3xl ">
               {isVisible ? (
                 <>
-                  <Naira /> {user.balance.toFixed(2)}
+                  <Naira /> {format(user.balance.toString())}
                 </>
               ) : (
                 "****"

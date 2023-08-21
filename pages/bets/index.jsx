@@ -1,18 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  BiCopy,
-  BiFootball,
-  BiShareAlt,
-  BiTrashAlt,
-  BiXCircle,
-} from "react-icons/bi";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { BiTrashAlt, BiXCircle } from "react-icons/bi";
 import { CircularLoader } from "@/components/services/Loaders";
 import Retry from "@/components/services/Retry";
-import { getDate } from "@/helpers";
+import { format, getDate } from "@/helpers";
 import { alertService, promptService } from "@/services";
-import { calcWinPotential } from "@/components/games/BetList";
 import { betController } from "@/controllers";
-import { FaChevronRight } from "react-icons/fa";
+import { FaChevronRight, FaRegCopy } from "react-icons/fa";
+import { Context } from "@/components/layout";
+import { Naira } from "@/components/layout/Nav";
+import Svg from "@/components/Svg";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -21,13 +17,13 @@ const TicketDots = ({ active, right = false }) => {
         right ? "translate-x-1/2 right-0" : "-translate-x-1/2 left-0"
       }`}
     >
-      {Array(active ? 1 : 3)
+      {Array(active ? 1 : 2)
         .fill("")
         .map((i, key) => (
           <span
             key={key}
-            className={`w-7 rounded-full bg-black ${
-              active ? "h-[35%] w-[15px]" : "h-1/5 w-7"
+            className={`rounded-full bg-black ${
+              active ? "h-[35%] w-[15px]" : "h-[30%] w-7"
             }`}
           ></span>
         ))}
@@ -36,71 +32,69 @@ const TicketDots = ({ active, right = false }) => {
 };
 
 const BetSlip = ({ v, active, index, onClick, getBets }) => {
-  let arr = v.slip.split("|");
-  let totalOdds = calcWinPotential(
-    v.odds.reduce((a, v) => parseFloat(v) + parseFloat(a)),
-    v.stake
-  );
   const deleteTicket = async () => {
-    const deleted = await betController.deleteBet({ code: v.code });
+    const deleted = await betController.deleteBet({ aid: v.id });
 
     promptService.clear();
     deleted ? getBets() : alertService.error("Something went wrong");
   };
 
   return (
-    <div className="flex w-[95%] flex-col">
+    <div className="flex w-full items-center flex-col">
       <div
-        className={`w-full cursor-pointer active:opacity-75 relative gap-1 fx ${
-          active === index ? "h-12" : "h-32"
+        className={`w-[95%] overflow-hidden cursor-pointer active:opacity-75 relative gap-1 fx ${
+          active === index ? "h-10 rounded-lg" : "h-20 rounded-2xl"
         }`}
         onClick={() => (active === index ? onClick(null) : onClick(index))}
       >
-        <div className="w-1/5 flex flex-col items-center relative h-full z-10 overflow-hidden bg-c4/40">
+        <div className="w-1/5 fx flex-col items-center relative h-full z-10 overflow-hidden bg-c4/40">
           <span
-            className={`bg-c2/10 z-10 text-c2 text-lg fx ${
-              active === index ? "w-full h-full" : "w-10 h-10 mt-4 rounded-full"
+            className={`z-10 text-c2 text-lg fx ${
+              active === index
+                ? "w-full h-full bg-c2/5"
+                : "w-10 h-10 bg-c4/60 rounded-3xl"
             }`}
           >
             {v.games.length}
           </span>
           <TicketDots right active={active === index} />
         </div>
-        <div className="flex-1 overflow-hidden duration-300 items-center relative flex h-full flex-col z-10 bg-c4/70">
+        <div className="flex-1 px-5 overflow-hidden duration-300 items-center relative flex justify-between h-full flex-col z-10 bg-c4/70">
           <span
-            className={`flex w-full py-1.5 text-lg gap-1 pr-6 justify-end ${
+            className={`flex flex-1 w-full text-sm gap-1 justify-end items-center ${
               active === index ? "h-full items-center" : "mt-1"
             } `}
           >
-            <button
+            {active !== index && (
+              <span
+                className={`rounded-lg flex-1 py-1 pl-3 flex justify-start text-xs items-center gap-1`}
+              >
+                Stake -{" "}
+                <span className="fx gap-0.5">
+                  <Naira className={"mb-0.5 scale-75"} /> {v.stake}
+                </span>
+              </span>
+            )}
+            <span
               onClick={(e) => {
                 e.stopPropagation();
-                promptService.prompt(
-                  <span className="flex flex-col items-center">
-                    <span className="text-[11px]">betting code is</span>
-                    <span
-                      onClick={() => navigator.clipboard.writeText(`${v.code}`)}
-                      className="text-c2 gap-1 px-4 active:bg-white/5 duration-150 rounded-lg py-1 fx text-xl"
-                    >
-                      {v.code}
-                      <BiCopy className=" text-sm text-white opacity-50" />
-                    </span>
-                  </span>,
-                  ["ok"],
-                  null,
-                  "info"
-                );
+                navigator.clipboard.writeText(v.code);
+                alertService.success("Copied");
               }}
-              className="active:bg-c2/10 text-c2 bg-c2/0 p-1.5 rounded-full duration-200"
+              className=" bg-c2/5 active:scale-90 py-1 px-3 text-xs gap-1.5 active:bg-white/5 duration-150 rounded-md fx"
             >
-              <BiShareAlt />
-            </button>
+              {v.code}
+              <FaRegCopy className="text-c2" />
+            </span>
             <button
-              className="active:bg-red-600/10 text-red-600 bg-red-600/0 p-1.5 rounded-full duration-200"
+              className="bg-red-600/10 text-red-600 py-[5.5px] px-2 rounded-md duration-200"
               onClick={(e) => {
                 e.stopPropagation();
                 promptService.prompt(
-                  "Delete this ticket?",
+                  <span className="flex items-center px-4 flex-col">
+                    Deleting this ticket will count as a loss.{" "}
+                    <span>Continue?</span>
+                  </span>,
                   ["Yes", "No"],
                   deleteTicket
                 );
@@ -110,21 +104,17 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
             </button>
           </span>
           {active !== index && (
-            <>
-              <ul className="flex-1 w-full mt-0.5 flex flex-col justify-start items-start px-7">
-                {v.games.slice(0, 3).map((g, key) => (
-                  <li
-                    key={key}
-                    className="whitespace-nowrap text-[12px] w-4/5 overflow-hidden text-ellipsis"
-                  >
-                    {g[0].home} <span className="text-c2">vs</span> {g[0].away}
-                  </li>
-                ))}
-              </ul>
-              <span className="fvsc text-base absolute top-2 px-6 py-2 left-0 text-white/20">
-                Not Start
+            <span className=" rounded-t-lg py-1 px-2 from-black/20 via-black/10 to-transparent bg-gradient-to-b gap-px flex flex-col w-full items-center justify-between ">
+              <span className="flex justify-between items-center w-full px-2">
+                <span className="pl-1 after:animate-ping after:rounded-full text-green-600 relative fx aft after:w-1.5 after:h-1.5 after:right-full after:bg-green-600">
+                  Live
+                </span>
+                <span>0% complete</span>
               </span>
-            </>
+              <span className="w-full mb-1 h-1 flex justify-start overflow-hidden rounded-lg bg-white/5 ">
+                <span className="h-full w-[20%] bg-c1 rounded-r-lg"></span>
+              </span>
+            </span>
           )}
           <TicketDots active={active === index} />
           <TicketDots right active={active === index} />
@@ -135,58 +125,65 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
           {v.games.map((g, key) => (
             <div
               key={key}
-              className="flex px-3 gap-3 mt-2 flex-col justify-between bg-c4/0 active:bg-c4/40 duration-200 border-l-[4px] border-amber-600 items-start py-5 text-sm w-full relative"
+              className="flex px-[4%] gap-2 mt-2 flex-col duration-200 items-start justify-center py-3 text-sm w-full relative"
             >
-              <span className="flex gap-4 w-full justify-between items-center">
-                <span className="flex gap-1 relative text-c1 items-center">
-                  <BiFootball className="mb-0.5 text-lg" />
-                  <span className="text-c2 font-bold text-base capitalize">
-                    {arr[key].split(",")[2]}
-                  </span>
-                  <span className="text-white/20 absolute left-[120%] bottom-0 mb-0.5 text-xs">
-                    {arr[key].split(",")[1]}
-                  </span>
-                  <span className="absolute text-c2 left-[180%]">
-                    @{v.odds[key]}
+              <span className="flex gap-2 w-full justify-between items-center">
+                <span className="flex gap-1 text-c1 items-center">
+                  <Svg id={g.game.sport_id} className={"text-c2 "} />
+                  <span className="text-c2 capitalize">{g.outcome}</span>
+                </span>
+                <span>{g.odd}</span>
+              </span>
+              <div className="flex gap-6">
+                <span className="flex flex-col pl-0.5 relative justify-center gap-0.5">
+                  {[0, 1].map((key) => (
+                    <div
+                      key={key}
+                      className="text-xs overflow-hidden whitespace-nowrap text-ellipsis z-10"
+                    >
+                      {key ? g.game.home : g.game.away}
+                    </div>
+                  ))}
+                  <span className="text-c2 opacity-10 text-3xl absolute -right-1">
+                    vs
                   </span>
                 </span>
-                <span>{g[0].starts.split("T")[1].slice(0, -3)}</span>
-              </span>
-              <span className="flex flex-col relative justify-center gap-1">
-                {[0, 1].map((key) => (
-                  <div
-                    key={key}
-                    className="top-3 overflow-hidden whitespace-nowrap text-ellipsis z-10"
-                  >
-                    {key ? g[0].home : g[0].away}
-                  </div>
-                ))}
-                <span className="text-c2 opacity-10 text-3xl absolute -right-1">
-                  vs
+                <span className="text-lg text-white/60">
+                  {g.game.starts.split("T")[1].slice(0, -3)}
                 </span>
-              </span>
-              <span className="text-amber-600 font-bold fvsc text-xl border-r-2  border-amber-600 bottom-0 right-0 px-2 py-1 absolute">
-                Ongoing
+              </div>
+
+              <span className="text-gray-700 from-transparent to-gray-700/10 pb-1 bg-gradient-to-r right-[3%] font-bold fvsc text-base border-r-2  border-gray-700 bottom-0 px-2 absolute">
+                {g.status}
               </span>
             </div>
           ))}
-          <div className="flex justify-between mt-8">
+          <div className="flex w-[95%]  py-1 rounded-lg  px-1 justify-between mt-4">
             {[0, 1].map((key) => (
-              <span className="flex gap-3 px-1 text-[19px] items-end" key={key}>
-                <span className="text-slate-700/50 text-sm">
-                  {key ? "To win" : "Stake"}
+              <span className="flex flex-col gap-1 px-1 items-center" key={key}>
+                <span className="text-white/50 text-xs">
+                  {key ? "To Win" : "Stake"}
                 </span>
-                <span className={`${key ? "text-c2" : ""} mb-[1.5px] `}>
-                  {key ? totalOdds : v.stake}
+                <span
+                  className={`${
+                    key ? "text-c2 border-c2/20" : "border-white/20"
+                  } px-4 fx gap-0.5 text-sm border-x-2`}
+                >
+                  <Naira />
+                  {key ? format(v.toWin) : format(v.stake)}
                 </span>
               </span>
             ))}
           </div>
           <button
-            disabled
-            className=" bg-c4 mb-5 bg-gradient-to-br mt-2 disabled:bg-c4/40 disabled:text-white/40 h-16 w-full"
+            // disabled
+            className=" bg-c4 fx gap-2 w-[95%] mb-2 rounded-lg bg-gradient-to-br mt-2 disabled:bg-c4/60 disabled:text-white/40 h-12"
           >
-            Cashout Unavailable
+            Cashout{" "}
+            <span className="fx text-c2">
+              (<Naira className={"mt-0.5"} />
+              460)
+            </span>
           </button>
         </>
       )}
@@ -194,7 +191,20 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
   );
 };
 
-const DateList = () => {
+const compareDates = (d1, d2) => {
+  const date1 = d1.split("-");
+  const date2 = d2.split("-");
+
+  return date1[1] !== date2[1]
+    ? parseInt(date1[1]) > parseInt(date2[1])
+      ? -1
+      : 1
+    : parseInt(date1[2]) > parseInt(date2[2])
+    ? -1
+    : 1;
+};
+
+const DateList = ({ setDate }) => {
   const container = useRef(null);
   const cDate = useRef(null);
   const months = [
@@ -214,18 +224,21 @@ const DateList = () => {
 
   const returnDate = () => {
     let dateArr = [];
+    let isoArr = [];
     for (let i = -10; i < 6; i++) {
-      let { day, weekDay } = getDate(i);
+      let { day, weekDay, isoString } = getDate(i);
       dateArr.push(`${weekDay.slice(0, 3)} ${day}`);
+      isoArr.push(isoString);
     }
 
-    return [dateArr, getDate().day];
+    return [dateArr, getDate().day, isoArr];
   };
 
-  const [dateArray, currentDate] = returnDate();
+  const [dateArray, currentDate, isoDates] = returnDate();
   const [active, setActive] = useState(currentDate);
 
-  const activate = (v) => {
+  const activate = (v, isodate) => {
+    setDate(isodate);
     setActive(v);
   };
 
@@ -257,7 +270,7 @@ const DateList = () => {
             } `}
             key={key}
             ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
-            onClick={() => activate(dates.split(" ")[1])}
+            onClick={() => activate(dates.split(" ")[1], isoDates[key])}
           >
             <span className="z-10">{dates.split(" ")[0]}</span> <br />
             <span className="text-c2"> {dates.split(" ")[1]}</span>
@@ -269,23 +282,34 @@ const DateList = () => {
 };
 
 function Index() {
+  const { ping, setPing } = useContext(Context);
   const [activeTicket, setActiveTicket] = useState(null);
   const [activeBets, setActiveBets] = useState(null);
   const [active, setActive] = useState(0);
+  const [date, setDate] = useState(getDate().isoString);
 
   const getBets = async () => {
     setActiveBets("loading");
-    const data = await betController.getBets();
+    const data = await betController.getBets({
+      active: active ? false : true,
+      date,
+    });
     data ? setActiveBets(data.betlist) : setActiveBets("error");
   };
+
+  useMemo(getBets, [date, active]);
 
   useEffect(() => {
     setTimeout(() => activeBets === null && getBets(), 2000);
   }, [activeBets]);
 
+  useEffect(() => {
+    ping && setPing(false);
+  }, []);
+
   return (
     <>
-      <DateList />
+      <DateList setDate={(d) => setDate(d)} />
       <div className="flex overflow-x-scroll no-bars overflow-y-hidden justify-start mb-5 pb-1 w-[95%] px-4">
         <button
           className={`px-5 py-2 fx active:scale-90 duration-150 rounded-xl ${
@@ -316,7 +340,7 @@ function Index() {
           </button>
         ))}
       </div>
-      <div className="flex mb-28 items-center flex-col gap-4 w-full">
+      <div className="flex mb-7 items-center flex-col gap-4 w-full">
         <Retry
           state={activeBets}
           loading={

@@ -10,10 +10,19 @@ import { getDate } from "@/helpers";
 import footBallGames from "@/helpers/json/football";
 import axios from "axios";
 
-const getOutcome = () => {};
+const getOutcome = (id, outcome, mkt) => {
+  //// ! development
+  let game = footBallGames.events.filter((v) => v.event_id === parseInt(id))[0];
+
+  return { status: "not start", game };
+  //// ! production
+  // const g = await axios.get(
+  //   `/api/rapid?id=${parseInt(eventId)}&type=match`
+  // );
+};
 
 const generateCode = () => {
-  const letters = "abcdefghijklmnpqrstuvwxyz";
+  const letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
   let code = "";
   let n = 0;
   let l = 0;
@@ -38,38 +47,37 @@ const generateCode = () => {
 };
 
 const placeBet = async (req, res, id) => {
-  const { ticketId, slip, stake, odds, totalOdds, confirm } = req.body;
+  const { tid, slip, stake, totalOdds, confirm } = req.body;
 
   let user = await User.findById(id, "balance");
   if (!user) throw Error("Something went wrong");
 
   if (user.balance < stake) throw Error("Insufficient balance");
 
-  let ticket = await Ticket.findOne({ ticketId });
+  let ticket = await Ticket.findOne({ tid });
 
   if (!ticket) {
     const code = generateCode();
 
-    let newTicket = await Ticket.create({ ticketId, code, slip });
+    let newTicket = await Ticket.create({ tid, code, slip });
     ticket = newTicket;
   }
 
   await ActiveBets.create({
-    userId: user._id,
+    user: user._id,
     ticket: ticket._id,
     totalOdds,
+    toWin: (totalOdds * parseFloat(stake)).toFixed(2),
     stake,
-    odds,
   });
 
   user.balance -= stake;
   await user.save();
 
   res.json({
-    odds: totalOdds,
     stake,
     code: ticket.code,
-    toWin: (totalOdds * stake).toFixed(2),
+    toWin: (totalOdds * parseFloat(stake)).toFixed(2),
     balance: user.balance,
   });
 };
@@ -78,38 +86,38 @@ const getBets = async (req, res, id) => {
   const { active, date } = req.query;
 
   if (active) {
-    let active = await ActiveBets.find({ id });
+    let ac = await ActiveBets.find({ user: id }).populate("ticket");
     let betlist = [];
 
-    active.forEach(async (betSlip) => {
-      let slip = betSlip.ticket.slip.split("|");
+    ac.forEach(async (betSlip) => {
       let games = [];
 
-      for (let i = 0; i < slip.length; i++) {
-        const [eventId, mkt, outcome] = slip[i].split(",");
+      betSlip.ticket.slip.forEach(({ id, mkt, outcome, odd }) => {
+        let { status, game } = getOutcome(id, outcome, mkt);
 
-        //// ! development
-        // let g = footBallGames.events.filter(
-        //   (v) => v.event_id === parseInt(eventId)
-        // );
-        // games.push(g);
+        // if (status === "lost") {
+        //   let history = History.findOne({ date: getDate().isoString });
 
-        //// ! production
-        const g = await axios.get(
-          `/api/rapid?id=${parseInt(eventId)}&type=match`
-        );
+        //   if (history) {
+        //   }
+        // } else {
+        games.push({
+          status,
+          game,
+          outcome,
+          mkt,
+          odd,
+        });
+        // }
+      });
 
-        let { status, game } = getOutcome(g, outcome, mkt);
-
-        if (status === "lost") {
-          let history = History.findOne({ date: getDate().isoString });
-
-          if (history) {
-          }
-        } else {
-          games.push({ status, game });
-        }
-      }
+      betlist.push({
+        id: betSlip._id,
+        games,
+        code: betSlip.ticket.code,
+        toWin: betSlip.toWin,
+        stake: betSlip.stake,
+      });
 
       // if (hist) {
       //   let dateExists = false;
@@ -201,17 +209,8 @@ const loadBet = async (req, res) => {
 };
 
 const deleteBet = async (req, res, id) => {
-  const { code } = req.body;
-  const user = await User.findById(id, "active").populate("active.ticket");
-
-  for (let i = 0; i < user.active.length; i++) {
-    if (code === user.active[i].ticket.code) {
-      user.active.splice(i, 1);
-      break;
-    }
-  }
-  await user.save();
-
+  const { aid } = req.query;
+  await ActiveBets.deleteOne({ _id: aid, user: id });
   res.json({ message: "Deleted" });
 };
 
