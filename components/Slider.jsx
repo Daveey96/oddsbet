@@ -110,7 +110,6 @@ function Slider() {
   });
 
   const getGames = async (data) => {
-    console.log(data);
     let g = data.slice(0, 20);
     g.sort((a, b) => a.league_name.localeCompare(b.league_name));
 

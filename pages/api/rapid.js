@@ -44,7 +44,6 @@ const getMatches = async (req, res) => {
   //   return;
   // }
 
-  console.log(apiII_options);
   const { data } = await axios.request(apiII_options);
   if (data) return res.json(data);
 

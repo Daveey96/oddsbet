@@ -249,7 +249,6 @@ export default function BetList({ toggle, setToggle }) {
       nBetList.push({ id, mkt, outcome, odd });
     });
 
-    // console.log(nBetList);
     const data = await betController.placeBet({
       tid: newBetList.join("|"),
       slip: nBetList,

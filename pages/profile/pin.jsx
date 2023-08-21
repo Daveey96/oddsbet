@@ -6,7 +6,6 @@ function Pin() {
   const [value, setValue] = useState("");
 
   const addNum = ({ target }) => {
-    console.dir(target);
     setValue(value + target.textContent);
   };
 
