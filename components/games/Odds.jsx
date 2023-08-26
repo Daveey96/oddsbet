@@ -96,6 +96,11 @@ const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
         id: event_id,
         sport_id,
         outcome: name[key],
+        text: condition(
+          name[key],
+          ["home", "away", "*"],
+          [`${home} to win`, `${away} to win`, "Draw"]
+        ),
         home,
         away,
         time: starts.split("T")[1].slice(0, -3),

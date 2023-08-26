@@ -59,14 +59,14 @@ const PaymentPin = () => {
 export default function Index() {
   const { user, setUser, setBackdrop } = useContext(Context);
   const [isVisible, setIsVisible] = useState(true);
-  const { push } = useRouter();
+  const { replace, push } = useRouter();
 
   const logOut = async () => {
     const data = await userController.signout();
     if (data) {
       alertService.success(data.message);
       setUser(undefined);
-      push("/");
+      replace("/");
       promptService.clear();
     }
   };
@@ -113,11 +113,7 @@ export default function Index() {
                       ? "dark:from-c1/75 from-c1 to-c2 dark:to-c2/75 text-white bg-gradient-to-r"
                       : "dark:bg-white/5 bg-c4/40 text-white"
                   } `}
-                  href={
-                    key === 1
-                      ? `/profile/withdraw`
-                      : "https://paystack.com/pay/-ulery93js"
-                  }
+                  href={key === 1 ? `/profile/withdraw` : "/profile/deposit"}
                 >
                   {item}
                 </Link>

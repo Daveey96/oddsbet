@@ -86,7 +86,7 @@ export const categories = {
 function Slider() {
   const [mounted, setMounted] = useState(false);
   const [activeLeague, setActiveLeague] = useState(0);
-  const { globalGames, getGlobalGames } = useContext(Context);
+  // const { globalGames, getGlobalGames, sport } = useContext(Context);
 
   const [games, setGames] = useState(null);
   const [active, setActive] = useState(0);
@@ -109,34 +109,34 @@ function Slider() {
     },
   });
 
-  const getGames = async (data) => {
-    let g = data.slice(0, 20);
-    g.sort((a, b) => a.league_name.localeCompare(b.league_name));
+  // const getGames = async (data) => {
+  //   let g = data.slice(0, 20);
+  //   g.sort((a, b) => a.league_name.localeCompare(b.league_name));
 
-    let array = [];
-    let pos = [];
+  //   let array = [];
+  //   let pos = [];
 
-    g.forEach((f, i) => {
-      if (!array.includes(f.league_name)) {
-        array.push(f.league_name);
-        pos.push(i);
-      }
-    });
+  //   g.forEach((f, i) => {
+  //     if (!array.includes(f.league_name)) {
+  //       array.push(f.league_name);
+  //       pos.push(i);
+  //     }
+  //   });
 
-    leagues.current = { v: array, pos };
+  //   leagues.current = { v: array, pos };
 
-    setGames(g);
-  };
+  //   setGames(g);
+  // };
 
-  useEffect(() => {
-    if (
-      globalGames[1].games === null ||
-      globalGames[1].games === "error" ||
-      globalGames[1].games === "loading"
-    )
-      setGames(globalGames[1].games);
-    else getGames(globalGames[1].games);
-  }, [globalGames]);
+  // useEffect(() => {
+  //   if (
+  //     globalGames[sport][0].games === null ||
+  //     globalGames[sport][0].games === "error" ||
+  //     globalGames[sport][0].games === "loading"
+  //   )
+  //     setGames(globalGames[sport][0].games);
+  //   else getGames(globalGames[sport][0].games);
+  // }, [globalGames]);
 
   useEffect(() => {
     !mounted && setMounted(true);
@@ -300,13 +300,13 @@ function Slider() {
       </Retry>
       {games === null || games === "loading" ? (
         <ul className="px-5 mb-4 mt-1 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2">
-          {Array(5)
+          {Array(4)
             .fill("")
             .map((i, key) => {
               return (
                 <li
                   key={key}
-                  className={`px-3 fade w-9 first-of-type:w-16 py-1.5 dark:bg-c4/60 text-white/0 rounded-b-2xl rounded-t-md`}
+                  className={`px-3 fade w-12 first-of-type:w-28 py-1 dark:bg-c4/60 text-white/0 rounded-b-2xl rounded-t-md`}
                 >
                   lo
                 </li>
@@ -314,7 +314,7 @@ function Slider() {
             })}
         </ul>
       ) : (
-        <ul className="px-5 dark:mb-4  mt-0.5 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
+        <ul className="px-5 py-1 scroll-smooth dark:mb-4 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
           {leagues.current.v.map((item, key) => {
             return (
               <li

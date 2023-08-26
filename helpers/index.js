@@ -88,6 +88,7 @@ export const format = (v) => {
     len -= 3;
   }
 
-  let l = f[1] ? `.${f[1]}` : "";
+  let d = f[1]?.length > 2 ? f[1].slice(0, 2) : false;
+  let l = d ? `.${d}` : "";
   return `${arr.reverse().join("")}${l}`;
 };

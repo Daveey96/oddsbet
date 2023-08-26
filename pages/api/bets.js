@@ -3,6 +3,7 @@ import {
   Games,
   History,
   Ticket,
+  Transactions,
   User,
   connectMongo,
   isLoggedIn,
@@ -10,8 +11,8 @@ import {
 
 const getOutcome = async (id, outcome, mkt) => {
   //// ! development
-  let { data } = await Games.findOne({ id: 1 });
-  let game = data.filter((v) => v.event_id === parseInt(id))[0];
+  let g = await Games.findOne({ id: 1 });
+  let game = g.filter((v) => v.event_id === parseInt(id))[0];
 
   return { status: "not start", game };
   //// ! production
@@ -72,6 +73,14 @@ const placeBet = async (req, res, id) => {
 
   user.balance -= stake;
   await user.save();
+
+  const date = new Date().toLocaleTimeString().split(" ")[0].split(":");
+  Transactions.create({
+    user: id,
+    amount: stake * -1,
+    date: date.slice(0, 2).join(":"),
+    info: "Sports Betting",
+  });
 
   res.json({
     stake,

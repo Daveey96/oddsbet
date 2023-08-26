@@ -39,6 +39,8 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
     deleted ? getBets() : alertService.error("Something went wrong");
   };
 
+  console.log(v);
+
   return (
     <div className="flex w-full items-center flex-col">
       <div
@@ -71,7 +73,8 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
               >
                 Stake -{" "}
                 <span className="fx gap-0.5">
-                  <Naira className={"mb-0.5 scale-75"} /> {v.stake}
+                  <Naira className={"mb-0.5 scale-75"} />
+                  {format(v.stake.toString())}
                 </span>
               </span>
             )}
@@ -264,16 +267,13 @@ const DateList = ({ setDate }) => {
           <button
             className={`from-black relative active:scale-110 duration-200 bg-gradient-to-b rounded-b-2xl text-xs gap-2 w-14 h-14 ${
               active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
-            } ${
-              dates.split(" ")[1] === currentDate.toString() &&
-              "aft after:-bottom-1 after:-translate-x-1/2 after:left-1/2 after:h-0.5 after:w-2/5 after:rounded-xl after:bg-c1"
-            } `}
+            }`}
             key={key}
             ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
             onClick={() => activate(dates.split(" ")[1], isoDates[key])}
           >
-            <span className="z-10">{dates.split(" ")[0]}</span> <br />
-            <span className="text-c2"> {dates.split(" ")[1]}</span>
+            <span className={`z-10`}>{dates.split(" ")[0]}</span>
+            <br /> <span className="text-c2"> {dates.split(" ")[1]}</span>
           </button>
         ))}
       </div>

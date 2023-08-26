@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
 import BetList, { BetListButton } from "../games/BetList";
@@ -9,7 +9,12 @@ export default function Tab() {
   const { pathname, events } = useRouter();
   const [pathName, setPathName] = useState(pathname);
   const [toggle, setToggle] = useState(false);
-  const { ping, game, setGame } = useContext(Context);
+  const { ping, setGame } = useContext(Context);
+
+  const visible = useMemo(
+    () => (pathName === "" || pathName === "/" ? true : false),
+    [pathName]
+  );
 
   const links = [
     {
@@ -46,8 +51,8 @@ export default function Tab() {
 
   useEffect(() => {
     events.on("routeChangeStart", (url) => {
+      setGame(null);
       setPathName(url);
-      game && setGame(null);
     });
   }, [events]);
 
@@ -87,11 +92,13 @@ export default function Tab() {
             </Link>
           ))}
           <AnimatePresence>
-            <BetListButton toggle={toggle} setToggle={(t) => setToggle(t)} />
+            {visible && (
+              <BetListButton toggle={toggle} setToggle={(t) => setToggle(t)} />
+            )}
           </AnimatePresence>
         </div>
       </div>
-      <BetList toggle={toggle} setToggle={(t) => setToggle(t)} />
+      {visible && <BetList toggle={toggle} setToggle={(t) => setToggle(t)} />}
     </>
   );
 }

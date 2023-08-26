@@ -5,13 +5,14 @@ import Footer from "./Footer";
 import { ThemeProvider } from "next-themes";
 import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
-import { BlurredModal } from "../Animated";
+import Animated, { BlurredModal } from "../Animated";
 import { apiController, userController } from "@/controllers";
 import { AnimatePresence } from "framer-motion";
-import Stats from "../games/Stats";
+import Stats from "../pages/Stats";
 import Panel from "./Panel";
 import Auth from "../auth";
 import { getDate } from "@/helpers";
+import { CircularLoader } from "../services/Loaders";
 
 export const Context = createContext(null);
 
@@ -21,28 +22,76 @@ export const filterGames = (data, isoString) => {
   );
 };
 
+export const sports = [
+  {
+    sport: "soccer",
+    markets: [
+      { item: "WDL", v: "WDL" },
+      { item: "Double Chance", v: "DB" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    sport: "tennis",
+    markets: [
+      { item: "WDL", v: "WL" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+  {
+    sport: "basketball",
+    markets: [
+      { item: "Winner", v: "WL" },
+      { item: "over | under", v: "OU" },
+      { item: "home over | under", v: "HOU" },
+      { item: "away over | under", v: "AOU" },
+    ],
+  },
+];
+
+export const fGames = (v, nv, num) => {
+  let g = v;
+  g[num] = nv;
+  return g;
+};
+
 export default function Layout({ children }) {
   const [betList, setBetList] = useState([]);
   const [user, setUser] = useState(null);
   const [game, setGame] = useState(null);
   const [backdrop, setBackdrop] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [ping, setPing] = useState(false);
-  const [globalGames, setGlobalGames] = useState([
-    { title: "Live", games: null },
-    { title: "Today", games: null },
-  ]);
-  let specials = useRef([]);
+  const [sport, setSport] = useState(1);
+  const specials = useRef({ 1: [], 2: [], 3: [] });
+  const [globalGames, setGlobalGames] = useState({
+    1: [{ title: "Today", games: null }],
+    2: [{ title: "Today", games: null }],
+    3: [{ title: "Today", games: null }],
+  });
 
   const getGlobalGames = async (id) => {
-    setGlobalGames([
-      { title: "Live", games: "loading" },
-      { title: "Today", games: "loading" },
-    ]);
+    if (
+      globalGames[id][0].games !== null &&
+      typeof globalGames[id][0].games === Object
+    )
+      return setSport(id);
 
-    const { data } = await apiController.getGlobalGames(id);
+    globalGames[sport][0].games !== null &&
+    typeof globalGames[sport][0].games === Object
+      ? setLoading(true)
+      : setGlobalGames(
+          fGames(globalGames, [{ title: "Today", games: "loading" }], id)
+        );
+
+    const data = await apiController.getGlobalGames(id);
 
     if (data) {
-      let genArray = [{ title: "Live", games: null }];
+      let genArray = [];
 
       for (let i = 0; i < 8; i++) {
         const { isoString, weekDay } = getDate(i);
@@ -57,13 +106,19 @@ export default function Layout({ children }) {
         }
       }
 
-      specials.current = data.filter((v) => v.parent_id);
-      setGlobalGames(genArray);
-    } else
-      setGlobalGames([
-        { title: "Live", games: "error" },
-        { title: "Today", games: "error" },
-      ]);
+      specials.current[id] = data.filter((v) => v.parent_id);
+      setGlobalGames(fGames(globalGames, genArray, id));
+      setSport(id);
+    } else {
+      globalGames[sport][0].games !== null &&
+      typeof globalGames[sport][0].games === Object
+        ? setLoading(false)
+        : setGlobalGames(
+            fGames(globalGames, [{ title: "Today", games: "loading" }], id)
+          );
+
+      setSport(id);
+    }
   };
 
   useEffect(() => {
@@ -78,28 +133,34 @@ export default function Layout({ children }) {
     }, 3000);
   }, [user]);
 
+  useEffect(() => {
+    globalGames[sport][0].games === null && getGlobalGames(1);
+  }, [globalGames]);
+
   return (
     <Context.Provider
       value={{
-        user,
         setUser,
-        betList,
         setBetList,
-        game,
         setGame,
-        globalGames,
+        setBackdrop,
+        setPing,
         getGlobalGames,
+        user,
+        betList,
+        game,
+        globalGames,
         specials,
         backdrop,
-        setBackdrop,
         ping,
-        setPing,
+        sport,
       }}
     >
       <ThemeProvider attribute="class">
         <Nav />
         <Prompt />
-        <div className="h-[100vh] flex flex-col w-full">
+        <Overlay />
+        <div className="h-screen flex flex-col w-full">
           <main className="z-[5] dark:bg-black bg-c3 inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
             <div
               id="scroll-container"
@@ -117,7 +178,17 @@ export default function Layout({ children }) {
             </div>
           </main>
         </div>
-        <Overlay />
+        <Animated
+          state={loading}
+          variants={{
+            init: { x: "-110%" },
+            show: { x: "0%" },
+            exit: { x: "-110%" },
+          }}
+          className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 bg-black py-3"
+        >
+          <CircularLoader size={20} depth={3} color />
+        </Animated>
         <BlurredModal
           state={backdrop}
           type={"allChidren"}

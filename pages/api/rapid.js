@@ -55,8 +55,9 @@ const getGlobalGames = async (req, res) => {
 
   const games = await Games.findOne({ id });
 
-  if (games) res.json({ data: games.data });
-  else {
+  if (games) {
+    res.send(games.data);
+  } else {
     apiII_options.url = "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets";
     apiII_options.params = {
       sport_id: id.toString(),
@@ -79,7 +80,7 @@ const getGlobalGames = async (req, res) => {
 
     let d = await Games.create({ id, data: events });
 
-    res.json({ data: d.data });
+    res.send(d.data);
   }
 };
 

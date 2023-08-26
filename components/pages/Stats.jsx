@@ -4,7 +4,7 @@ import { Context } from "../layout";
 import { FaTshirt } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import { categories } from "../Slider";
-import { market } from "./Odds";
+import { market } from "../games/Odds";
 import { BiChevronLeftCircle, BiInfoCircle } from "react-icons/bi";
 
 export default function Stats() {

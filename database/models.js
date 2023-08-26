@@ -14,24 +14,30 @@ const userSchema = new Schema({
   forgotPass: Number,
 });
 
-const ticketSchema = new Schema({
-  tid: String,
-  code: String,
-  slip: [
-    {
-      id: String,
-      mkt: String,
-      outcome: String,
-      odd: String,
-    },
-  ],
-  createdAt: { default: Date.now, type: Date, expires: 2000 },
-});
+const ticketSchema = new Schema(
+  {
+    tid: String,
+    code: String,
+    slip: [
+      {
+        id: String,
+        mkt: String,
+        outcome: String,
+        odd: String,
+      },
+    ],
+    // createdAt: new Date(),
+  },
+  { expireAfterSeconds: 60 }
+);
 
-const gameSchema = new Schema({
-  id: Number,
-  data: Array,
-});
+const gameSchema = new Schema(
+  {
+    id: Number,
+    data: Array,
+  },
+  { expireAfterSeconds: 60 * 60 * 24 }
+);
 
 const activeBetsSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User" },
@@ -41,22 +47,33 @@ const activeBetsSchema = new Schema({
   stake: Number,
 });
 
-const historySchema = new Schema({
-  id: Schema.Types.ObjectId,
+const transactionsSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   date: String,
-  games: [
-    {
-      ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
-      totalOdds: Number,
-      stake: Number,
-      odds: Array,
-    },
-  ],
-  createdAt: { type: Date, expires: "15d" },
+  info: String,
+  amount: Number,
 });
+
+const historySchema = new Schema(
+  {
+    id: Schema.Types.ObjectId,
+    date: String,
+    games: [
+      {
+        ticket: { type: Schema.Types.ObjectId, ref: "Ticket" },
+        totalOdds: Number,
+        stake: Number,
+        odds: Array,
+      },
+    ],
+  },
+  { expireAfterSeconds: 60 * 60 * 24 * 7 }
+);
 
 export const User = models?.User || model("User", userSchema);
 export const Ticket = models?.Ticket || model("Ticket", ticketSchema);
+export const Transactions =
+  models?.Transactions || model("Transactions", transactionsSchema);
 export const Games = models?.Games || model("Games", gameSchema);
 export const ActiveBets =
   models?.ActiveBets || model("ActiveBets", activeBetsSchema);

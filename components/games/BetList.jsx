@@ -113,9 +113,9 @@ const BetGame = ({ v, index, deleteGame }) => {
   return (
     <motion.div
       className={`relative h-[70px] w-full flex items-center overflow-hidden`}
-      initial={{ height: "70px" }}
-      animate={{ height: "70px" }}
-      exit={{ height: "0px", transition: { duration: 0.1 } }}
+      initial={{ maxHeight: "70px" }}
+      animate={{ maxHeight: "70px" }}
+      exit={{ maxHeight: "0px", transition: { duration: 0.1 } }}
     >
       <motion.div
         drag="x"
@@ -303,7 +303,7 @@ export default function BetList({ toggle, setToggle }) {
             animate={{ y: "0%", opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ ease: "anticipate" }}
-            className="z-[26] bg-black pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
+            className="z-[26] bg-black max-h-[calc(100vh_-_100px)] pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
             onClick={(e) => e.stopPropagation()}
           >
             <header className=" pt-4 pb-2 text-sm relative justify-center w-full flex">
@@ -413,19 +413,21 @@ export default function BetList({ toggle, setToggle }) {
             <motion.div
               layout
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[60vh] pb-3 no-bars h-auto overflow-x-hidden items-center overflow-y-scroll w-full"
+              className="flex-1 no-bars overflow-x-hidden items-center overflow-y-scroll w-full"
             >
               {betcodeLoad ? (
-                <AnimatePresence>
-                  {betList.map((mv, key) => (
-                    <BetGame
-                      v={mv}
-                      deleteGame={removeGame}
-                      index={key}
-                      key={`${mv.id}${mv.mkt}`}
-                    />
-                  ))}
-                </AnimatePresence>
+                <div className="flex flex-col">
+                  <AnimatePresence>
+                    {betList.map((mv, key) => (
+                      <BetGame
+                        v={mv}
+                        deleteGame={removeGame}
+                        index={key}
+                        key={`${mv.id}${mv.mkt}`}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
               ) : (
                 <BetCode setBetList={(v) => setBetList(v)} />
               )}

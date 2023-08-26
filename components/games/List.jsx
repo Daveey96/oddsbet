@@ -11,13 +11,12 @@ function List({
   onClick,
   activeClass,
   inActiveClass,
+  onActive,
 }) {
   const [active, setActive] = useState(0);
 
   return (
-    <ul
-      className={`flex text-sm overflow-x-scroll no-bars w-full gap-3 ${className}`}
-    >
+    <ul className={`flex text-sm overflow-x-scroll no-bars gap-3 ${className}`}>
       {list.map((i, key) => (
         <li
           onClick={() => {
@@ -36,7 +35,7 @@ function List({
               size={12}
             />
           )}
-          <>{i.item}</>
+          {onActive ? <>{active === key && <>{i.item}</>}</> : <>{i.item}</>}
         </li>
       ))}
     </ul>
