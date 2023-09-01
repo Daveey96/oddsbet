@@ -97,7 +97,7 @@ function Nav() {
               >
                 {user?.id ? (
                   <span
-                    className={`fx gap-1 relative text-base px-4 rounded-b-2xl z-30 bg-black h-" ${
+                    className={`fx gap-1 relative text-base px-4 rounded-b-2xl z-30 dark:bg-black bg-transparent " ${
                       user.balance < 100 ? "text-red-600" : "text-green-600"
                     }`}
                   >
@@ -105,14 +105,6 @@ function Nav() {
                     <span className="mb-[5px]">
                       {format(user.balance.toString())}
                     </span>
-                    {/* {user.balance < 100 && (
-              <Link
-                href={"/profile/deposit"}
-                className="active:opacity-20 bg-c1 rounded-r-full rounded-l-[6000px] px-5 text-sm text-white absolute right-[95%] py-0.5"
-              >
-                deposit
-              </Link>
-            )} */}
                   </span>
                 ) : (
                   <SkeletonLoad

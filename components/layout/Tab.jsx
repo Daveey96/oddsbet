@@ -2,8 +2,9 @@ import Link from "next/link";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
-import BetList, { BetListButton } from "../games/BetList";
 import { Context } from ".";
+import Button from "../betlist/Button";
+import BetList from "../betlist";
 
 export default function Tab() {
   const { pathname, events } = useRouter();
@@ -61,7 +62,7 @@ export default function Tab() {
       <div className="fixed -bottom-1 inset-x-0 flex justify-center z-[27]">
         <div
           className={`relative px-[2vw] duration-150 max-w-[100vw] min-w-[90vw] md:min-w-[auto] flex md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none text-white ${
-            toggle ? "bg-c4" : "bg-black"
+            toggle ? "bg-c4" : "dark:bg-black bg-c4 text-black"
           }`}
         >
           {links.map((link, key) => (
@@ -93,7 +94,7 @@ export default function Tab() {
           ))}
           <AnimatePresence>
             {visible && (
-              <BetListButton toggle={toggle} setToggle={(t) => setToggle(t)} />
+              <Button toggle={toggle} setToggle={(t) => setToggle(t)} />
             )}
           </AnimatePresence>
         </div>

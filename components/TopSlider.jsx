@@ -82,7 +82,7 @@ function TopSlider() {
               </div>
             ))}
           </div>
-          <div className="absolute  bottom-0 pt-1.5 pb-3 rounded-t-xl px-4 bg-black/50 fx gap-2">
+          <div className="absolute  bottom-0 pt-1.5 pb-3 rounded-t-xl px-4 dark:bg-black/50 bg-white fx gap-2">
             {Array(5)
               .fill("")
               .map((i, key) => (
@@ -90,7 +90,9 @@ function TopSlider() {
                   key={key}
                   onClick={() => instanceRef?.current?.moveToIdx(key)}
                   className={`w-2 rounded-full h-2  ${
-                    key === active ? "bg-c2" : "backdrop-blur-xl bg-white/30"
+                    key === active
+                      ? "bg-c2"
+                      : "backdrop-blur-xl dark:bg-white/30 bg-black/20"
                   }`}
                 ></button>
               ))}

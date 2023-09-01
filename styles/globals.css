@@ -37,19 +37,19 @@ input {
   @apply text-[9px] leading-3;
 }
 .isSticky {
-  @apply bg-c3 shadow-lg rounded-b-2xl shadow-black/60 pt-[33px] z-[22] dark:bg-black;
+  @apply bg-white shadow-lg rounded-b-2xl dark:shadow-black/60 pt-[33px] z-[22] dark:bg-c4;
 }
 .isSticky2 {
-  @apply bg-red-600 pt-[33px] z-[22] rounded-b-2xl dark:bg-black/40;
+  @apply bg-c4 pt-[33px] z-[22] rounded-b-2xl dark:bg-black/40;
 }
 .isSticky2::after {
   @apply hidden dark:flex inset-0 -z-[2] rounded-b-2xl content-[""] absolute backdrop-blur-[24px] bg-[#00000084];
 }
 .isNotSticky {
-  @apply bg-c3 pt-5 z-20 dark:bg-c4;
+  @apply bg-white pt-5 z-20 dark:bg-c4;
 }
 .isNotSticky2 {
-  @apply bg-red-600 pt-5 z-20 dark:bg-transparent;
+  @apply bg-c4/20 pt-5 z-20 dark:bg-transparent;
 }
 
 input:focus {
@@ -94,25 +94,12 @@ input:-webkit-autofill:active {
   animation: rotationColor 0.6s linear infinite;
 }
 .fade {
-  color: #ffffff01;
-  position: relative;
-  overflow: hidden;
+  @apply relative overflow-hidden text-white/0;
   background-color: rgb(71, 85, 105 /0.2);
 }
 .fade::after {
-  position: absolute;
+  @apply absolute left-0 top-0 translate-x-[-300%] bg-gradient-to-r h-full w-4/5 from-white/0 to-white/0 dark:via-white/5 via-white/60;
   content: "";
-  width: 80%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    #ffffff01,
-    rgba(255, 255, 255, 0.05),
-    #ffffff01
-  );
-  transform: translateX(-300%);
-  left: 0%;
-  top: 0;
   animation: fade 1.5s linear infinite;
 }
 .fade::before {

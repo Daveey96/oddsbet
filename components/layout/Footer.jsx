@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="w-full pb-16 flex px-4 flex-col justify-start bg-c5 dark:bg-c4/30 rounded-t-3xl items-center relative pt-4 ">
+    <footer className="w-full pb-16 flex px-4 flex-col justify-start bg-c3 dark:bg-c4/30 rounded-t-3xl items-center relative pt-4 ">
       <span className="text-[10px] w-full pl-2 mb-1 dark:opacity-30">
         oddsbet2023. All rights reserved
       </span>

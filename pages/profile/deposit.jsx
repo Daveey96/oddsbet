@@ -51,7 +51,7 @@ const Deposit = () => {
   return (
     <PayTemplate v={"Deposit"}>
       <div className="flex text-base gap-1 flex-col mt-7 mx-auto w-[90%] items-center">
-        <label className="text-white from-c4 to-transparent bg-gradient-to-r rounded-t-lg pt-1.5 pb-1 w-full pl-4 text-sm">
+        <label className="dark:from-c4 from-c5 to-transparent bg-gradient-to-r rounded-t-lg pt-1.5 pb-1 w-full pl-4 text-sm">
           Amount
         </label>
         <div className=" fx relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l border-r border-r-c2 border-l-c1 text-lg w-full">
@@ -66,7 +66,7 @@ const Deposit = () => {
         </div>
         <div className="w-full relative">
           <PaystackButton
-            className="w-full rounded-b-lg rounded-t-sm fx relative bg-c4 overflow-hidden"
+            className="w-full text-white rounded-b-lg rounded-t-sm fx relative dark:bg-c4 bg-c4/25 overflow-hidden"
             {...componentProps}
           >
             <span

@@ -127,7 +127,7 @@ const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
           } `}
         >
           {locked(key) ? odd.toFixed(2) : <BiLockAlt className="opacity-60" />}
-          {!slider && (
+          {/* {!slider && (
             <span
               className={`absolute bottom-[110%] text-[10px] leading-3 px-2 ${
                 !isLive
@@ -137,7 +137,7 @@ const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
             >
               {tag[key]}
             </span>
-          )}
+          )} */}
         </button>
       ))}
     </>
@@ -205,7 +205,9 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
           <>
             {key === 0 ? (
               <button
-                className={`bg-black h-10 text-sm w-full rounded-md relative fx `}
+                className={`h-10 text-sm w-full rounded-md relative fx ${
+                  open ? "bg-black/50" : "bg-black"
+                }`}
                 disabled={odds ? false : true}
                 onClick={() => setOpen(!open)}
                 onBlur={() => setOpen(false)}
@@ -215,17 +217,21 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
                     {point}
                     <BiDownArrow className="text-[13px] ml-1 opacity-20" />
                     {open && (
-                      <ul className="absolute w-full z-10 bg-c4 border-[1px] border-white/10 rounded-lg flex text-white/75 flex-col">
-                        {odds.map((odd, key2) => (
-                          <li
-                            key={key2}
-                            className="py-2 w-full"
-                            onClick={() => setV(key2)}
-                          >
-                            {odd[0]}
-                          </li>
-                        ))}
-                      </ul>
+                      <span className="absolute px-3 pt-0.5 rounded-b-xl no-bars bg-c4 max-w-[60vw] whitespace-nowrap overflow-y-hidden overflow-x-scroll flex bottom-[110%] z-[20]">
+                        <ul className=" space-x-1 flex py-0.5">
+                          {odds.map((odd, key2) => (
+                            <li
+                              key={key2}
+                              className={`py-1 mb-1 bg-black w-11 rounded-lg ${
+                                odd[0] === point ? "text-c2" : ""
+                              }`}
+                              onClick={() => setV(key2)}
+                            >
+                              {odd[0]}
+                            </li>
+                          ))}
+                        </ul>
+                      </span>
                     )}
                   </>
                 ) : (
@@ -249,11 +255,11 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
                 ) : (
                   <BiLockAlt className="opacity-60" />
                 )}
-                {!slider && (
+                {/* {!slider && (
                   <span className="absolute bottom-[110%] shadow-[-15px_0px_6px_0] shadow-c4 text-[10px] bg-c4 leading-3 text-white/40 px-2 ">
                     {tag[key]}
                   </span>
-                )}
+                )} */}
               </button>
             )}
           </>

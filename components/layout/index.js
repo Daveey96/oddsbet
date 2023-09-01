@@ -13,6 +13,7 @@ import Panel from "./Panel";
 import Auth from "../auth";
 import { getDate } from "@/helpers";
 import { CircularLoader } from "../services/Loaders";
+import AllGames from "../pages/AllGames";
 
 export const Context = createContext(null);
 
@@ -63,10 +64,10 @@ export default function Layout({ children }) {
   const [betList, setBetList] = useState([]);
   const [user, setUser] = useState(null);
   const [game, setGame] = useState(null);
-  const [backdrop, setBackdrop] = useState(false);
+  const [open, setOpen] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [backdrop, setBackdrop] = useState(false);
   const [ping, setPing] = useState(false);
-  const [sport, setSport] = useState(1);
   const specials = useRef({ 1: [], 2: [], 3: [] });
   const [globalGames, setGlobalGames] = useState({
     1: [{ title: "Today", games: null }],
@@ -74,19 +75,21 @@ export default function Layout({ children }) {
     3: [{ title: "Today", games: null }],
   });
 
-  const getGlobalGames = async (id) => {
+  const getGlobalGames = async (id, oid = 1) => {
     if (
       globalGames[id][0].games !== null &&
       typeof globalGames[id][0].games === Object
     )
-      return setSport(id);
+      return true;
 
-    globalGames[sport][0].games !== null &&
-    typeof globalGames[sport][0].games === Object
-      ? setLoading(true)
-      : setGlobalGames(
-          fGames(globalGames, [{ title: "Today", games: "loading" }], id)
-        );
+    if (
+      globalGames[oid][0].games === null ||
+      typeof globalGames[oid][0].games === "error"
+    ) {
+      setGlobalGames(
+        fGames(globalGames, [{ title: "Today", games: "loading" }], id)
+      );
+    }
 
     const data = await apiController.getGlobalGames(id);
 
@@ -108,16 +111,19 @@ export default function Layout({ children }) {
 
       specials.current[id] = data.filter((v) => v.parent_id);
       setGlobalGames(fGames(globalGames, genArray, id));
-      setSport(id);
-    } else {
-      globalGames[sport][0].games !== null &&
-      typeof globalGames[sport][0].games === Object
-        ? setLoading(false)
-        : setGlobalGames(
-            fGames(globalGames, [{ title: "Today", games: "loading" }], id)
-          );
 
-      setSport(id);
+      return true;
+    } else {
+      if (
+        globalGames[oid][0].games === null ||
+        typeof globalGames[oid][0].games === "error"
+      ) {
+        setGlobalGames(
+          fGames(globalGames, [{ title: "Today", games: "error" }], id)
+        );
+      }
+
+      return false;
     }
   };
 
@@ -134,7 +140,7 @@ export default function Layout({ children }) {
   }, [user]);
 
   useEffect(() => {
-    globalGames[sport][0].games === null && getGlobalGames(1);
+    globalGames[1][0].games === null && getGlobalGames(1);
   }, [globalGames]);
 
   return (
@@ -148,20 +154,23 @@ export default function Layout({ children }) {
         getGlobalGames,
         user,
         betList,
+        setLoading,
         game,
         globalGames,
         specials,
         backdrop,
         ping,
-        sport,
+        open,
+        setOpen,
       }}
     >
       <ThemeProvider attribute="class">
         <Nav />
         <Prompt />
         <Overlay />
+
         <div className="h-screen flex flex-col w-full">
-          <main className="z-[5] dark:bg-black bg-c3 inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
+          <main className="z-[5] dark:bg-black bg-white inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
             <div
               id="scroll-container"
               className="flex-1 flex flex-col w-full lg:w-[50%] overflow-y-scroll scroll-smooth overflow-x-hidden"
@@ -175,20 +184,21 @@ export default function Layout({ children }) {
               <Panel />
               <Tab />
               <Stats />
+              <AllGames />
+              <Animated
+                state={loading}
+                variants={{
+                  init: { x: "-110%" },
+                  show: { x: "0%" },
+                  exit: { x: "-110%" },
+                }}
+                className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 bg-black py-3"
+              >
+                <CircularLoader size={20} depth={3} color />
+              </Animated>
             </div>
           </main>
         </div>
-        <Animated
-          state={loading}
-          variants={{
-            init: { x: "-110%" },
-            show: { x: "0%" },
-            exit: { x: "-110%" },
-          }}
-          className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 bg-black py-3"
-        >
-          <CircularLoader size={20} depth={3} color />
-        </Animated>
         <BlurredModal
           state={backdrop}
           type={"allChidren"}

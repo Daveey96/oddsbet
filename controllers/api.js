@@ -16,18 +16,11 @@ const getMatches = (sportId = 1, live = false) => {
     return data;
   }, false);
 };
-
-const getMatch = (event_id) => {
-  marketoptions.params = {
-    sport_id: sportId.toString(),
-    is_have_odds: "true",
-    event_type: live ? "live" : "prematch",
-  };
-
+const getMatch = (id) => {
   return clientAsync(async () => {
-    const { data } = await axios.request(marketoptions);
+    const { data } = await axios.get(`/api/rapid?id=${id}&type=match`);
     return data;
-  });
+  }, false);
 };
 
 export const apiController = {

@@ -43,14 +43,14 @@ function Transactions() {
           </span>
         }
       >
-        <div className="flex w-full mt-2 min-h-[90vh] flex-col gap-2 items-center">
+        <div className="flex w-full overflow-y-scroll overflow-x-hidden mt-2 flex-1 flex-col gap-2 items-center">
           {typeof array === "object" && array && array?.length > 0 ? (
             array.map((v, key) => (
               <div
                 key={key}
-                className="w-[98%] justify-between flex px-4 py-1 h-16 rounded-lg from-c4/50 to-c4/40 bg-gradient-to-r shadow shadow-white/5"
+                className="w-[98%] justify-between flex px-4 rounded-lg dark:from-c4/50 dark:to-c4/40 from-c5 to-c3 bg-gradient-to-r shadow shadow-white/5"
               >
-                <span className="fx gap-1 text-base ">
+                <span className="fx gap-1  py-5 text-base ">
                   {condition(
                     v.info.toLowerCase(),
                     ["deposit", "*"],

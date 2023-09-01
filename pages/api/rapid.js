@@ -28,24 +28,12 @@ const getMatches = async (req, res) => {
   apiII_options.params = {
     sport_id: id.toString(),
     is_have_odds: "true",
-    // event_type: live ? "live" : "prematch",
+    event_type: live ? "live" : "prematch",
   };
 
-  // if (!live) {
-  //   const games = Games.findOne({ "data.id": id });
-
-  //   if (games?.games) res.json({ games: games.games });
-  //   else {
-  //     const { data } = await axios.request(apiII_options);
-
-  //     await Games.create({ data });
-  //     res.json(data);
-  //   }
-  //   return;
-  // }
-
   const { data } = await axios.request(apiII_options);
-  if (data) return res.json(data);
+
+  if (data) return res.send(data.events);
 
   throw Error("No Internet");
 };
@@ -85,12 +73,14 @@ const getGlobalGames = async (req, res) => {
 };
 
 export const getMatch = async (req, res) => {
-  const { id } = req.params;
-  apiII_options.url += "details";
+  const { id } = req.query;
+  apiII_options.url = "https://pinnacle-odds.p.rapidapi.com/kit/v1/details";
   apiII_options.params = { event_id: id };
 
   const { data } = await axios.request(apiII_options);
-  if (data) return res.json(data);
+
+  console.log(data);
+  if (data) return res.send(data.events[0]);
 
   throw Error("No Internet");
 };

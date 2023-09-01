@@ -39,8 +39,6 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
     deleted ? getBets() : alertService.error("Something went wrong");
   };
 
-  console.log(v);
-
   return (
     <div className="flex w-full items-center flex-col">
       <div

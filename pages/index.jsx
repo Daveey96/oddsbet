@@ -6,22 +6,13 @@ import { Context } from "@/components/layout";
 import { useContext } from "react";
 
 export default function Home() {
-  const { globalGames, sport } = useContext(Context);
+  // const { globalGames, sport } = useContext(Context);
   return (
     <>
       <TopSlider />
       <Slider />
-      <>
-        <Live />
-        {globalGames[sport].map((v, key) => (
-          <GameLayout
-            index={key}
-            key={key}
-            last={key === globalGames.length - 1}
-            gGames={v}
-          />
-        ))}
-      </>
+      <Live />
+      <GameLayout />
     </>
   );
 }

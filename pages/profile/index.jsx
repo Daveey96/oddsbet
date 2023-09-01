@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { SkeletonLoad } from "@/components/services/Loaders";
 import { userController } from "@/controllers";
 import { format } from "@/helpers";
+import { FaUserFriends, FaUsers } from "react-icons/fa";
 
 const Theme = () => {
   const { theme, setTheme } = useTheme();
@@ -75,13 +76,13 @@ export default function Index() {
     <>
       <SkeletonLoad
         state={user !== null}
-        className="dark:bg-c4 bg-c3 flex flex-col min-h-[100px]"
+        className="dark:bg-c4 bg-white flex flex-col min-h-[100px]"
       >
         {user?.email ? (
           <>
             <Link
               href="/profile/me"
-              className="fx fixed top-0 z-20 bg-[#000000] px-5 py-2 shadow-lg shadow-black/50 text-white dark:text-opacity-75 rounded-b-xl rounded-tr-xl"
+              className="fx fixed text-white top-0 z-20 dark:bg-black bg-c4 px-5 py-2 shadow-lg shadow-black/50 rounded-b-xl rounded-tr-xl"
             >
               <BiUserCircle className="mr-1 text-lg text-c2" />
               {user?.email}
@@ -95,7 +96,7 @@ export default function Index() {
                 {isVisible ? <BsEyeFill /> : <BsEyeSlashFill />}
               </button>
             </div>
-            <div className="pb-6 fx pt-4 w-full text-center text-green-500 text-3xl ">
+            <div className="pb-6 fx pt-4 w-full text-center text-green-600 dark:text-green-500 text-3xl ">
               {isVisible ? (
                 <>
                   <Naira /> {format(user.balance.toString())}
@@ -121,7 +122,7 @@ export default function Index() {
             </div>
           </>
         ) : (
-          <span className="w-full bg-c5 dark:bg-transparent rounded-b-3xl pb-4 h-full flex items-end justify-center gap-4">
+          <span className="w-full bg-c3 dark:bg-transparent rounded-b-3xl pb-4 h-full flex items-end justify-center gap-4">
             <span className="text-sm">
               Oops.. <br /> You&apos;re not signed in
             </span>
@@ -159,7 +160,7 @@ export default function Index() {
             <BiCog className="dark:text-c1 text-white text-base " /> Settings
           </span>
         </ul>
-        <ul className="flex overflow-hidden bg-c5 dark:bg-c4/40 mt-4 w-[94%] relative pt-14 gap-2.5 pb-3 rounded-3xl px-3">
+        <ul className="flex overflow-hidden bg-c3 dark:bg-c4/40 mt-4 w-[94%] relative pt-14 gap-2.5 pb-3 rounded-3xl px-3">
           {[
             <>
               <BsBookmarkFill className="text-lg mb-3 text-c2" />
@@ -176,13 +177,14 @@ export default function Index() {
             <Link
               key={key}
               href={`/profile/about`}
-              className="rounded-2xl flex-1 active:scale-90 duration-150 text-xs px-5 py-4 fx bg-black/10 dark:bg-slate-500/5 flex flex-col"
+              className="rounded-2xl flex-1 active:scale-90 duration-150 text-xs px-5 py-4 fx bg-black/5 dark:bg-slate-500/5 flex flex-col"
             >
               {item}
             </Link>
           ))}
-          <span className="flex top-0 -left-3 bg-black/10 dark:bg-black pt-2 pb-3 pl-4 pr-6 rounded-br-3xl ml-3 absolute text-base items-center dark:text-c2 gap-1">
-            <BiClipboard className="dark:text-c1 text-white text-base " /> About
+          <span className="flex top-0 -left-3 bg-black/5 dark:bg-black pt-2 pb-3 pl-4 pr-6 rounded-br-3xl ml-3 absolute text-base items-center dark:text-c2 gap-1">
+            <FaUserFriends className="dark:text-c1 text-black text-base " />{" "}
+            About
           </span>
         </ul>
         {user?.email && (
@@ -207,10 +209,10 @@ export default function Index() {
 export const PayTemplate = ({ v, children }) => {
   const { back } = useRouter();
   return (
-    <div className="h-screen flex flex-col z-50 fixed bg-black inset-0">
+    <div className="h-screen flex flex-col z-50 fixed dark:bg-black bg-white inset-0">
       <header
         onClick={back}
-        className="flex gap-3 text-lg bg-c4 items-center py-4"
+        className="flex gap-3 text-lg dark:bg-c4 bg-c3 items-center py-4"
       >
         <BiLeftArrowAlt className="text-c2 border-c1 ml-6 border-2 rounded-full" />
         {v}

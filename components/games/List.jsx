@@ -30,7 +30,7 @@ function List({
         >
           {icon && (
             <Svg
-              className={key !== active && "opacity-50"}
+              className={key !== active && "opacity-80"}
               id={i.id}
               size={12}
             />

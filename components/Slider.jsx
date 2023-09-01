@@ -152,7 +152,7 @@ function Slider() {
               onClick={() => setActive(key)}
               className={`${
                 key === active ? "opacity-100" : ""
-              } fx gap-1.5 active:scale-90 duration-150 pl-3.5 pr-5 h-9 text-sm rounded-xl dark:rounded-b-lg dark:rounded-t-xl `}
+              } fx gap-1.5 bg-black/5 last-of-type:mr-6 active:scale-90 duration-150 pl-3.5 pr-5 h-9 text-sm rounded-xl dark:rounded-b-lg dark:rounded-t-xl `}
             >
               {icon}
               {categories.text[key].includes(" ") ? (
@@ -168,14 +168,14 @@ function Slider() {
             </button>
           ))}
         </div>
-        <span className="absolute inset-y-0 z-10 right-0 pr-3 pl-2 top-0 fx rounded-l-full text-c2 shadow-[-6px_0_6px_0] shadow-black  bg-black">
+        <span className="absolute inset-y-0 z-10 right-0 pr-3 pl-2 top-0 fx rounded-l-full dark:text-c2 text-black shadow-[-6px_0_6px_0] dark:shadow-black shadow-c4/40 dark:bg-black bg-white">
           <BiRightArrowAlt />
         </span>
       </div>
       <Retry
         state={games}
         loading={
-          <div className="w-full h-44 relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
+          <div className="w-full h-44 relative dark:bg-c4 bg-white inset-0 z-20 fx flex-col mb-1 pb-2">
             <div className="fx pt-4 flex-1 w-full relative">
               {[0, 1].map((key2) => (
                 <div
@@ -299,14 +299,14 @@ function Slider() {
         )}
       </Retry>
       {games === null || games === "loading" ? (
-        <ul className="px-5 mb-4 mt-1 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2">
+        <ul className="px-5 mb-4 mt-1 w-full justify-center no-bars flex gap-2">
           {Array(4)
             .fill("")
             .map((i, key) => {
               return (
                 <li
                   key={key}
-                  className={`px-3 fade w-12 first-of-type:w-28 py-1 dark:bg-c4/60 text-white/0 rounded-b-2xl rounded-t-md`}
+                  className={`px-3 fade w-12 first-of-type:w-28 py-1 dark:bg-c4/60 bg-c4/10 text-white/0 rounded-b-2xl rounded-t-md`}
                 >
                   lo
                 </li>

@@ -14,6 +14,7 @@ const Animated = ({
   exit,
   transition,
   onClick,
+  onBlur,
   onSubmit,
   tag = "div",
 }) => {
@@ -32,6 +33,7 @@ const Animated = ({
           transition={transition}
           onClick={onClick}
           onSubmit={onSubmit}
+          onBlur={onBlur}
         >
           {children}
         </Element>
