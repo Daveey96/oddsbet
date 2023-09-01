@@ -97,7 +97,7 @@ function Nav() {
               >
                 {user?.id ? (
                   <span
-                    className={`fx gap-1 relative text-base px-4 rounded-b-2xl z-30 dark:bg-black bg-transparent " ${
+                    className={`fx gap-1 relative text-base px-4 rounded-b-2xl z-30 backdrop-blur-sm " ${
                       user.balance < 100 ? "text-red-600" : "text-green-600"
                     }`}
                   >
@@ -111,7 +111,7 @@ function Nav() {
                     state={user !== null}
                     tag="button"
                     className={
-                      "fx text-white gap-1 pb-1 px-6 rounded-b-2xl z-30 bg-black h-8"
+                      "fx gap-1 pb-1 px-6 backdrop-blur-sm rounded-b-2xl z-30 h-8"
                     }
                     onClick={() => setBackdrop(!backdrop)}
                   >
@@ -121,7 +121,8 @@ function Nav() {
                       </>
                     ) : (
                       <>
-                        join <span className="opacity-10 mx-1.5">|</span>
+                        join{" "}
+                        <span className="opacity-10 text-white mx-1.5">|</span>
                         <span className="text-c2">login</span>
                       </>
                     )}

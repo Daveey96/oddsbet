@@ -4,7 +4,7 @@ import { findTotalOdds } from ".";
 import { Context } from "../layout";
 
 export default function Button({ toggle, setToggle }) {
-  const { betList, setBetList } = useContext(Context);
+  const { betList } = useContext(Context);
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
 
   return (
@@ -28,7 +28,7 @@ export default function Button({ toggle, setToggle }) {
               className={`absolute fx rounded-xl z-20 ${
                 key
                   ? "h-[6px] w-12 bottom-[106%]"
-                  : "bottom-[110%] py-2 dark:bg-black bg-c4 px-4 shadow shadow-black"
+                  : "bottom-[110%] py-2 dark:bg-black bg-c4 px-4 shadow dark:shadow-black shadow-c4"
               }`}
             >
               {key ? (

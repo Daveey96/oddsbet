@@ -160,7 +160,7 @@ export default function Index() {
             <BiCog className="dark:text-c1 text-white text-base " /> Settings
           </span>
         </ul>
-        <ul className="flex overflow-hidden bg-c3 dark:bg-c4/40 mt-4 w-[94%] relative pt-14 gap-2.5 pb-3 rounded-3xl px-3">
+        <ul className="flex mb-6 overflow-hidden bg-c3 dark:bg-c4/40 mt-4 w-[94%] relative pt-14 gap-2.5 pb-3 rounded-3xl px-3">
           {[
             <>
               <BsBookmarkFill className="text-lg mb-3 text-c2" />

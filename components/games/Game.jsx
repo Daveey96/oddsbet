@@ -21,8 +21,8 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
 
   return (
     <div
-      className={`flex z-[2] bg-white w-full flex-col px-3 pt-3 md:last-of-type:rounded-b-2xl pb-1 ${
-        isLive ? "dark:bg-c4/50" : "dark:bg-c4"
+      className={`flex z-[2] w-full flex-col px-3 pt-3 md:last-of-type:rounded-b-2xl pb-1 ${
+        isLive ? "dark:bg-c4/50 bg-c4 text-white" : "dark:bg-c4 bg-white"
       } ${last && "last-of-type:rounded-b-2xl"} ${
         margin ? "last-of-type:pb-9" : "last-of-type:pb-7"
       }`}

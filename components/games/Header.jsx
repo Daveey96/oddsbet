@@ -48,7 +48,7 @@ function Header({ setMkt, live, title, changeSport, sport, lKey }) {
   return (
     <header
       ref={header}
-      className={`flex mb-px z-20 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
+      className={`flex mb-px duration-150 z-20 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
     >
       <span className="max-w-[90%] text-base gap-1.5 flex items-center pl-4">
         {!live ? (

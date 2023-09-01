@@ -292,7 +292,7 @@ export default function BetList({ toggle, setToggle }) {
                 className={` fx ${
                   betList.length < 1
                     ? "relative pb-3"
-                    : "absolute bottom-full from-transparent via-black to-black bg-gradient-to-b flex-col inset-x-0 pb-3"
+                    : "absolute bottom-full from-transparent dark:via-black dark:to-black via-c3 to-c3 bg-gradient-to-b flex-col inset-x-0 pb-3"
                 }`}
               >
                 <Code

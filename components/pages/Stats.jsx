@@ -108,7 +108,7 @@ export default function Stats() {
             initial={{ x: "100%", opacity: 1 }}
             animate={{ x: "0%", opacity: 1, transition: { duration: 0.3 } }}
             exit={{ x: "0%", opacity: 0, transition: { duration: 0.15 } }}
-            className="fixed bg-black overflow-y-scroll overflow-x-hidden justify-start items-center flex-col inset-0 flex z-[23] w-full "
+            className="fixed dark:bg-black bg-white overflow-y-scroll overflow-x-hidden justify-start items-center flex-col inset-0 flex z-[23] w-full "
           >
             <header className="top-0 bg-black fx w-full">
               <div className="w-[95%] relative rounded-xl mt-9 mb-1  fx ">
@@ -254,6 +254,7 @@ export default function Stats() {
             state={head}
             init={{ opacity: 0 }}
             show={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="top-0 fixed z-30 bg-black fx w-full"
           >

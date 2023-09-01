@@ -89,7 +89,6 @@ const checkEmail = async (req, res) => {
 
   let mailSent = await sendMail(email, emailDetails_I(token));
   if (!mailSent) throw Error("Couldn't send mail");
-  // console.log(token);
 
   let newUser = await User.create({
     email,
@@ -187,9 +186,8 @@ const resendCode = async (req, res) => {
   let token = generateToken();
   let hashedToken = bcrypt.hashSync(token, 10);
 
-  let mailSent = await sendMail(email, emailDetails_I(token));
+  let mailSent = await sendMail(user?.email, emailDetails_I(token));
   if (!mailSent) throw Error("Couldn't send mail");
-  // console.log(token);
 
   user.token = hashedToken;
   await user.save();

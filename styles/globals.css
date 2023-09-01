@@ -98,7 +98,7 @@ input:-webkit-autofill:active {
   background-color: rgb(71, 85, 105 /0.2);
 }
 .fade::after {
-  @apply absolute left-0 top-0 translate-x-[-300%] bg-gradient-to-r h-full w-4/5 from-white/0 to-white/0 dark:via-white/5 via-white/60;
+  @apply absolute left-0 top-0 translate-x-[-300%] bg-gradient-to-r h-full w-4/5 from-white/0 to-white/0 dark:via-white/5 via-white/40;
   content: "";
   animation: fade 1.5s linear infinite;
 }
