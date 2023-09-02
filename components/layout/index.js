@@ -17,115 +17,15 @@ import AllGames from "../pages/AllGames";
 
 export const Context = createContext(null);
 
-export const filterGames = (data, isoString) => {
-  return data.filter(
-    (v) => v.starts.split("T")[0] === isoString && v.parent_id === null
-  );
-};
-
-export const sports = [
-  {
-    sport: "soccer",
-    markets: [
-      { item: "WDL", v: "WDL" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    sport: "tennis",
-    markets: [
-      { item: "WDL", v: "WL" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-  {
-    sport: "basketball",
-    markets: [
-      { item: "Winner", v: "WL" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
-    ],
-  },
-];
-
-export const fGames = (v, nv, num) => {
-  let g = v;
-  g[num] = nv;
-  return g;
-};
-
 export default function Layout({ children }) {
   const [betList, setBetList] = useState([]);
   const [user, setUser] = useState(null);
   const [game, setGame] = useState(null);
-  const [open, setOpen] = useState(null);
+  const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [backdrop, setBackdrop] = useState(false);
   const [ping, setPing] = useState(false);
-  const specials = useRef({ 1: [], 2: [], 3: [] });
-  const [globalGames, setGlobalGames] = useState({
-    1: [{ title: "Today", games: null }],
-    2: [{ title: "Today", games: null }],
-    3: [{ title: "Today", games: null }],
-  });
-
-  const getGlobalGames = async (id, oid = 1) => {
-    if (
-      globalGames[id][0].games !== null &&
-      typeof globalGames[id][0].games === Object
-    )
-      return true;
-
-    if (
-      globalGames[oid][0].games === null ||
-      typeof globalGames[oid][0].games === "error"
-    ) {
-      setGlobalGames(
-        fGames(globalGames, [{ title: "Today", games: "loading" }], id)
-      );
-    }
-
-    const data = await apiController.getGlobalGames(id);
-
-    if (data) {
-      let genArray = [];
-
-      for (let i = 0; i < 8; i++) {
-        const { isoString, weekDay } = getDate(i);
-        const games = filterGames(data, isoString);
-        const md = `${isoString.split("-")[1]}/${isoString.split("-")[2]}`;
-
-        if (games.length > 0) {
-          genArray.push({
-            title: i ? `${weekDay} ${md}` : `Today ${md}`,
-            games,
-          });
-        }
-      }
-
-      specials.current[id] = data.filter((v) => v.parent_id);
-      setGlobalGames(fGames(globalGames, genArray, id));
-
-      return true;
-    } else {
-      if (
-        globalGames[oid][0].games === null ||
-        typeof globalGames[oid][0].games === "error"
-      ) {
-        setGlobalGames(
-          fGames(globalGames, [{ title: "Today", games: "error" }], id)
-        );
-      }
-
-      return false;
-    }
-  };
+  const globalGames = useRef({});
 
   useEffect(() => {
     const getUser = async () => {
@@ -139,10 +39,6 @@ export default function Layout({ children }) {
     }, 3000);
   }, [user]);
 
-  useEffect(() => {
-    globalGames[1][0].games === null && getGlobalGames(1);
-  }, [globalGames]);
-
   return (
     <Context.Provider
       value={{
@@ -151,13 +47,11 @@ export default function Layout({ children }) {
         setGame,
         setBackdrop,
         setPing,
-        getGlobalGames,
         user,
         betList,
         setLoading,
         game,
         globalGames,
-        specials,
         backdrop,
         ping,
         open,
@@ -168,7 +62,6 @@ export default function Layout({ children }) {
         <Nav />
         <Prompt />
         <Overlay />
-
         <div className="h-screen flex flex-col w-full">
           <main className="z-[5] dark:bg-black bg-white inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
             <div
@@ -189,10 +82,10 @@ export default function Layout({ children }) {
                 state={loading}
                 variants={{
                   init: { x: "-110%" },
-                  show: { x: "0%" },
+                  show: { x: "-5%" },
                   exit: { x: "-110%" },
                 }}
-                className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 bg-black py-3"
+                className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 dark:bg-black bg-c4 py-3"
               >
                 <CircularLoader size={20} depth={3} color />
               </Animated>
@@ -202,7 +95,7 @@ export default function Layout({ children }) {
         <BlurredModal
           state={backdrop}
           type={"allChidren"}
-          className="flex text-sm bg-c3 dark:bg-transparent dark:backdrop-blur-xl flex-col z-[35] items-center"
+          className="flex text-sm bg-white dark:bg-transparent dark:backdrop-blur-xl flex-col z-[35] items-center"
           iClass={[
             "dark:text-white/20 text-black mt-[50px] text-sm px-10 pt-2 mb-4",
             "relative max-w-[480px] overflow-x-hidden overflow-y-visible flex-1 w-full mt-3 flex flex-col justify-start items-center",

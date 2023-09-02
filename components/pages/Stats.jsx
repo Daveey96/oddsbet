@@ -6,6 +6,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import { categories } from "../Slider";
 import { market } from "../games/Odds";
 import { BiChevronLeftCircle, BiInfoCircle } from "react-icons/bi";
+import { condition } from "@/helpers";
+import { CircularLoader } from "../services/Loaders";
+
+const Animate = ({ children }) => {
+  return <div className="">{children}</div>;
+};
+
+const H2H = () => {
+  return (
+    <div className="w">
+      <CircularLoader color />
+    </div>
+  );
+};
+
+const Lineup = () => {};
 
 export default function Stats() {
   const { game, setGame, specials } = useContext(Context);
@@ -156,98 +172,120 @@ export default function Stats() {
                 </button>
               ))}
             </div>
-            <div className="w-full bg-black top-[70px] shadow-lg shadow-black/50 sticky z-10">
-              <div className=" flex text-xs items-center no-bars overflow-x-scroll overflow-y-hidden whitespace-nowrap w-full gap-3 pl-8 pt-2 mb-2">
-                {["Favourites", "1st half", "Corners"].map((v, key) => (
-                  <button
-                    className={`fx active:scale-75 duration-100 px-5 py-1 relative last:mr-4 rounded-t-xl rounded-bl-xl ${
-                      key === active
-                        ? "bg-c2/5 text-c2"
-                        : "bg-c4/60 text-white/80"
-                    }`}
-                    onClick={() => setActive(key)}
-                    key={key}
-                  >
-                    {v}
-                  </button>
-                ))}
-                <button
-                  className={`fx pl-3.5 pr-4 gap-1 py-1 rounded-t-xl rounded-bl-xl ${
-                    active === 3 ? "bg-c2/5 text-c2" : "bg-c4/60 text-white/80"
-                  }`}
-                >
-                  {categories.icons[3]} Specials
-                </button>
-                <button
-                  className={`fx gap-1 pl-3.5 pr-4 py-1 relative mr-4 rounded-t-xl rounded-bl-xl ${
-                    active === 4 ? "bg-c2/5 text-c2" : "bg-c4/60 text-white/80"
-                  }`}
-                >
-                  {categories.icons[2]} Rocket odds
-                </button>
-              </div>
-            </div>
-            <div className="flex mb-24 flex-col w-full">
-              {arr.map((d, key) => (
-                <div
-                  key={key}
-                  className="w-full mt-3 flex-col items-start flex gap-2"
-                >
-                  <span className="w-full from-c4/60 to-c4/10 bg-gradient-to-r text-xs flex gap-1 items-center px-4 py-1.5">
-                    <BiInfoCircle className="text-c2" /> {d.text}
-                  </span>
-                  {d.type === "single" ? (
-                    <div className="flex gap-2 px-4 w-full">
-                      {market(ga, d.v, d.period).odds.map((v, key) => (
+            <AnimatePresence>
+              {condition(
+                mainActive,
+                [0, 1, 2],
+                [
+                  <Animate key={12}>
+                    <div className="w-full bg-black top-[70px] shadow-lg shadow-black/50 sticky z-10">
+                      <div className=" flex text-xs items-center no-bars overflow-x-scroll overflow-y-hidden whitespace-nowrap w-full gap-3 pl-8 pt-2 mb-2">
+                        {["Favourites", "1st half", "Corners"].map((v, key) => (
+                          <button
+                            className={`fx active:scale-75 duration-100 px-5 py-1 relative last:mr-4 rounded-t-xl rounded-bl-xl ${
+                              key === active
+                                ? "bg-c2/5 text-c2"
+                                : "bg-c4/60 text-white/80"
+                            }`}
+                            onClick={() => setActive(key)}
+                            key={key}
+                          >
+                            {v}
+                          </button>
+                        ))}
                         <button
-                          className="flex-1 gap-2 relative active:scale-75 duration-100 bg-c4 fx rounded-lg h-11"
-                          key={key}
+                          className={`fx pl-3.5 pr-4 gap-1 py-1 rounded-t-xl rounded-bl-xl ${
+                            active === 3
+                              ? "bg-c2/5 text-c2"
+                              : "bg-c4/60 text-white/80"
+                          }`}
                         >
-                          <span className="text-11 fx gap-2 text-c2 bottom-[105%]">
-                            {d.tags[key]} |
-                          </span>
-                          {v.toFixed(2)}
+                          {categories.icons[3]} Specials
                         </button>
-                      ))}
+                        <button
+                          className={`fx gap-1 pl-3.5 pr-4 py-1 relative mr-4 rounded-t-xl rounded-bl-xl ${
+                            active === 4
+                              ? "bg-c2/5 text-c2"
+                              : "bg-c4/60 text-white/80"
+                          }`}
+                        >
+                          {categories.icons[2]} Rocket odds
+                        </button>
+                      </div>
                     </div>
-                  ) : (
-                    <>
-                      {market(ga, d.v, d.period).odds.map((odd, key) => (
+                    <div className="flex mb-24 flex-col w-full">
+                      {arr.map((d, key) => (
                         <div
                           key={key}
-                          className="flex first-of-type:mt-3 gap-2 px-4 w-full"
+                          className="w-full mt-3 flex-col items-start flex gap-2"
                         >
-                          {odd.map((v, key1) => (
-                            <>
-                              {key1 ? (
+                          <span className="w-full from-c4/60 to-c4/10 bg-gradient-to-r text-xs flex gap-1 items-center px-4 py-1.5">
+                            <BiInfoCircle className="text-c2" /> {d.text}
+                          </span>
+                          {d.type === "single" ? (
+                            <div className="flex gap-2 px-4 w-full">
+                              {market(ga, d.v, d.period).odds.map((v, key) => (
                                 <button
-                                  className="flex-[2] relative active:scale-75 duration-100 first:bg-c4/40 bg-c4 fx rounded-lg h-11"
-                                  key={key1}
+                                  className="flex-1 gap-2 relative active:scale-75 duration-100 bg-c4 fx rounded-lg h-11"
+                                  key={key}
                                 >
-                                  {key1 ? v.toFixed(2) : v}
-                                  {!key && (
-                                    <span className="bottom-[103%] text-xs absolute text-c2">
-                                      {d.tags[key1]}
-                                    </span>
-                                  )}
+                                  <span className="text-11 fx gap-2 text-c2 bottom-[105%]">
+                                    {d.tags[key]} |
+                                  </span>
+                                  {v.toFixed(2)}
                                 </button>
-                              ) : (
-                                <span
-                                  className="first:bg-c4/40 flex-1 bg-c4 fx rounded-lg h-11"
-                                  key={key1}
-                                >
-                                  {key1 ? v.toFixed(2) : v}
-                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <>
+                              {market(ga, d.v, d.period).odds.map(
+                                (odd, key) => (
+                                  <div
+                                    key={key}
+                                    className="flex first-of-type:mt-3 gap-2 px-4 w-full"
+                                  >
+                                    {odd.map((v, key1) => (
+                                      <>
+                                        {key1 ? (
+                                          <button
+                                            className="flex-[2] mt-1 relative active:scale-75 duration-100 first:bg-c4/40 bg-c4 fx rounded-lg h-11"
+                                            key={key1}
+                                          >
+                                            {key1 ? v.toFixed(2) : v}
+                                            {!key && (
+                                              <span className="bottom-[105%] text-xs absolute text-c2">
+                                                {d.tags[key1]}
+                                              </span>
+                                            )}
+                                          </button>
+                                        ) : (
+                                          <span
+                                            className="first:bg-c4/40 flex-1 bg-c4 fx rounded-lg h-11"
+                                            key={key1}
+                                          >
+                                            {key1 ? v.toFixed(2) : v}
+                                          </span>
+                                        )}
+                                      </>
+                                    ))}
+                                  </div>
+                                )
                               )}
                             </>
-                          ))}
+                          )}
                         </div>
                       ))}
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
+                    </div>
+                  </Animate>,
+                  <Animate key={23}>
+                    <H2H />
+                  </Animate>,
+                  <Animate key={13}>
+                    <Lineup />
+                  </Animate>,
+                ]
+              )}
+            </AnimatePresence>
           </motion.div>
           <Animated
             id="header"

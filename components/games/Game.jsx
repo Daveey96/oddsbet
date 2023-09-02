@@ -22,7 +22,7 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
   return (
     <div
       className={`flex z-[2] w-full flex-col px-3 pt-3 md:last-of-type:rounded-b-2xl pb-1 ${
-        isLive ? "dark:bg-c4/50 bg-c4 text-white" : "dark:bg-c4 bg-white"
+        isLive ? "bg-c4/50 text-white" : "dark:bg-c4 bg-white"
       } ${last && "last-of-type:rounded-b-2xl"} ${
         margin ? "last-of-type:pb-9" : "last-of-type:pb-7"
       }`}
@@ -41,13 +41,19 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
               className="flex pl-1 rounded-md active:bg-white/5 duration-200  bg-white/0 gap-1 items-center"
               key={key}
             >
-              <Image
-                width={11}
-                height={10}
-                src={"/badge.svg"}
-                className="-translate-y-0.5"
-                alt=""
-              />
+              <span
+                className={`dark:-translate-y-0.5 dark:after:hidden dark:shadow-none after:bg-white shadow-md shadow-black after:w-6 after:h-6 fx after:rounded-full aft relative ${
+                  key ? "-z-[2]" : "-z-[1]"
+                }`}
+              >
+                <Image
+                  width={11}
+                  height={10}
+                  className="z-10"
+                  src={"/badge.svg"}
+                  alt=""
+                />
+              </span>
               <span className="flex flex-1 text-ellipsis whitespace-nowrap overflow-hidden text-[12px] leading-[20px] items-center justify-between">
                 {key ? g.away : g.home}
               </span>

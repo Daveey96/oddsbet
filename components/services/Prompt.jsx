@@ -52,13 +52,15 @@ export default function Prompt() {
               <motion.button
                 whileTap={{ scale: 0.8 }}
                 key={key}
-                className={`py-2 fx gap-1 relative mb-2 rounded-xl px-8 ${
+                className={`py-2 fx gap-1 relative mb-2 dark:rounded-b-xl rounded-t-xl rounded-b-md px-8 ${
                   prompt?.type
                     ? "bg-c2 text-white"
                     : key
-                    ? "text-red-500 dark:bg-red-500/5 bg-red-500/25"
-                    : `dark:bg-green-500/5 bg-green-500/25 ${
-                        load ? "text-green-500/0" : "text-green-500"
+                    ? "dark:text-red-500 text-white dark:bg-red-500/5 bg-red-500"
+                    : `dark:bg-green-500/5 bg-green-500 ${
+                        load
+                          ? "text-green-500/0"
+                          : "dark:text-green-500 text-white"
                       }`
                 }`}
                 onClick={() =>
@@ -74,7 +76,9 @@ export default function Prompt() {
                     size={12}
                     depth={2}
                     className={`absolute ${
-                      prompt.type ? "border-white" : "border-green-500"
+                      prompt.type
+                        ? "border-white"
+                        : "dark:border-green-500 border-white"
                     }`}
                   />
                 )}

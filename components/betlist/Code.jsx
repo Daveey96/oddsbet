@@ -28,7 +28,7 @@ export default function Code({ setBetList, len }) {
         <input
           type="text"
           placeholder="Enter Booking code"
-          className="py-3 dark:bg-black bg-c3 disabled:opacity-30 duration-150 text-center text-sm dark:border-gray-800 border-c4 px-3 focus:border-c2 border-2 rounded-xl h-full w-full"
+          className="py-3 dark:bg-black bg-c4 disabled:opacity-50 duration-150 text-center text-sm dark:border-gray-800 border-slate-500 px-3 focus:border-c2 border-2 rounded-xl h-full w-full"
           maxLength={5}
           value={value}
           disabled={load}

@@ -147,7 +147,7 @@ export default function BetList({ toggle, setToggle }) {
             exit={{ y: "100%", opacity: 0 }}
             transition={{ ease: "anticipate" }}
             onClick={(e) => e.stopPropagation()}
-            className="z-[26] dark:bg-black bg-c3 max-h-[calc(92vh_-_100px)] pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
+            className="z-[26] dark:bg-black text-white bg-c4 max-h-[calc(92vh_-_100px)] pb-12 rounded-t-[2rem] absolute inset-x-0 w-full bottom-0 fx flex-col "
           >
             <header className="pt-4 pb-2 text-sm relative justify-center w-full flex">
               {betList.length > 0 && (
@@ -292,7 +292,7 @@ export default function BetList({ toggle, setToggle }) {
                 className={` fx ${
                   betList.length < 1
                     ? "relative pb-3"
-                    : "absolute bottom-full from-transparent dark:via-black dark:to-black via-c3 to-c3 bg-gradient-to-b flex-col inset-x-0 pb-3"
+                    : "absolute bottom-full from-transparent dark:via-black dark:to-black via-c4 to-c4 bg-gradient-to-b flex-col inset-x-0 pb-3"
                 }`}
               >
                 <Code
@@ -301,7 +301,7 @@ export default function BetList({ toggle, setToggle }) {
                 />
               </Animated>
               {betList.length > 0 && (
-                <div className="fx aft after:bottom-[95%] after:h-8 after:from-transparent dark:after:to-black after:to-c3 after:bg-gradient-to-b after:inset-x-0 relative px-4 z-10 pt-2 w-full ">
+                <div className="fx aft after:bottom-[95%] after:h-8 after:from-transparent dark:after:to-black after:to-c4 after:bg-gradient-to-b after:inset-x-0 relative px-4 z-10 pt-2 w-full ">
                   {betList.length > 0 && (
                     <>
                       <button

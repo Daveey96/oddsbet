@@ -31,7 +31,7 @@ export default function Game({ v, index, deleteGame }) {
         onDragEnd={dragEnded}
         style={{ x }}
         onDragStart={() => setDragStart(true)}
-        className={`px-5 z-[1] relative aft after:left-0 after:h-2/5 after:w-1 after:rounded-r-3xl after:bg-white/30 dark:bg-black bg-c3 w-full justify-between items-center h-full flex `}
+        className={`px-5 z-[1] relative aft after:left-0 after:h-2/5 after:w-1 after:rounded-r-3xl after:bg-white/30 dark:bg-black bg-c4 w-full justify-between items-center h-full flex `}
       >
         <span className="flex w-3/4 flex-col gap-1">
           <span className="flex w-full items-center text-c2">
@@ -53,7 +53,7 @@ export default function Game({ v, index, deleteGame }) {
       </motion.div>
       <div
         className={`absolute text-white flex inset-x-0 h-[97%] w-full justify-between ${
-          dragStart ? "bg-red-600" : "dark:bg-black bg-c3"
+          dragStart ? "bg-red-600" : "dark:bg-black bg-c4"
         }`}
       >
         {dragStart &&

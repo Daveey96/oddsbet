@@ -99,7 +99,7 @@ function TopSlider() {
           </div>
         </>
       ) : (
-        <div className="w-[98%] h-24 overflow-hidden mb-2 rounded-xl  bg-c4"></div>
+        <div className="w-[98%] h-24 overflow-hidden mb-2 rounded-xl  dark:bg-c4 bg-c5"></div>
       )}
     </div>
   );

@@ -62,7 +62,9 @@ export default function Tab() {
       <div className="fixed -bottom-1 inset-x-0 flex justify-center z-[27]">
         <div
           className={`relative px-[2vw] duration-150 max-w-[100vw] min-w-[90vw] md:min-w-[auto] flex md:justify-center md:gap-[10%] rounded-t-[60px] md:rounded-none text-white ${
-            toggle ? "bg-c4" : "dark:bg-black bg-c4 text-black"
+            toggle
+              ? "dark:bg-c4 bg-[rgb(9,11,16)]"
+              : "dark:bg-black bg-c4 text-black"
           }`}
         >
           {links.map((link, key) => (

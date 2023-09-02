@@ -48,7 +48,7 @@ function Header({ setMkt, live, title, changeSport, sport, lKey }) {
   return (
     <header
       ref={header}
-      className={`flex mb-px duration-150 z-20 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
+      className={`flex mb-px z-20 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
     >
       <span className="max-w-[90%] text-base gap-1.5 flex items-center pl-4">
         {!live ? (
@@ -97,8 +97,8 @@ function Header({ setMkt, live, title, changeSport, sport, lKey }) {
         <List
           className={"w-full"}
           iClass="py-0.5 shadow-[0px_2px_2px_1px] mt-0.5 mb-0.5 text-[13px] gap-1 pl-2"
-          activeClass={`text-c2 dark:bg-c2/5 dark:shadow-black/20 ${
-            live ? "shadow-black/20 bg-c2/5" : "shadow-c2/30 bg-c2/20"
+          activeClass={`text-c2 dark:bg-c2/5 shadow-black/20 ${
+            live ? "bg-c2/5" : "bg-c2/20"
           } rounded-lg pr-3`}
           inActiveClass={"bg-white/5 rounded-lg pr-2 shadow-black/20"}
           onActive={true}
