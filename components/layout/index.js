@@ -14,6 +14,7 @@ import Auth from "../auth";
 import { getDate } from "@/helpers";
 import { CircularLoader } from "../services/Loaders";
 import AllGames from "../pages/AllGames";
+import Hint from "../services/Hint";
 
 export const Context = createContext(null);
 
@@ -21,7 +22,7 @@ export default function Layout({ children }) {
   const [betList, setBetList] = useState([]);
   const [user, setUser] = useState(null);
   const [game, setGame] = useState(null);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(null);
   const [loading, setLoading] = useState(false);
   const [backdrop, setBackdrop] = useState(false);
   const [ping, setPing] = useState(false);
@@ -34,9 +35,7 @@ export default function Layout({ children }) {
       setUser(data.user);
     };
 
-    setTimeout(() => {
-      user === null && getUser();
-    }, 3000);
+    user === null && getUser();
   }, [user]);
 
   return (
@@ -62,6 +61,7 @@ export default function Layout({ children }) {
         <Nav />
         <Prompt />
         <Overlay />
+        <Hint />
         <div className="h-screen flex flex-col w-full">
           <main className="z-[5] dark:bg-black bg-white inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
             <div
@@ -76,8 +76,10 @@ export default function Layout({ children }) {
               </div>
               <Panel />
               <Tab />
-              <Stats />
-              <AllGames />
+              <AnimatePresence>
+                {game && <Stats />}
+                {open && <AllGames key={Math.floor(Math.random * 1000)} />}
+              </AnimatePresence>
               <Animated
                 state={loading}
                 variants={{

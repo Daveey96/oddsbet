@@ -28,12 +28,20 @@ export function calcWinPotential(totalOdds, stake) {
 export function findTotalOdds(betList) {
   let total = 0;
   if (!betList) return 0;
-  for (let i = 0; i < betList.length; i++)
-    i === 0 || betList[i].odd >= 2 || total > 1.99
-      ? betList[i].odd >= 2 && total < 2 && i !== 0
-        ? (total += parseFloat(betList[i].odd - 1))
-        : (total += parseFloat(betList[i].odd))
-      : (total += parseFloat(betList[i].odd - 1));
+
+  betList.forEach(({ odd }, i) => {
+    i === 0 || odd >= 2 || total > 1.99
+      ? odd >= 2 && total < 2 && i !== 0
+        ? (total += parseFloat(odd - 1))
+        : (total += parseFloat(odd))
+      : (total += parseFloat(odd - 1));
+
+    if (betList.length > 1) {
+      let bonus = ((odd - 1) / 2) * betList.length;
+
+      bonus < 2.0 ? (total += bonus - 1) : (total += bonus);
+    }
+  });
 
   return total.toFixed(2);
 }
@@ -195,7 +203,7 @@ export default function BetList({ toggle, setToggle }) {
                       }`}
                     >
                       {stake ? format(stake) : "min 100"}
-                      <span className="text-xs text-white absolute bottom-[130%] right-0 bg-c2 rounded-t-xl rounded-bl-xl px-3 pt-0.5 pb-px">
+                      <span className="text-xs -right-1 text-white absolute bottom-[130%] bg-c2 rounded-t-xl rounded-bl-xl rounded-br-md px-3 pt-0.5 pb-px">
                         stake
                       </span>
                     </button>
@@ -277,6 +285,7 @@ export default function BetList({ toggle, setToggle }) {
                   <Game
                     v={mv}
                     deleteGame={removeGame}
+                    setToggle={() => setToggle(false)}
                     index={key}
                     key={`${mv.id}${mv.mkt}`}
                   />

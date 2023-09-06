@@ -10,13 +10,15 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
   const [g, setG] = useState(game);
 
   useEffect(() => {
-    setTimeout(async () => {
-      const data = await apiController.getMatch(g.event_id);
+    if (isLive) {
+      setTimeout(async () => {
+        const data = await apiController.getMatch(g.event_id);
 
-      if (data) {
-        setG(data);
-      }
-    }, 20000);
+        if (data) {
+          setG(data);
+        }
+      }, 20000);
+    }
   }, [g]);
 
   return (
@@ -37,7 +39,14 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
         <div className="flex h-9 pr-2 flex-col justify-between w-[42%]">
           {[0, 1].map((key) => (
             <span
-              onClick={() => setGame(g)}
+              onClick={() =>
+                setGame({
+                  id: g.event_id,
+                  sport: g.sport_id,
+                  home: g.home,
+                  away: g.away,
+                })
+              }
               className="flex pl-1 rounded-md active:bg-white/5 duration-200  bg-white/0 gap-1 items-center"
               key={key}
             >

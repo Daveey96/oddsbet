@@ -108,6 +108,9 @@ input:-webkit-autofill:active {
 .fade2::after {
   animation: fade 1.5s linear infinite;
 }
+.cent {
+  @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+}
 
 @keyframes fade {
   0% {

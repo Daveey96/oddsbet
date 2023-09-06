@@ -40,12 +40,12 @@ const getMatches = async (req, res) => {
 
 const getGlobalGames = async (req, res) => {
   const { id } = req.query;
+  console.log(`id: ${id}`);
 
   const games = await Games.findOne({ id });
 
-  if (games) {
-    res.send(games.data);
-  } else {
+  if (games) res.send(games.data);
+  else {
     apiII_options.url = "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets";
     apiII_options.params = {
       sport_id: id.toString(),
@@ -54,21 +54,39 @@ const getGlobalGames = async (req, res) => {
     };
     const { data } = await axios.request(apiII_options);
 
-    const events = data.events.filter(
-      (g) =>
-        g.starts.includes(getDate().isoString) ||
-        g.starts.includes(getDate(1).isoString) ||
-        g.starts.includes(getDate(2).isoString) ||
-        g.starts.includes(getDate(3).isoString) ||
-        g.starts.includes(getDate(4).isoString) ||
-        g.starts.includes(getDate(5).isoString) ||
-        g.starts.includes(getDate(6).isoString) ||
-        g.starts.includes(getDate(7).isoString)
-    );
+    if (data) {
+      let events = data.events
+        .filter(
+          (g) =>
+            g.starts.includes(getDate().isoString) ||
+            g.starts.includes(getDate(1).isoString) ||
+            g.starts.includes(getDate(2).isoString) ||
+            g.starts.includes(getDate(3).isoString) ||
+            g.starts.includes(getDate(4).isoString) ||
+            g.starts.includes(getDate(5).isoString) ||
+            g.starts.includes(getDate(6).isoString) ||
+            g.starts.includes(getDate(7).isoString)
+        )
+        .filter((v) => !v.period_results);
 
-    let d = await Games.create({ id, data: events });
+      let specials = events.filter((g) => g.parent_id !== null);
+      let non_specials = events.filter((g) => g.parent_id === null);
 
-    res.send(d.data);
+      specials.forEach((spe) => {
+        for (let i = 0; i < non_specials.length; i++) {
+          if (non_specials[i].event_id === spe.parent_id) {
+            non_specials[i][spe.resulting_unit] = spe.periods;
+            break;
+          }
+        }
+      });
+
+      let d = await Games.create({ id, data: non_specials });
+
+      return res.send(d.data);
+    }
+
+    throw Error("Network timeout");
   }
 };
 

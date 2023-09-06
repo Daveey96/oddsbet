@@ -1,4 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  animate,
+  useMotionValue,
+} from "framer-motion";
 import React from "react";
 
 const Animated = ({
@@ -64,6 +69,58 @@ export const Page = ({ state, className = "", children, variants }) => (
     )}
   </AnimatePresence>
 );
+
+export const Curtain = ({
+  id,
+  className = "",
+  siblingState,
+  children,
+  setState,
+  sibling,
+}) => {
+  const x = useMotionValue(0);
+
+  const dragEnded = (e, v) => {
+    if (v.offset.x > 110) {
+      animate(x, window.innerWidth + 50, { duration: 0.15 });
+      setTimeout(setState, 200);
+    } else animate(x, 0, { duration: 0.25 });
+  };
+
+  return (
+    <>
+      <motion.div
+        id={id}
+        drag="x"
+        style={{ x }}
+        dragElastic={0.1}
+        onDragEnd={dragEnded}
+        dragConstraints={{ left: 0 }}
+        initial={{ x: "100%" }}
+        animate={{ x: "0%" }}
+        exit={{ x: "100%" }}
+        transition={{ duration: 0.3 }}
+        className={`fixed flex-col inset-0 flex z-[23] ${className}`}
+      >
+        {children}
+      </motion.div>
+      <AnimatePresence>
+        {sibling && siblingState && (
+          <motion.div
+            init={{ opacity: 0 }}
+            show={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ x }}
+            transition={{ duration: 0.15 }}
+            className="top-0 fixed z-30 bg-white dark:bg-black fx w-full"
+          >
+            {sibling}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 
 export const BlurredModal = ({
   children,

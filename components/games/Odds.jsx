@@ -1,11 +1,11 @@
 import React, { useContext, useMemo, useState } from "react";
-import { BiDownArrow, BiLockAlt } from "react-icons/bi";
+import { BiLockAlt } from "react-icons/bi";
 import { Context } from "../layout";
 import { condition } from "@/helpers";
+import { BsCaretUpFill } from "react-icons/bs";
 
-export const market = (game, v, first) => {
-  if (!game) return false;
-  let g = first ? game.periods.num_1 : game.periods.num_0;
+export const market = (g, v) => {
+  if (!g) return false;
 
   const getAll = (mkt) => {
     if (!mkt) return Array(3).fill(null);
@@ -64,9 +64,9 @@ export const market = (game, v, first) => {
   }
 };
 
-const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
+const Layout_I = ({ currentMkt, game, mkt }) => {
   const { betList, setBetList } = useContext(Context);
-  const { odds, tag, name } = currentMkt;
+  const { odds, name } = currentMkt;
   const [active, setActive] = useState(undefined);
 
   const activate = () => {
@@ -104,7 +104,7 @@ const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
         home,
         away,
         time: starts.split("T")[1].slice(0, -3),
-        odd,
+        odd: parseFloat(odd).toFixed(2),
         mkt,
       },
     ]);
@@ -121,32 +121,21 @@ const Layout_I = ({ currentMkt, slider, game, mkt, isLive }) => {
           key={key}
           disabled={!locked(key)}
           onClick={() => addGame(odd.toFixed(2), key)}
-          className={`bg-black/20 dark:bg-black h-10 active:scale-110 duration-150 text-sm w-full rounded-md relative fx ${
+          className={`bg-c3 dark:bg-black h-10 active:scale-110 duration-150 text-sm w-full rounded-md relative fx ${
             key === active &&
             "dark:from-c1/90 from-c1 to-c2 dark:to-c2/90 bg-gradient-to-br text-white"
           } `}
         >
           {locked(key) ? odd.toFixed(2) : <BiLockAlt className="opacity-60" />}
-          {/* {!slider && (
-            <span
-              className={`absolute bottom-[110%] text-[10px] leading-3 px-2 ${
-                !isLive
-                  ? "shadow-c4 text-white/40 shadow-[-9px_0px_6px_0] bg-c4"
-                  : "text-c2/80"
-              } `}
-            >
-              {tag[key]}
-            </span>
-          )} */}
         </button>
       ))}
     </>
   );
 };
 
-const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
+const Layout_II = ({ currentMkt, game, mkt }) => {
   const { betList, setBetList } = useContext(Context);
-  const { odds, tag, name } = currentMkt;
+  const { odds, name } = currentMkt;
 
   const [v, setV] = useState(odds && Math.floor(odds.length / 2));
   const [active, setActive] = useState(undefined);
@@ -161,7 +150,7 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
         betList[i].mkt === mkt &&
         betList[i].v === v
       )
-        return setActive(name.indexOf(betList[i].outcome.split("@")[0]));
+        return setActive(name.indexOf(betList[i].outcome.split(" ")[0]));
 
     setActive(undefined);
   };
@@ -183,12 +172,12 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
       {
         id: event_id,
         sport_id,
-        outcome: name[key] + "@" + v,
+        outcome: name[key] + " " + point,
         home,
         away,
         v,
         time: starts.split("T")[1].slice(0, -3),
-        odd,
+        odd: parseFloat(odd).toFixed(2),
         mkt,
       },
     ]);
@@ -206,7 +195,7 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
             {key === 0 ? (
               <button
                 className={`h-10 text-sm w-full rounded-md relative fx ${
-                  open ? "bg-black/50" : "bg-black"
+                  open ? "dark:bg-black/50" : "dark:bg-black bg-c5"
                 }`}
                 disabled={odds ? false : true}
                 onClick={() => setOpen(!open)}
@@ -215,14 +204,14 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
                 {odds ? (
                   <>
                     {point}
-                    <BiDownArrow className="text-[13px] ml-1 opacity-20" />
+                    <BsCaretUpFill className="text-[12px] ml-1 dark:opacity-20 opacity-60" />
                     {open && (
-                      <span className="absolute px-3 pt-0.5 rounded-b-xl no-bars bg-c4 max-w-[60vw] whitespace-nowrap overflow-y-hidden overflow-x-scroll flex bottom-[110%] z-[20]">
+                      <span className="absolute px-3 pt-0.5 rounded-xl no-bars dark:bg-c4 bg-white max-w-[60vw] whitespace-nowrap overflow-y-hidden overflow-x-scroll flex bottom-[110%] z-[20]">
                         <ul className=" space-x-1 flex py-0.5">
                           {odds.map((odd, key2) => (
                             <li
                               key={key2}
-                              className={`py-1 mb-1 bg-black w-11 rounded-lg ${
+                              className={`py-1 mb-1 dark:bg-black bg-c3 w-11 rounded-md ${
                                 odd[0] === point ? "text-c2" : ""
                               }`}
                               onClick={() => setV(key2)}
@@ -242,8 +231,9 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
               <button
                 disabled={!locked(key)}
                 onClick={() => addGame(odds[v][key], key)}
-                className={`bg-black/20 dark:bg-black h-10 text-sm w-full rounded-md relative fx ${
-                  key === active && "from-c1/75 to-c2/75 bg-gradient-to-br"
+                className={`bg-c3 dark:bg-black h-10 text-sm w-full rounded-md relative fx ${
+                  key === active &&
+                  "from-c1/75 to-c2/75 text-white bg-gradient-to-br"
                 } `}
               >
                 {odds ? (
@@ -269,9 +259,19 @@ const Layout_II = ({ currentMkt, slider, game, mkt, isLive }) => {
   );
 };
 
-export default function Odds({ className, game, slider, isLive, mkt = "WDL" }) {
+export default function Odds({
+  className,
+  game,
+  slider,
+  isLive,
+  mkt = "WDL",
+  first,
+}) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const currentMkt = useMemo(() => market(game, mkt), [mkt]);
+  const currentMkt = useMemo(
+    () => market(first ? game?.periods?.num_1 : game?.periods?.num_0, mkt),
+    [mkt]
+  );
 
   return (
     <div className={"fx gap-1 relative " + className}>

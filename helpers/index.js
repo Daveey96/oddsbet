@@ -92,3 +92,21 @@ export const format = (v) => {
   let l = d ? `.${d}` : "";
   return `${arr.reverse().join("")}${l}`;
 };
+
+export const filterGames = (games, ...params) => {
+  let g = games;
+
+  params.forEach((p) => {
+    if (p === "pr") g = g.filter((v) => v.parent_id !== null);
+    else if (p === "npr") g = g.filter((v) => v.parent_id === null);
+    else if (p === "t") {
+      g = g.sort((a, b) =>
+        parseInt(a.starts.split(":")[0]) === parseInt(b.starts.split(":")[0])
+          ? parseInt(a.starts.split(":")[1]) - parseInt(b.starts.split(":")[1])
+          : parseInt(a.starts.split(":")[0]) - parseInt(b.starts.split(":")[0])
+      );
+    }
+  });
+
+  return g;
+};

@@ -3,7 +3,7 @@ import List from "./List";
 import { sports } from ".";
 import { Context } from "../layout";
 
-function Header({ setMkt, live, title, changeSport, sport, lKey }) {
+function Header({ setMkt, live, title, changeSport, sport }) {
   const header = useRef(null);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function Header({ setMkt, live, title, changeSport, sport, lKey }) {
           className={"w-full"}
           iClass="py-0.5 shadow-[0px_2px_2px_1px] mt-0.5 mb-0.5 text-[13px] gap-1 pl-2"
           activeClass={`text-c2 dark:bg-c2/5 shadow-black/20 ${
-            live ? "bg-c2/5" : "bg-c2/20"
+            live ? "bg-c2/5" : ""
           } rounded-lg pr-3`}
           inActiveClass={"bg-white/5 rounded-lg pr-2 shadow-black/20"}
           onActive={true}
@@ -119,7 +119,7 @@ function Header({ setMkt, live, title, changeSport, sport, lKey }) {
         activeClass={"text-c2"}
         onClick={(v) => setMkt(v)}
         list={sports[sport - 1].markets}
-        key={lKey}
+        key={sport}
       />
     </header>
   );

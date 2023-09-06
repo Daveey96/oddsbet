@@ -10,7 +10,7 @@ export default function Tab() {
   const { pathname, events } = useRouter();
   const [pathName, setPathName] = useState(pathname);
   const [toggle, setToggle] = useState(false);
-  const { ping, setGame } = useContext(Context);
+  const { ping, setGame, setOpen } = useContext(Context);
 
   const visible = useMemo(
     () => (pathName === "" || pathName === "/" ? true : false),
@@ -52,7 +52,8 @@ export default function Tab() {
 
   useEffect(() => {
     events.on("routeChangeStart", (url) => {
-      setGame(null);
+      // setGame(null);
+      // setOpen(null);
       setPathName(url);
     });
   }, [events]);
