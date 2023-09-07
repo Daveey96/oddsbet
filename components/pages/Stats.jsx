@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import Animated, { Curtain } from "../Animated";
+import { Curtain } from "../Animated";
 import { Context } from "../layout";
 import { FaLongArrowAltLeft, FaTshirt } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
@@ -146,33 +146,18 @@ const Markets = ({ game }) => {
     let m = [];
 
     [0, 1, 2, 3].forEach((key) => {
-      switch (key) {
-        case 0:
-          d.periods.num_1 && m.push("Favourites");
-          break;
-        case 1:
-          d.periods.num_0 && m.push("1st Half");
-          break;
-        case 2:
-          d.Corners && m.push("Corners");
-          console.log(d);
-          break;
-        case 3:
-          d.Bookings && m.push("Bookings");
-          break;
-      }
+      if (key === 0) d.periods.num_1 && m.push("Favourites");
+      else if (key === 1) d.periods.num_0 && m.push("1st Half");
+      else if (key === 2) d.Corners && m.push("Corners");
+      else if (key === 3) d.Bookings && m.push("Bookings");
     });
 
     markets.current = m;
 
-    console.log(markets.current);
-
     setData(d);
   };
 
-  useEffect(() => {
-    getData();
-  }, []);
+  useEffect(() => getData(), []);
 
   return (
     <Animate>
@@ -332,6 +317,7 @@ export default function Stats() {
   const { game, setGame } = useContext(Context);
   const [mainActive, setMainActive] = useState(0);
   const [head, setHead] = useState(false);
+  const [time, setTime] = useState(null);
 
   useEffect(() => {
     if (game) {
@@ -405,7 +391,7 @@ export default function Stats() {
             </span>
           ))}
           <SkeletonLoad
-            state={false}
+            state={time}
             iClass="rounded-xl"
             className="flex-1 text-c2 text-sm fx order-2 gap-5"
           >
@@ -438,7 +424,7 @@ export default function Stats() {
         mainActive,
         [0, 1, 2],
         [
-          <Markets key={12} game={game} />,
+          <Markets setTime={(t) => setTime(t)} key={12} game={game} />,
           <H2H key={13} />,
           <Lineup key={14} />,
         ]
