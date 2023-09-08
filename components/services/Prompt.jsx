@@ -52,7 +52,7 @@ export default function Prompt() {
               <motion.button
                 whileTap={{ scale: 0.8 }}
                 key={key}
-                className={`py-2 fx gap-1 relative mb-2 dark:rounded-b-xl rounded-t-xl rounded-b-md px-8 ${
+                className={`py-2 fx gap-1 relative mb-2 rounded-xl px-8 ${
                   prompt?.type
                     ? "bg-c2 text-white"
                     : key

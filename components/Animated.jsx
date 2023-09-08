@@ -13,6 +13,7 @@ const Animated = ({
   children,
   variants,
   variantKey = "",
+  variantType,
   mode = "sync",
   init,
   show,
@@ -24,6 +25,33 @@ const Animated = ({
   tag = "div",
 }) => {
   let Element = motion[tag];
+  let mainv = variants;
+
+  if (variantType) {
+    let m = {};
+
+    m[`init${variantKey}`] = {};
+    m[`show${variantKey}`] = {};
+    m[`exit${variantKey}`] = {};
+
+    variantType.split(" ").forEach((v) => {
+      if (v === "opacity") {
+        m[`init${variantKey}`]["opacity"] = 0;
+        m[`show${variantKey}`]["opacity"] = 1;
+        m[`exit${variantKey}`]["opacity"] = 0;
+      } else if (v === "x") {
+        m[`init${variantKey}`]["x"] = "0%";
+        m[`show${variantKey}`]["x"] = "100%";
+        m[`exit${variantKey}`]["x"] = "0%";
+      } else if (v === "y") {
+        m[`init${variantKey}`]["y"] = "0%";
+        m[`show${variantKey}`]["y"] = "100%";
+        m[`exit${variantKey}`]["y"] = "0%";
+      }
+    });
+
+    mainv = m;
+  }
 
   return (
     <AnimatePresence mode={mode}>
@@ -31,10 +59,10 @@ const Animated = ({
         <Element
           style={style}
           className={className}
-          variants={variants}
-          initial={variants ? `init${variantKey}` : init}
-          animate={variants ? `show${variantKey}` : show}
-          exit={variants ? `exit${variantKey}` : exit}
+          variants={mainv}
+          initial={mainv ? `init${variantKey}` : init}
+          animate={mainv ? `show${variantKey}` : show}
+          exit={mainv ? `exit${variantKey}` : exit}
           transition={transition}
           onClick={onClick}
           onSubmit={onSubmit}

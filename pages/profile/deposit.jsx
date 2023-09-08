@@ -54,11 +54,11 @@ const Deposit = () => {
         <label className="dark:from-c4 from-c5 to-transparent bg-gradient-to-r rounded-t-lg pt-1.5 pb-1 w-full pl-4 text-sm">
           Amount
         </label>
-        <div className=" fx relative aft after:h-px after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l border-r border-r-c2 border-l-c1 text-lg w-full">
+        <div className=" fx relative text-lg w-full">
           <input
             ref={input}
             pattern="[0-9]"
-            className="py-2.5 placeholder:text-white/40 w-full rounded-inh text-center"
+            className="py-2.5 placeholder:text-white/40 w-full border-4 border-c3 rounded-lg text-center"
             value={format(amount.split(",").join(""))}
             placeholder="min. 100"
             onChange={(e) => setAmount(e.target.value)}

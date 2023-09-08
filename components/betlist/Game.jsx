@@ -29,7 +29,6 @@ export default function Game({ v, index, deleteGame, setToggle }) {
       });
       setTimeout(() => deleteGame(index), 95);
     } else {
-      setToggle(false);
       setGame({
         id: v.id,
         sport: v.sport_id,
@@ -37,6 +36,7 @@ export default function Game({ v, index, deleteGame, setToggle }) {
         away: v.away,
         live: false,
       });
+      setToggle(false);
     }
   };
 

@@ -53,7 +53,7 @@ const H2H = () => {
   );
 };
 
-const Markets = ({ game }) => {
+const Markets = ({ game, setTime, live }) => {
   const [data, setData] = useState(null);
   const { globalGames } = useContext(Context);
   const [active, setActive] = useState(0);
@@ -143,21 +143,40 @@ const Markets = ({ game }) => {
     // production
     // const data = await apiController.getMatch(game.id);
 
-    let m = [];
+    if (d) {
+      let t = "";
 
-    [0, 1, 2, 3].forEach((key) => {
-      if (key === 0) d.periods.num_1 && m.push("Favourites");
-      else if (key === 1) d.periods.num_0 && m.push("1st Half");
-      else if (key === 2) d.Corners && m.push("Corners");
-      else if (key === 3) d.Bookings && m.push("Bookings");
-    });
+      if (live) t = 24;
+      else {
+        let v = new Date(d.starts.split("T")[0]).toISOString();
+        let f = new Date().toISOString();
+        let k = "";
 
-    markets.current = m;
+        if (v === f) k = v[0];
 
-    setData(d);
+        t = `${k} ${d.starts.split("T")[1].slice(0, -3)}`;
+      }
+
+      setTime(t);
+      let m = [];
+
+      [0, 1, 2, 3].forEach((key) => {
+        if (key === 0) d.periods.num_1 && m.push("Favourites");
+        else if (key === 1) d.periods.num_0 && m.push("1st Half");
+        else if (key === 2) d.Corners && m.push("Corners");
+        else if (key === 3) d.Bookings && m.push("Bookings");
+      });
+
+      markets.current = m;
+
+      return setData(d);
+    }
+    setData(false);
   };
 
-  useEffect(() => getData(), []);
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <Animate>
@@ -315,7 +334,7 @@ const Lineup = () => {
 
 export default function Stats() {
   const { game, setGame } = useContext(Context);
-  const [mainActive, setMainActive] = useState(0);
+  const [active, setActive] = useState(1);
   const [head, setHead] = useState(false);
   const [time, setTime] = useState(null);
 
@@ -393,9 +412,10 @@ export default function Stats() {
           <SkeletonLoad
             state={time}
             iClass="rounded-xl"
-            className="flex-1 text-c2 text-sm fx order-2 gap-5"
+            className="flex-1 text-c2 relative text-sm fx order-2 gap-5"
           >
-            {"ish"}
+            <span className="absolute">{time.split(" ")[0]}</span>
+            <span className="font-bold">{time.split(" ")[1]}</span>
           </SkeletonLoad>
           <button
             onClick={() => setGame(null)}
@@ -409,19 +429,19 @@ export default function Stats() {
         {["Markets", "H2H", "line-ups"].map((v, key) => (
           <button
             className={`aft after:bottom-0 after:duration-200 after:rounded-xl after:from-c1 after:to-c2 after:bg-gradient-to-r relative fx flex-1 pb-2.5 ${
-              key === mainActive
+              key === active
                 ? "after:w-4 after:h-1 text-c2"
                 : "after:w-0 after:h-0"
             }`}
             key={key}
-            onClick={() => setMainActive(key)}
+            onClick={() => setActive(key)}
           >
             {v}
           </button>
         ))}
       </div>
       {condition(
-        mainActive,
+        active,
         [0, 1, 2],
         [
           <Markets setTime={(t) => setTime(t)} key={12} game={game} />,

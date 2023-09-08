@@ -1,10 +1,9 @@
 import { Naira } from "@/components/layout/Nav";
 import { alertService, promptService } from "@/services";
 import { motion } from "framer-motion";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import {
-  BiClipboard,
   BiCog,
   BiLeftArrowAlt,
   BiMoon,
@@ -19,14 +18,16 @@ import {
   BsEyeSlashFill,
   BsFillQuestionDiamondFill,
   BsInfoCircleFill,
+  BsTicket,
 } from "react-icons/bs";
 import Link from "next/link";
 import { Context } from "@/components/layout";
 import { useRouter } from "next/navigation";
-import { SkeletonLoad } from "@/components/services/Loaders";
-import { userController } from "@/controllers";
+import { CircularLoader, SkeletonLoad } from "@/components/services/Loaders";
+import { appController, userController } from "@/controllers";
 import { format } from "@/helpers";
-import { FaUserFriends, FaUsers } from "react-icons/fa";
+import { FaUserFriends } from "react-icons/fa";
+import Retry from "@/components/services/Retry";
 
 const Theme = () => {
   const { theme, setTheme } = useTheme();
@@ -46,14 +47,33 @@ const Theme = () => {
   );
 };
 
-const PaymentPin = () => {
+const Vouchers = () => {
+  const [num, setNum] = useState(4);
+
+  const getVouchers = async () => {
+    const data = await appController.getVouchers();
+
+    data ? setNum(data.length) : setNum("error");
+  };
+
+  useEffect(() => {
+    // num === null && getVouchers();
+  }, []);
+
   return (
-    <Link
-      href={"/profile/pin"}
-      className="dark:bg-black/40 duration-200 bg-white text-black flex gap-1 items-center dark:text-c2 relative pl-4 pr-3 py-1.5 rounded-xl"
+    <Retry
+      state={num}
+      loading={
+        <CircularLoader className={"border-white mr-1"} size={14} depth={2} />
+      }
     >
-      setup <BsArrowRightShort />
-    </Link>
+      <Link
+        href={"/profile/vouchers"}
+        className="duration-200 flex gap-1 items-center dark:text-c2 text-white"
+      >
+        <BsTicket /> {num} available
+      </Link>
+    </Retry>
   );
 };
 
@@ -61,6 +81,12 @@ export default function Index() {
   const { user, setUser, setBackdrop } = useContext(Context);
   const [isVisible, setIsVisible] = useState(true);
   const { replace, push } = useRouter();
+
+  let arr = useMemo(
+    () =>
+      user ? ["Appearance", "Transaction history", "Vouchers"] : ["Appearance"],
+    [user]
+  );
 
   const logOut = async () => {
     const data = await userController.signout();
@@ -122,7 +148,7 @@ export default function Index() {
             </div>
           </>
         ) : (
-          <span className="w-full bg-c3 dark:bg-transparent rounded-b-3xl pb-4 h-full flex items-end justify-center gap-4">
+          <span className="w-full dark:bg-transparent pb-4 h-full flex items-end justify-center gap-4">
             <span className="text-sm">
               Oops.. <br /> You&apos;re not signed in
             </span>
@@ -137,27 +163,25 @@ export default function Index() {
       </SkeletonLoad>
       <div className="flex flex-col items-center mt-4 rounded-t-2xl">
         <ul className="flex w-[94%] text-white flex-col relative gap-0.5 rounded-3xl overflow-hidden">
-          {["Appearance", "Transaction history", "Payment pin"].map(
-            (item, key) => (
-              <li
-                key={key}
-                className={`first:rounded-t-3xl flex justify-between items-center w-full first:pt-14 last-of-type:rounded-b-3xl pb-4 pt-6 px-5 relative from-c1 to-c2 bg-gradient-to-r dark:from-transparent dark:to-transparent dark:bg-c4/40 mx-auto ${
-                  key === 1 && "active:scale-95 duration-150"
-                } `}
-                onClick={() => key === 1 && push("/profile/transactions")}
-              >
-                <span>{item}</span>
-                {key === 0 && <Theme />}
-                {/* {key === 1 && <Demo />} */}
-                {key === 1 && (
-                  <BiTransferAlt className="dark:text-c2 text-white mr-2 scale-125 text-xl" />
-                )}
-                {key === 2 && <PaymentPin />}
-              </li>
-            )
-          )}
-          <span className="flex -top-0 -left-3 bg-c1 dark:bg-black pt-2 pb-3 pl-4 pr-6 rounded-br-3xl ml-3 absolute text-base items-center text-c2 gap-1">
-            <BiCog className="dark:text-c1 text-white text-base " /> Settings
+          {arr.map((item, key) => (
+            <li
+              key={key}
+              className={`first:rounded-t-3xl flex justify-between items-center w-full first:pt-14 last-of-type:rounded-b-3xl pb-4 pt-6 px-5 relative from-c1 to-c2 bg-gradient-to-r dark:from-transparent dark:to-transparent dark:bg-c4/40 mx-auto ${
+                key === 1 && "active:scale-95 duration-150"
+              } `}
+              onClick={() => key === 1 && push("/profile/transactions")}
+            >
+              <span>{item}</span>
+              {key === 0 && <Theme />}
+              {/* {key === 1 && <Demo />} */}
+              {key === 1 && (
+                <BiTransferAlt className="dark:text-c2 text-white mr-2 scale-125 text-xl" />
+              )}
+              {key === 2 && <Vouchers />}
+            </li>
+          ))}
+          <span className="flex -top-0 -left-3 bg-c1 dark:bg-black pt-2 pb-3 pl-4 text-sm pr-6 rounded-br-3xl ml-3 absolute items-center dark:text-c2 text-white gap-1">
+            <BiCog className="dark:text-c1 text-c2 text-sm " /> Settings
           </span>
         </ul>
         <ul className="flex mb-6 overflow-hidden bg-c3 dark:bg-c4/40 mt-4 w-[94%] relative pt-14 gap-2.5 pb-3 rounded-3xl px-3">
@@ -182,9 +206,8 @@ export default function Index() {
               {item}
             </Link>
           ))}
-          <span className="flex top-0 -left-3 bg-black/5 dark:bg-black pt-2 pb-3 pl-4 pr-6 rounded-br-3xl ml-3 absolute text-base items-center dark:text-c2 gap-1">
-            <FaUserFriends className="dark:text-c1 text-black text-base " />{" "}
-            About
+          <span className="flex top-0 -left-3 bg-black/5 dark:bg-black pt-2 pb-3 pl-4 pr-6 rounded-br-3xl ml-3 absolute text-sm items-center dark:text-c2 gap-1">
+            <FaUserFriends className="dark:text-c1 text-black text-sm " /> About
           </span>
         </ul>
         {user?.email && (
