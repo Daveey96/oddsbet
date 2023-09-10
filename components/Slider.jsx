@@ -10,6 +10,7 @@ import { weekDays } from "@/helpers";
 import Svg from "./Svg";
 import { Context } from "./layout";
 import "keen-slider/keen-slider.min.css";
+import { sports } from "./games";
 
 export const categories = {
   icons: [
@@ -85,7 +86,7 @@ export const categories = {
 
 function Slider() {
   const [mounted, setMounted] = useState(false);
-  const [activeLeague, setActiveLeague] = useState(0);
+  const [activeSport, setActiveSport] = useState(0);
   // const { globalGames, getGlobalGames, sport } = useContext(Context);
 
   const [games, setGames] = useState(null);
@@ -152,7 +153,7 @@ function Slider() {
               onClick={() => setActive(key)}
               className={`${
                 key === active ? "opacity-100" : ""
-              } fx gap-1.5 bg-black/5 last-of-type:mr-6 active:scale-90 duration-150 pl-3.5 pr-5 h-9 text-sm rounded-xl dark:rounded-b-lg dark:rounded-t-xl `}
+              } fx gap-1.5  last-of-type:mr-6 active:scale-90 duration-150 pl-3.5 pr-5 h-9 text-sm rounded-r-3xl dark:rounded-b-lg rounded-t-3xl `}
             >
               {icon}
               {categories.text[key].includes(" ") ? (
@@ -193,15 +194,15 @@ function Slider() {
                       alt=""
                     />
                   </span>
-                  <SkeletonLoad className="text-sm w-[65%]" />
+                  <SkeletonLoad className="text-sm rounded-md w-[65%]" />
                 </div>
               ))}
-              <SkeletonLoad className="order-2 h-8 mt-3 flex flex-1" />
+              <SkeletonLoad className="order-2 rounded-md h-8 mt-3 flex flex-1" />
             </div>
-            <SkeletonLoad className="absolute top-3 w-[60%] h-4 z-10" />
+            <SkeletonLoad className="absolute rounded-md top-3 w-[60%] h-4 z-10" />
             <div className="w-4/5 gap-2 flex h-9 mt-3">
               {[0, 1, 2].map((key) => (
-                <SkeletonLoad className="h-full flex-1" key={key} />
+                <SkeletonLoad className="h-full rounded-md flex-1" key={key} />
               ))}
             </div>
           </div>
@@ -298,53 +299,27 @@ function Slider() {
           </div>
         )}
       </Retry>
-      {games === null || games === "loading" ? (
-        <ul className="px-5 mb-4 mt-1 w-full justify-center no-bars flex gap-2">
-          {Array(4)
-            .fill("")
-            .map((i, key) => {
-              return (
-                <li
-                  key={key}
-                  className={`px-3 fade w-12 first-of-type:w-28 py-1 dark:bg-c4/60 bg-c4/10 text-white/0 rounded-b-2xl rounded-t-md`}
-                >
-                  lo
-                </li>
-              );
-            })}
-        </ul>
-      ) : (
-        <ul className="px-5 py-1 scroll-smooth dark:mb-4 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
-          {leagues.current.v.map((item, key) => {
-            return (
-              <li
-                transition={{ duration: 0.2 }}
-                key={key}
-                onClick={() =>
-                  instanceRef.current.moveToIdx(leagues.current.pos[key])
-                }
-                className={`px-4 active:scale-75 duration-200 fx items-center gap-1 py-1.5 rounded-br-2xl rounded-t-2xl dark:rounded-b-2xl dark:rounded-t-md ${
-                  key === activeLeague
-                    ? "text-white dark:from-c1/0 dark:bg-c4 dark:to-c2/0 from-c1 to-c2 bg-gradient-to-l"
-                    : "text-white dark:bg-c4/40 bg-gray-500"
-                }`}
-              >
-                {key === activeLeague ? (
-                  <>
-                    <Svg
-                      id={1}
-                      className={key === activeLeague ? "text-c2" : ""}
-                    />{" "}
-                    <span className="text-white">{item}</span>
-                  </>
-                ) : (
-                  <Svg id={1} />
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <ul className="px-5 py-1 scroll-smooth dark:mb-4 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
+        {[0, 1, 2].map((key) => {
+          return (
+            <li
+              key={key}
+              onClick={() => setActiveSport(key)}
+              className={`px-4 active:scale-75 duration-200 fx items-center gap-1 py-1.5 rounded-br-2xl rounded-t-2xl dark:rounded-b-2xl dark:rounded-t-md ${
+                key === activeSport
+                  ? "text-white dark:from-c1/0 dark:bg-c4 dark:to-c2/0 from-c1 to-c2 bg-gradient-to-l"
+                  : "text-white dark:bg-c4/40 bg-c4/30"
+              }`}
+            >
+              <Svg
+                id={key + 1}
+                className={key === activeSport ? "text-c2" : ""}
+              />
+              <span className="text-white">{sports[key].item}</span>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }

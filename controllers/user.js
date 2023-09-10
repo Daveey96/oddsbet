@@ -37,6 +37,12 @@ const signout = () =>
     return data;
   });
 
+const deleteUser = () =>
+  clientAsync(async () => {
+    const { data } = await axios.delete("/api/user/signin?type=delete");
+    return data;
+  });
+
 const resendCode = (details) =>
   clientAsync(async () => {
     const { data } = await axios.post("/api/user/signup", details, {
@@ -100,4 +106,5 @@ export const userController = {
   resendCode,
   changeMail,
   forgotPass,
+  deleteUser,
 };

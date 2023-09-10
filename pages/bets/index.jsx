@@ -1,14 +1,15 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { BiTrashAlt, BiXCircle } from "react-icons/bi";
+import { BiTrashAlt } from "react-icons/bi";
 import { CircularLoader } from "@/components/services/Loaders";
 import Retry from "@/components/services/Retry";
 import { format, getDate } from "@/helpers";
 import { alertService, promptService } from "@/services";
 import { betController } from "@/controllers";
-import { FaChevronRight, FaRegCopy } from "react-icons/fa";
+import { FaRegCopy } from "react-icons/fa";
 import { Context } from "@/components/layout";
 import { Naira } from "@/components/layout/Nav";
 import Svg from "@/components/Svg";
+import Error from "@/components/services/Error";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -22,7 +23,7 @@ const TicketDots = ({ active, right = false }) => {
         .map((i, key) => (
           <span
             key={key}
-            className={`rounded-full bg-black ${
+            className={`rounded-full dark:bg-black bg-white ${
               active ? "h-[35%] w-[15px]" : "h-[30%] w-7"
             }`}
           ></span>
@@ -42,38 +43,33 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
   return (
     <div className="flex w-full items-center flex-col">
       <div
-        className={`w-[95%] overflow-hidden cursor-pointer active:opacity-75 relative gap-1 fx ${
-          active === index ? "h-10 rounded-lg" : "h-20 rounded-2xl"
+        className={`w-[95%] cursor-pointer active:opacity-75 relative gap-1 fx ${
+          active === index ? "h-10 rounded-lg" : "rounded-2xl"
         }`}
         onClick={() => (active === index ? onClick(null) : onClick(index))}
       >
-        <div className="w-1/5 fx flex-col items-center relative h-full z-10 overflow-hidden bg-c4/40">
+        <div className="w-1/5 rounded-l-xl shadow-md dark:shadow-none fx flex-col items-center relative h-full z-10 overflow-hidden dark:bg-c4/40 bg-c5">
           <span
             className={`z-10 text-c2 text-lg fx ${
               active === index
                 ? "w-full h-full bg-c2/5"
-                : "w-10 h-10 bg-c4/60 rounded-3xl"
+                : "w-10 h-10 dark:bg-c4/60 bg-c3 rounded-3xl"
             }`}
           >
             {v.games.length}
           </span>
           <TicketDots right active={active === index} />
         </div>
-        <div className="flex-1 px-5 overflow-hidden duration-300 items-center relative flex justify-between h-full flex-col z-10 bg-c4/70">
+        <div className="flex-1  min-h-[4.5rem] rounded-r-xl shadow-md dark:shadow-none px-5 duration-300 items-center relative flex gap-2 py-1 flex-col z-10 dark:bg-c4/70 bg-c3 ">
           <span
             className={`flex flex-1 w-full text-sm gap-1 justify-end items-center ${
               active === index ? "h-full items-center" : "mt-1"
             } `}
           >
             {active !== index && (
-              <span
-                className={`rounded-lg flex-1 py-1 pl-3 flex justify-start text-xs items-center gap-1`}
-              >
-                Stake -{" "}
-                <span className="fx gap-0.5">
-                  <Naira className={"mb-0.5 scale-75"} />
-                  {format(v.stake.toString())}
-                </span>
+              <span className="flex justify-start items-center flex-1 gap-0.5">
+                <Naira className={"mb-px ml-1 scale-75"} />
+                {format(v.stake.toString())}
               </span>
             )}
             <span
@@ -82,13 +78,13 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
                 navigator.clipboard.writeText(v.code);
                 alertService.success("Copied");
               }}
-              className=" bg-c2/5 active:scale-90 py-1 px-3 text-xs gap-1.5 active:bg-white/5 duration-150 rounded-md fx"
+              className=" dark:bg-c2/5 bg-c2/20 active:scale-90 py-1 px-3 text-xs gap-1.5 active:bg-white/5 duration-150 rounded-md fx"
             >
               {v.code}
               <FaRegCopy className="text-c2" />
             </span>
             <button
-              className="bg-red-600/10 text-red-600 py-[5.5px] px-2 rounded-md duration-200"
+              className="dark:bg-red-600/10 bg-red-600/20 text-red-600 py-[5.5px] px-2 rounded-md duration-200"
               onClick={(e) => {
                 e.stopPropagation();
                 promptService.prompt(
@@ -105,15 +101,9 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
             </button>
           </span>
           {active !== index && (
-            <span className=" rounded-t-lg py-1 px-2 from-black/20 via-black/10 to-transparent bg-gradient-to-b gap-px flex flex-col w-full items-center justify-between ">
-              <span className="flex justify-between items-center w-full px-2">
-                <span className="pl-1 after:animate-ping after:rounded-full text-green-600 relative fx aft after:w-1.5 after:h-1.5 after:right-full after:bg-green-600">
-                  Live
-                </span>
-                <span>0% complete</span>
-              </span>
-              <span className="w-full mb-1 h-1 flex justify-start overflow-hidden rounded-lg bg-white/5 ">
-                <span className="h-full w-[20%] bg-c1 rounded-r-lg"></span>
+            <span className=" rounded-lg mb-1 py-1 px-2 dark:from-black/40  from-c5/90 dark:to-transparent bg-gradient-to-r gap-px flex w-full pl-4 items-center justify-between ">
+              <span className="pl-2 flex-1 after:animate-ping after:rounded-full text-green-600 font-bold relative flex items-center justify-start aft after:w-1.5 after:h-1.5 after:right-full after:bg-green-600">
+                Live
               </span>
             </span>
           )}
@@ -192,19 +182,6 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
   );
 };
 
-const compareDates = (d1, d2) => {
-  const date1 = d1.split("-");
-  const date2 = d2.split("-");
-
-  return date1[1] !== date2[1]
-    ? parseInt(date1[1]) > parseInt(date2[1])
-      ? -1
-      : 1
-    : parseInt(date1[2]) > parseInt(date2[2])
-    ? -1
-    : 1;
-};
-
 const DateList = ({ setDate }) => {
   const container = useRef(null);
   const cDate = useRef(null);
@@ -255,16 +232,20 @@ const DateList = ({ setDate }) => {
   }, []);
 
   return (
-    <header className="w-full z-20 flex mt-6 flex-col items-center ">
-      <span className="">{months[new Date().getMonth()]}</span>
+    <>
+      <span className="mt-5 text-c2 w-full text-center">
+        {months[new Date().getMonth()]}
+      </span>
       <div
         ref={container}
-        className="w-full pb-3 pt-1 scroll-smooth px-3 no-bars overflow-x-scroll space-x-2.5 whitespace-nowrap "
+        className="w-full pb-2 pt-1 scroll-smooth px-3 no-bars overflow-x-scroll space-x-2.5 whitespace-nowrap "
       >
         {dateArray.map((dates, key) => (
           <button
-            className={`from-black relative active:scale-110 duration-200 bg-gradient-to-b rounded-b-2xl text-xs gap-2 w-14 h-14 ${
-              active === dates.split(" ")[1] ? "to-c1/75" : "to-c4"
+            className={`from-transparent relative active:scale-110 duration-200 bg-gradient-to-b rounded-2xl gap-2 w-14 h-14 ${
+              active === dates.split(" ")[1]
+                ? "dark:to-c1/75 to-c2/50"
+                : "dark:to-c4 to-c3"
             }`}
             key={key}
             ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
@@ -275,7 +256,7 @@ const DateList = ({ setDate }) => {
           </button>
         ))}
       </div>
-    </header>
+    </>
   );
 };
 
@@ -308,33 +289,18 @@ function Index() {
   return (
     <>
       <DateList setDate={(d) => setDate(d)} />
-      <div className="flex overflow-x-scroll no-bars overflow-y-hidden justify-start mb-5 pb-1 w-[95%] px-4">
-        <button
-          className={`px-5 py-2 fx active:scale-90 duration-150 rounded-xl ${
-            active === 0 ? "bg-c2/5 text-c2" : "text-white/30"
-          }`}
-          onClick={() => setActive(0)}
-        >
-          active
-        </button>
-        <button
-          className={`px-5 py-2 fx gap-1 active:scale-90 duration-150 rounded-xl ${
-            active === 1 ? "bg-c2/5 text-c2" : "text-white/30"
-          }`}
-          onClick={() => setActive(1)}
-        >
-          history <FaChevronRight className="text-[7px]" />
-        </button>
-
-        {["all", "won", "lost"].map((v, key) => (
+      <div className="fx mb-5 pb-1 w-[95%] px-4">
+        {["active", "history"].map((item, key) => (
           <button
             key={key}
-            className={`px-5 py-2 fx gap-1 active:scale-90 duration-150 rounded-xl ${
-              key + 1 === active ? "bg-c2/5 text-c2" : "text-white/30"
+            className={`px-5 py-2 gap-1 fx active:scale-90 relative aft after:bottom-0 after:from-c2 after:to-c1 after:bg-gradient-to-r after:h-0.5 after:rounded-2xl duration-150 rounded-xl ${
+              active === key
+                ? "after:w-4 text-c2"
+                : "dark:text-white/30 text-black/30"
             }`}
-            onClick={() => setActive(key + 1)}
+            onClick={() => setActive(key)}
           >
-            {v}
+            {item}
           </button>
         ))}
       </div>
@@ -346,15 +312,7 @@ function Index() {
               <CircularLoader size={35} depth={4} color />
             </span>
           }
-          error={
-            <span className="fx flex-col text-sm mt-10 gap-2">
-              <BiXCircle className="text-3xl opacity-25" />
-              Something went wrong
-              <button onClick={getBets} className=" text-c2">
-                refresh
-              </button>
-            </span>
-          }
+          error={<Error className={"mt-11"} refresh={() => getBets(1)} />}
         >
           {typeof activeBets === "object" && activeBets?.length > 0 ? (
             activeBets.map((bet, key) => (

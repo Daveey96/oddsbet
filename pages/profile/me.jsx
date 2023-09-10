@@ -7,6 +7,8 @@ import { promptService } from "@/services";
 import Svg from "@/components/Svg";
 import { sports } from "@/components/games";
 import DropDown from "@/components/DropDown";
+import { useRouter } from "next/navigation";
+import { format } from "@/helpers";
 
 const FavSport = () => {
   const [item, setitem] = useState(undefined);
@@ -33,8 +35,35 @@ const FavSport = () => {
   );
 };
 
+const Input = ({ item }) => {
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    setValue(localStorage.getItem(item) || "");
+  }, []);
+
+  return (
+    <input
+      type="text"
+      value={value}
+      onBlur={() => localStorage.setItem(item, value)}
+      onChange={(e) => setValue(format(e.target.value.split(",").join("")))}
+      className="border-2 focus:border-c2 border-c5 text-center rounded-md w-20 py-1"
+    />
+  );
+};
+
 const Stakes = () => {
-  return <div>me</div>;
+  return (
+    <div className="flex no-bars whitespace-nowrap gap-6 overflow-x-scroll">
+      {["Default Stake", "Stake +1", "Stake +2", "Stake +3"].map((v, key) => (
+        <div key={key} className="fx flex-col">
+          {v}
+          <Input v={key} />
+        </div>
+      ))}
+    </div>
+  );
 };
 
 function Me() {
@@ -53,68 +82,72 @@ function Me() {
   };
 
   return (
-    <PayTemplate v={user.email}>
-      <div className="flex flex-1 items-center justify-start overflow-y-scroll overflow-x-hidden flex-col">
-        <header className="fx pt-10 w-full bg-gradient-to-b from-c3 to-transparent gap-3">
-          {["Total bets", "Bets Won"].map((v, key) => (
-            <span
-              className={`fx gap-2 relative shadow-lg rounded-lg py-3 pl-6 pr-7 ${
-                key
-                  ? "bg-green-500 shadow-green-500"
-                  : "bg-sky-600 shadow-sky-500"
-              }`}
-              key={key}
-            >
-              {key ? (
-                <BsTrophy className="text-green-200 text-sm" />
-              ) : (
-                <BiBadgeCheck className="text-sky-200 text-sm" />
-              )}
-              <span className="text-xl font-bold text-white">
-                {key ? 89 : 309}
-              </span>
-              <span className="absolute bottom-[105%]">{v}</span>
+    <PayTemplate v={user?.email} route>
+      <div className="flex flex-1 items-center justify-start  flex-col">
+        <div className="overflow-y-scroll w-full overflow-x-hidden flex flex-1 items-center justify-start  flex-col">
+          <header className="flex overflow-y-hidden pl-8 pt-10 whitespace-nowrap overflow-x-scroll no-bars pb-7 w-full bg-gradient-to-b bg-c3 gap-3">
+            {["Total bets", "Bets Won", "Average Stake", "Highest Win"].map(
+              (v, key) => (
+                <span
+                  className={`fx duration-200 last-of-type:mr-5 active:scale-90 gap-2 relative shadow-lg rounded-lg py-2 pl-6 pr-7 ${
+                    key
+                      ? "bg-green-500 shadow-green-500"
+                      : "bg-sky-600 shadow-sky-500"
+                  }`}
+                  key={key}
+                >
+                  {key ? (
+                    <BsTrophy className="text-green-200 text-sm" />
+                  ) : (
+                    <BiBadgeCheck className="text-sky-200 text-sm" />
+                  )}
+                  <span className="text-lg font-bold text-white">0</span>
+                  <span className="absolute bottom-[105%]">{v}</span>
+                </span>
+              )
+            )}
+          </header>
+          <ul className="flex items-start  mt-5 w-full text-white flex-col relative gap-0.5">
+            <span className="flex w-full from-c2/20 text-c2 to-transparent bg-gradient-to-r dark:bg-black pt-2 pb-3 pl-4 pr-6 items-center gap-1">
+              Quick Settings
             </span>
-          ))}
-        </header>
-        <ul className="flex items-start  mt-10 w-full text-white flex-col relative gap-0.5">
-          <span className="flex rounded-r-3xl bg-c5 dark:bg-black pt-2 pb-3 pl-4 pr-6 items-center text-black gap-1">
-            Quick Settings
-          </span>
-          {["Payment Pin", "Favourite Sport", "Edit Stakes"].map(
-            (item, key) => (
-              <li
-                key={key}
-                className={`flex justify-between items-center w-full py-5 px-5 relative from-c3 text-black to-c3/30 bg-gradient-to-r dark:from-transparent dark:to-transparent dark:bg-c4/40 mx-auto ${
-                  !key && "active:scale-95 duration-150"
-                } ${key === 1 && ""} `}
-              >
-                <span>{item}</span>
-                {/* {key === 0 && <Theme />} */}
-                {/* {key === 1 && <Demo />} */}
-                {!key && (
-                  <span className="fx gap-2 mr-2">
-                    {[0, 1, 2].map((key) => (
-                      <span
-                        key={key}
-                        className="w-2 h-2 rounded-full bg-c5"
-                      ></span>
-                    ))}
-                  </span>
-                )}
-                {key === 1 && <FavSport />}
-              </li>
-            )
-          )}
-        </ul>
-        <ul className="flex items-start mb-1 mt-10 w-full text-white flex-col relative gap-0.5">
-          <span className="flex rounded-r-3xl bg-c5 dark:bg-black pt-2 pb-3 pl-4 pr-6 items-center text-black gap-1">
-            Account
-          </span>
+            {["Payment Pin", "Favourite Sport", "Edit Stakes"].map(
+              (item, key) => (
+                <li
+                  key={key}
+                  className={`flex justify-between w-full  px-5 relative from-c3 text-black to-c3/30 bg-gradient-to-r dark:from-transparent dark:to-transparent dark:bg-c4/40 mx-auto ${
+                    !key && "active:scale-95 duration-150"
+                  } ${
+                    key === 2 ? "flex-col pt-5 pb-3 gap-3" : "items-center py-5"
+                  } `}
+                >
+                  {key !== 2 && <span>{item}</span>}
+                  {/* {key === 0 && <Theme />} */}
+                  {/* {key === 1 && <Demo />} */}
+                  {!key && (
+                    <span className="fx gap-2 mr-2">
+                      {[0, 1, 2].map((key) => (
+                        <span
+                          key={key}
+                          className="w-2 h-2 rounded-full bg-c5"
+                        ></span>
+                      ))}
+                    </span>
+                  )}
+                  {key === 1 && <FavSport />}
+                  {key === 2 && <Stakes />}
+                </li>
+              )
+            )}
+          </ul>
+        </div>
+        <ul className="flex mb-5 px-6 items-start justify-self-end mt-10 w-full text-white relative gap-2.5">
           {["Log out", "Delete Account"].map((item, key) => (
             <li
               key={key}
-              className={`flex justify-between items-center w-full py-5 px-5 relative from-red-500/30 text-red-600 to-transparent bg-gradient-to-r dark:from-transparent dark:to-transparent dark:bg-c4/40 mx-auto active:scale-90 duration-150`}
+              className={`flex rounded-lg justify-between items-center w-full py-3 px-5 relative shadow-lg text-white mx-auto active:scale-90 duration-150 ${
+                key ? "bg-red-600 shadow-red-600" : "bg-red-500 shadow-red-500"
+              }`}
               onClick={() =>
                 promptService.prompt(
                   <>

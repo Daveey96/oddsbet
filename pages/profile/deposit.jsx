@@ -12,7 +12,6 @@ const Deposit = () => {
   const { user, setUser } = useContext(Context);
   const { replace } = useRouter();
   const input = useRef(null);
-  const [loading, setLoading] = useState("");
 
   const [amount, setAmount] = useState("");
 
@@ -51,19 +50,14 @@ const Deposit = () => {
   return (
     <PayTemplate v={"Deposit"}>
       <div className="flex text-base gap-1 flex-col mt-7 mx-auto w-[90%] items-center">
-        <label className="dark:from-c4 from-c5 to-transparent bg-gradient-to-r rounded-t-lg pt-1.5 pb-1 w-full pl-4 text-sm">
-          Amount
-        </label>
-        <div className=" fx relative text-lg w-full">
-          <input
-            ref={input}
-            pattern="[0-9]"
-            className="py-2.5 placeholder:text-white/40 w-full border-4 border-c3 rounded-lg text-center"
-            value={format(amount.split(",").join(""))}
-            placeholder="min. 100"
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </div>
+        <input
+          ref={input}
+          pattern="[0-9]"
+          className="py-3.5 mt-6 text-lg duration-150 placeholder:text-black/50 dark:placeholder:text-white/40 w-full border-b-4 focus:border-c2 border-c3 dark:border-c4 text-center"
+          value={format(amount.split(",").join(""))}
+          placeholder="Enter Amount"
+          onChange={(e) => setAmount(e.target.value)}
+        />
         <div className="w-full relative">
           <PaystackButton
             className="w-full text-white rounded-b-lg rounded-t-sm fx relative dark:bg-c4 bg-c4/25 overflow-hidden"
@@ -79,12 +73,6 @@ const Deposit = () => {
             <span className="z-10 absolute">Continue</span>
           </PaystackButton>
           {disabled && <span className="absolute z-10 inset-0"></span>}
-        </div>
-        <div
-          className={`bg-blue-700/10 flex gap-2 text-sm border-blue-700 rounded-xl border-2 py-2 px-3 mt-10 `}
-        >
-          <BiInfoCircle className="text-blue-700 text-lg mt-0.5" />
-          <span>NB: Make sure to transfer the exact amount entered</span>
         </div>
       </div>
     </PayTemplate>

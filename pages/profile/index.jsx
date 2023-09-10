@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import {
-  BiCog,
   BiLeftArrowAlt,
   BiMoon,
   BiSun,
@@ -12,13 +11,12 @@ import {
   BiUserCircle,
 } from "react-icons/bi";
 import {
-  BsArrowRightShort,
   BsBookmarkFill,
   BsEyeFill,
   BsEyeSlashFill,
   BsFillQuestionDiamondFill,
   BsInfoCircleFill,
-  BsTicket,
+  BsTicketDetailedFill,
 } from "react-icons/bs";
 import Link from "next/link";
 import { Context } from "@/components/layout";
@@ -26,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { CircularLoader, SkeletonLoad } from "@/components/services/Loaders";
 import { appController, userController } from "@/controllers";
 import { format } from "@/helpers";
-import { FaUserFriends } from "react-icons/fa";
+import { FaBars, FaUserFriends } from "react-icons/fa";
 import Retry from "@/components/services/Retry";
 
 const Theme = () => {
@@ -48,31 +46,32 @@ const Theme = () => {
 };
 
 const Vouchers = () => {
-  const [num, setNum] = useState(4);
+  const [num, setNum] = useState(null);
 
   const getVouchers = async () => {
     const data = await appController.getVouchers();
-
     data ? setNum(data.length) : setNum("error");
   };
 
   useEffect(() => {
-    // num === null && getVouchers();
+    num === null && getVouchers();
   }, []);
 
   return (
     <Retry
       state={num}
+      error={<></>}
       loading={
-        <CircularLoader className={"border-white mr-1"} size={14} depth={2} />
+        <CircularLoader
+          className={"border-white dark:border-c2 mr-1"}
+          size={14}
+          depth={2}
+        />
       }
     >
-      <Link
-        href={"/profile/vouchers"}
-        className="duration-200 flex gap-1 items-center dark:text-c2 text-white"
-      >
-        <BsTicket /> {num} available
-      </Link>
+      <span className="duration-200 flex gap-1 items-center dark:text-c2 text-white">
+        <BsTicketDetailedFill /> {!num ? "None" : num} available
+      </span>
     </Retry>
   );
 };
@@ -98,6 +97,11 @@ export default function Index() {
     }
   };
 
+  const clicked = (key) => {
+    key === 1 && push("/profile/transactions");
+    key === 2 && push("/profile/vouchers");
+  };
+
   return (
     <>
       <SkeletonLoad
@@ -107,7 +111,7 @@ export default function Index() {
         {user?.email ? (
           <>
             <Link
-              href="/profile/me"
+              href="/profile"
               className="fx fixed text-white top-0 z-20 dark:bg-black bg-c4 px-5 py-2 shadow-lg shadow-black/50 rounded-b-xl rounded-tr-xl"
             >
               <BiUserCircle className="mr-1 text-lg text-c2" />
@@ -153,7 +157,7 @@ export default function Index() {
               Oops.. <br /> You&apos;re not signed in
             </span>
             <button
-              className="fx h-11 text-white rounded-xl from-c2/70 px-8 to-c1/60 bg-gradient-to-r"
+              className="fx h-11 text-white rounded-xl dark:from-c2/70 px-8 from-c2 to-c1 dark:to-c1/60 bg-gradient-to-r"
               onClick={() => setBackdrop(true)}
             >
               sign in
@@ -167,9 +171,9 @@ export default function Index() {
             <li
               key={key}
               className={`first:rounded-t-3xl flex justify-between items-center w-full first:pt-14 last-of-type:rounded-b-3xl pb-4 pt-6 px-5 relative from-c1 to-c2 bg-gradient-to-r dark:from-transparent dark:to-transparent dark:bg-c4/40 mx-auto ${
-                key === 1 && "active:scale-95 duration-150"
+                key > 0 && "active:scale-95 duration-150"
               } `}
-              onClick={() => key === 1 && push("/profile/transactions")}
+              onClick={() => clicked(key)}
             >
               <span>{item}</span>
               {key === 0 && <Theme />}
@@ -181,7 +185,7 @@ export default function Index() {
             </li>
           ))}
           <span className="flex -top-0 -left-3 bg-c1 dark:bg-black pt-2 pb-3 pl-4 text-sm pr-6 rounded-br-3xl ml-3 absolute items-center dark:text-c2 text-white gap-1">
-            <BiCog className="dark:text-c1 text-c2 text-sm " /> Settings
+            <FaBars className="dark:text-c1 text-c2 text-xs mb-px " /> Menu
           </span>
         </ul>
         <ul className="flex mb-6 overflow-hidden bg-c3 dark:bg-c4/40 mt-4 w-[94%] relative pt-14 gap-2.5 pb-3 rounded-3xl px-3">
@@ -229,8 +233,14 @@ export default function Index() {
   );
 }
 
-export const PayTemplate = ({ v, children }) => {
-  const { back } = useRouter();
+export const PayTemplate = ({ v, children, route }) => {
+  const { back, push } = useRouter();
+  const { user } = useContext(Context);
+
+  useEffect(() => {
+    if (route && !user) push("/profile");
+  }, []);
+
   return (
     <div className="h-screen flex flex-col z-50 fixed dark:bg-black bg-white inset-0">
       <header

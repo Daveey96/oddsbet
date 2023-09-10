@@ -6,12 +6,12 @@ import { ThemeProvider } from "next-themes";
 import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
 import Animated, { BlurredModal } from "../Animated";
-import { apiController, userController } from "@/controllers";
+import { userController } from "@/controllers";
 import { AnimatePresence } from "framer-motion";
 import Stats from "../pages/Stats";
 import Panel from "./Panel";
 import Auth from "../auth";
-import { getDate } from "@/helpers";
+import { condition } from "@/helpers";
 import { CircularLoader } from "../services/Loaders";
 import AllGames from "../pages/AllGames";
 import Hint from "../services/Hint";
@@ -36,6 +36,17 @@ export default function Layout({ children }) {
     };
 
     user === null && getUser();
+
+    ["Default Stake", "Stake +1", "Stake +2", "Stake +3"].forEach(
+      (item, key) => {
+        if (!localStorage.getItem(item)) {
+          localStorage.setItem(
+            item,
+            condition(key, [0, 1, 2, 3], ["100", "100", "500", "1000"])
+          );
+        }
+      }
+    );
   }, [user]);
 
   return (

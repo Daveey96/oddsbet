@@ -15,7 +15,14 @@ const getTransactions = () =>
     return data;
   });
 
+const getVouchers = () =>
+  clientAsync(async () => {
+    const { data } = await axios.get("/api/user/signin?type=vouchers");
+    return data;
+  });
+
 export const appController = {
   deposit,
   getTransactions,
+  getVouchers,
 };

@@ -12,6 +12,7 @@ import { alertService } from "@/services";
 import { CircularLoader } from "../services/Loaders";
 import Animated from "../Animated";
 import { apiController } from "@/controllers";
+import Error from "../services/Error";
 
 export const sports = [
   {
@@ -130,7 +131,7 @@ export default function GameLayout() {
   }, []);
 
   return (
-    <div id={`notLive`} className={`relative bg-c3 mb-1`}>
+    <div id={`notLive`} className={`relative dark:bg-c3/0 bg-c3 mb-1`}>
       <Header
         sport={sport}
         changeSport={changeSport}
@@ -205,19 +206,13 @@ export default function GameLayout() {
                       </span>
                     ))}
                 </div>
+
                 <div
                   className={`w-full bg-white h-full gap-2 fx md:rounded-b-2xl absolute inset-0 z-20 fx flex-col ${
                     key === games.length - 1 && "rounded-b-2xl"
                   } dark:bg-c4`}
                 >
-                  <BiXCircle className="text-3xl" />
-                  Something went wrong
-                  <button
-                    className="text-c2 bg-c2/5 px-3 rounded-lg pb-1.5 pt-1 "
-                    onClick={() => getGames(1)}
-                  >
-                    refresh
-                  </button>
+                  <Error refresh={() => getGames(1)} />
                 </div>
               </div>
             }

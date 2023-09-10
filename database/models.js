@@ -8,7 +8,6 @@ const userSchema = new Schema({
   },
   password: String,
   token: String,
-  pin: Number,
   balance: Number,
   currentStage: Number,
   forgotPass: Number,
@@ -54,6 +53,13 @@ const transactionsSchema = new Schema({
   amount: Number,
 });
 
+const vouchersSchema = new Schema({
+  users: [{ id: String }],
+  info: String,
+  amount: Number,
+  date: String,
+});
+
 const historySchema = new Schema(
   {
     id: Schema.Types.ObjectId,
@@ -78,3 +84,4 @@ export const Games = models?.Games || model("Games", gameSchema);
 export const ActiveBets =
   models?.ActiveBets || model("ActiveBets", activeBetsSchema);
 export const History = models?.History || model("History", historySchema);
+export const Vouchers = models?.Vouchers || model("Vouchers", vouchersSchema);

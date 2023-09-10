@@ -12,7 +12,7 @@ import Game from "./Game";
 import Code from "./Code";
 import { CircularLoader } from "../services/Loaders";
 import { BsUiChecks } from "react-icons/bs";
-import { FaRegCopy } from "react-icons/fa";
+import { FaBan, FaRegCopy } from "react-icons/fa";
 import { Naira } from "../layout/Nav";
 import { condition, format } from "@/helpers";
 import Link from "next/link";
@@ -169,18 +169,16 @@ export default function BetList({ toggle, setToggle }) {
                     <BiEditAlt />
                   </button>
                   <button
-                    className={`w-6 h-6 z-20 active:scale-95 duration-150 rounded-md fx ${
-                      !betcodeLoad ? "bg-c1 text-c2" : "dark:bg-c4 bg-c4/10"
-                    }`}
+                    className={`w-6 h-6 z-20 active:scale-95 duration-150 rounded-md fx dark:bg-c4 bg-c4/10`}
                     onClick={() => setBetcodeLoad(!betcodeLoad)}
                   >
                     <BiCog />
                   </button>
                   <button
-                    className={`w-6 h-6 z-20 active:scale-95 dark:bg-c4 bg-c4/10 duration-150 rounded-md fx `}
+                    className={`w-6 h-6 z-20 bg-red-600/10 active:scale-95 duration-150 rounded-md fx `}
                     onClick={() => setBetList([])}
                   >
-                    <BiTrashAlt />
+                    <FaBan className="text-xs text-red-600" />
                   </button>
                 </span>
               )}

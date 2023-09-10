@@ -12,6 +12,7 @@ import Retry from "../services/Retry";
 import { BsWifiOff } from "react-icons/bs";
 import { apiController } from "@/controllers";
 import { hintService } from "@/services";
+import Error from "../services/Error";
 
 const Animate = ({ children, className }) => (
   <motion.div
@@ -37,16 +38,10 @@ const H2H = () => {
         state={data}
         loading={<CircularLoader className={"mt-24"} size={35} color />}
         error={
-          <div className={`w-full mt-24 gap-2 fx flex-col`}>
+          <Error className={"mt-24"} refresh={() => getGames(1)}>
             <BsWifiOff className="text-2xl" />
             No Internet
-            <button
-              className="text-c2 bg-c2/10 px-3 rounded-lg pb-1.5 pt-1 "
-              onClick={() => getGames(1)}
-            >
-              refresh
-            </button>
-          </div>
+          </Error>
         }
       ></Retry>
     </Animate>
@@ -414,8 +409,12 @@ export default function Stats() {
             iClass="rounded-xl"
             className="flex-1 text-c2 relative text-sm fx order-2 gap-5"
           >
-            <span className="absolute">{time.split(" ")[0]}</span>
-            <span className="font-bold">{time.split(" ")[1]}</span>
+            {time && (
+              <>
+                <span className="absolute">{time.split(" ")[0]}</span>
+                <span className="font-bold">{time.split(" ")[1]}</span>
+              </>
+            )}
           </SkeletonLoad>
           <button
             onClick={() => setGame(null)}
@@ -425,7 +424,7 @@ export default function Stats() {
           </button>
         </div>
       </header>
-      <div className="flex w-[90%] bg-c3 rounded-xl gap-1 text-xs border-0 dark:border-b-2 border-b-c4 justify-center pt-2">
+      <div className="flex w-[90%] bg-c3 dark:bg-c4/40 rounded-xl gap-1 text-xs justify-center pt-2">
         {["Markets", "H2H", "line-ups"].map((v, key) => (
           <button
             className={`aft after:bottom-0 after:duration-200 after:rounded-xl after:from-c1 after:to-c2 after:bg-gradient-to-r relative fx flex-1 pb-2.5 ${
