@@ -62,7 +62,7 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
         </div>
         <div className="flex-1  min-h-[4.5rem] rounded-r-xl shadow-md dark:shadow-none px-5 duration-300 items-center relative flex gap-2 py-1 flex-col z-10 dark:bg-c4/70 bg-c3 ">
           <span
-            className={`flex flex-1 w-full text-sm gap-1 justify-end items-center ${
+            className={`flex flex-1 w-full gap-1 justify-end items-center ${
               active === index ? "h-full items-center" : "mt-1"
             } `}
           >

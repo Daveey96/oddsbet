@@ -7,6 +7,7 @@ import Game from "./Game";
 import { BsWifiOff } from "react-icons/bs";
 import { apiController } from "@/controllers";
 import { Context } from "../layout";
+import Error from "../services/Error";
 
 export default function Live() {
   const [sport, setSport] = useState(1);
@@ -15,7 +16,6 @@ export default function Live() {
   const { setLoading } = useContext(Context);
 
   const getGames = async (id) => {
-    console.log(games);
     games === null && setGames("loading");
 
     let data = await apiController.getMatches(id || sport, true);
@@ -41,12 +41,10 @@ export default function Live() {
     setLoading(false);
   };
 
-  console.log(games);
-
   return (
     <div
       id={"live"}
-      className={`relative mb-1 dark:bg-transparent dark:mt-0 text-white mt-4 dark:bg-black bg-c4`}
+      className={`relative mb-1 mt-5 dark:bg-transparent dark:mt-0 text-white mt-4 dark:bg-black bg-c4`}
     >
       <Header
         sport={sport}
@@ -117,15 +115,11 @@ export default function Live() {
                   </span>
                 ))}
             </div>
-            <div
-              className={`w-full h-full gap-2 fx md:rounded-b-2xl absolute inset-0 z-20 fx flex-col dark:bg-c4/40`}
-            >
-              <BsWifiOff className="text-3xl" />
-              No Internet Connection
-              <button className="text-c2" onClick={getGames}>
-                refresh
-              </button>
-            </div>
+            <Error
+              className={`w-full h-full md:rounded-b-2xl absolute inset-0 z-20 dark:bg-c4/40`}
+              refresh={getGames}
+              type
+            />
           </div>
         }
       >

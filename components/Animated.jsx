@@ -105,6 +105,7 @@ export const Curtain = ({
   children,
   setState,
   sibling,
+  siblingClass,
 }) => {
   const x = useMotionValue(0);
 
@@ -127,7 +128,7 @@ export const Curtain = ({
         initial={{ x: "100%" }}
         animate={{ x: "0%" }}
         exit={{ x: "100%" }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className={`fixed flex-col inset-0 flex z-[23] ${className}`}
       >
         {children}
@@ -140,7 +141,10 @@ export const Curtain = ({
             exit={{ opacity: 0 }}
             style={{ x }}
             transition={{ duration: 0.15 }}
-            className="top-0 fixed z-30 bg-white dark:bg-black fx w-full"
+            className={
+              "top-0 fixed z-30 bg-white dark:bg-black fx w-full pb-1 " +
+              siblingClass
+            }
           >
             {sibling}
           </motion.div>

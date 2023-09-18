@@ -9,6 +9,7 @@ import { Page } from "../Animated";
 import { userController } from "@/controllers";
 import { alertService, overlayService } from "@/services";
 import { Context } from "../layout";
+import Error from "../services/Error";
 
 export default function Auth() {
   const { setUser } = useContext(Context);
@@ -153,18 +154,7 @@ export default function Auth() {
           <CircularLoader size={18} /> fetching forms
         </span>
       }
-      error={
-        <span className="fx flex-col mt-2 gap-3">
-          <BiXCircle className="text-4xl opacity-25" />
-          <span>Something went wrong</span>
-          <button
-            className="relative px-4 py-1.5 aft after:h-0.5 after:top-0 after:inset-x-0 after:bg-gradient-to-r after:from-c1 after:to-c2 bef before:h-px before:bottom-0 before:inset-x-0 before:bg-gradient-to-r before:from-c1 before:to-c2  border-l-2 border-r-2 border-r-c2 fx border-l-c1 flex text-c2"
-            onClick={getCurrentStage}
-          >
-            Retry
-          </button>
-        </span>
-      }
+      error={<Error refresh={getCurrentStage} className={"mt-2"} />}
     >
       <Page variants={[0, 1, 1]} state={activePage}>
         <form

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
 import List from "./List";
 import { sports } from ".";
-import { Context } from "../layout";
 
 function Header({ setMkt, live, title, changeSport, sport }) {
   const header = useRef(null);

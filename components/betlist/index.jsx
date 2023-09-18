@@ -60,7 +60,7 @@ export default function BetList({ toggle, setToggle }) {
   const [placeBet, setPlaceBet] = useState(false);
   const [keyboard, setKeyboard] = useState(false);
   const [stake, setStake] = useState(
-    user?.balance ? user?.balance.toString() : "100"
+    user?.balance ? Math.floor(user?.balance).toString() : "100"
   );
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
   const [betcodeLoad, setBetcodeLoad] = useState(betList.length > 0);

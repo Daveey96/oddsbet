@@ -108,11 +108,7 @@ export default function ForgotPassword({ goBack, active, mail, change }) {
         Forgot Password
       </header>
       <div className="w-full flex-1 overflow-y-scroll overflow-x-hidden">
-        <Page
-          variants={[0, 1]}
-          state={activePage === 2 ? 0 : activePage}
-          className={["", "", ""]}
-        >
+        <Page variants={[0, 1]} state={activePage === 2 ? 0 : activePage}>
           <form
             onSubmit={handleSubmit}
             className="flex w-full px-[4vw] flex-col gap-1 items-start"

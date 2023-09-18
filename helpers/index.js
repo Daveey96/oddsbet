@@ -110,3 +110,26 @@ export const filterGames = (games, ...params) => {
 
   return g;
 };
+
+export const arrange = (games, query = "league") => {
+  let list = [
+    2627, 205451, 5264, 1980, 2196, 1842, 2436, 2036, 10419, 1928, 1977, 1979,
+  ];
+
+  games.sort(function (a, b) {
+    let aIndex = list.indexOf(a.league_id);
+    let bIndex = list.indexOf(b.league_id);
+
+    if (aIndex > -1 && bIndex > -1) {
+      return aIndex - bIndex; // Sort by index in list
+    } else if (aIndex > -1) {
+      return -1; // a comes first
+    } else if (bIndex > -1) {
+      return 1; // b comes first
+    } else {
+      return a.league_id - b.league_id; // Sort normally for non-specific numbers
+    }
+  });
+
+  return games;
+};

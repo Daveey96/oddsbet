@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
 import { BiSearchAlt } from "react-icons/bi";
 import { Context } from "../layout";
@@ -14,6 +13,7 @@ import Game from "../games/Game";
 import Retry from "../services/Retry";
 import Image from "next/image";
 import { Curtain } from "../Animated";
+import { arrange } from "@/helpers";
 
 function AllGames() {
   const { open, setOpen, globalGames } = useContext(Context);
@@ -40,37 +40,41 @@ function AllGames() {
       setState={() => setOpen(null)}
       className="dark:bg-c4 pb-12 bg-white z-[23] overflow-y-scroll overflow-x-hidden"
     >
-      <header className="fx gap-5 mb-3 sticky w-full pt-7 bg-white top-0 z-10">
+      <header className="fx gap-5 mb-3 sticky w-full pt-7 dark:bg-c4 bg-white top-0 z-10">
         {[0, 1].map((key) => (
           <button
             key={key}
-            className={`text-11 fx rounded-full w-4 h-4 border-black/40 border-2 ${
+            className={`text-11 fx rounded-full w-4 h-4 dark:border-none dark:bg-black/20 border-black/40 border-2 ${
               key ? "order-3" : ""
             }`}
           >
             {!key ? <BsCaretLeftFill /> : <BsCaretRightFill />}
           </button>
         ))}
-        <h3 className="font-bold fx text-base">{open?.title?.split(" ")[0]}</h3>
+        <h3 className="font-bold fx dark:font-normal text-base">
+          {open?.title?.split(" ")[0]}
+        </h3>
       </header>
       <div className="fx mt-2 gap-2">
         {sports.map((v, key) => (
           <span
             key={key}
-            className={`flex active:scale-90 duration-200 fx border-2 gap-0.5 rounded-xl flex-col px-2 py-1.5 ${
+            className={`flex text-xs dark:border-none active:scale-90 duration-200 fx border-2 gap-0.5 rounded-xl flex-col px-2 py-1.5 ${
               key === activeSport - 1
-                ? "border-c2 bg-c2/10 text-c2"
-                : "border-black/20"
+                ? "border-c2 bg-c2/10 dark:bg-c2/5 text-c2"
+                : "border-black/20 dark:bg-black/10"
             }`}
             onClick={() => setActiveSport(key)}
           >
             <Svg id={v.id} size={15} />{" "}
-            <span className="text-black">{v.item.slice(0, 6)}</span>
+            <span className="">{v.item.slice(0, 6)}</span>
           </span>
         ))}
       </div>
-      <div className="fx gap-3 pr-1 pt-2 w-full pb-1 bg-white rounded-b-2xl sticky z-10 top-[50px]">
-        <div className={`fx h-7 bg-c3 duration-150 gap-0.5 px-3 rounded-2xl`}>
+      <div className="fx gap-3 pr-1 pt-2 w-full pb-1 dark:bg-c4 bg-white rounded-b-2xl sticky z-10 top-[50px]">
+        <div
+          className={`fx h-7 bg-c3 dark:bg-black duration-150 gap-0.5 px-3 rounded-2xl`}
+        >
           <input
             type="text"
             className={`py-1 peer order-2 w-14 duration-150`}
@@ -84,7 +88,7 @@ function AllGames() {
         {["start time", "1X2"].map((v, key) => (
           <span
             key={key}
-            className="rounded-2xl py-1 h-full bg-c2/10 pl-4 pr-2.5 fx gap-0.5"
+            className="rounded-2xl py-1 h-full bg-c2/10 dark:bg-c2/5  dark:text-c2 pl-4 pr-2.5 fx gap-0.5"
           >
             {v} <BsCaretDownFill className=" text-c2 text-11" />
           </span>
@@ -151,17 +155,11 @@ function AllGames() {
       >
         {typeof games !== String &&
           games !== null &&
-          games.map((game, key) => (
-            <>
-              <Game
-                key={key}
-                game={game}
-                mkt={"WDL"}
-                last={false}
-                margin={false}
-              />
-              <hr className="w-full h-1 bg-c3 last-of-type:hidden last-of-type:mb-52 fx" />
-            </>
+          arrange(games).map((game, key) => (
+            <React.Fragment key={key}>
+              <Game game={game} mkt={"1X2"} last={false} margin={false} />
+              <hr className="w-full dark:border-black h-1 bg-c3 dark:bg-black last-of-type:hidden last-of-type:mb-52 fx" />
+            </React.Fragment>
           ))}
       </Retry>
     </Curtain>

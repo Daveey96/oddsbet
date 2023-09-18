@@ -8,13 +8,13 @@ import Overlay from "../services/Overlay";
 import Animated, { BlurredModal } from "../Animated";
 import { userController } from "@/controllers";
 import { AnimatePresence } from "framer-motion";
-import Stats from "../pages/Stats";
 import Panel from "./Panel";
 import Auth from "../auth";
 import { condition } from "@/helpers";
 import { CircularLoader } from "../services/Loaders";
 import AllGames from "../pages/AllGames";
 import Hint from "../services/Hint";
+import Stats from "../pages/stats";
 
 export const Context = createContext(null);
 
@@ -77,7 +77,7 @@ export default function Layout({ children }) {
           <main className="z-[5] dark:bg-black bg-white inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
             <div
               id="scroll-container"
-              className="flex-1 flex flex-col w-full lg:w-[50%] overflow-y-scroll scroll-smooth overflow-x-hidden"
+              className="flex-1 flex text-xs flex-col w-full lg:w-[50%] overflow-y-scroll scroll-smooth overflow-x-hidden"
             >
               <div className="relative flex flex-col w-full lg:w-[50%]">
                 <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
@@ -108,7 +108,7 @@ export default function Layout({ children }) {
         <BlurredModal
           state={backdrop}
           type={"allChidren"}
-          className="flex text-sm bg-white dark:bg-transparent dark:backdrop-blur-xl flex-col z-[35] items-center"
+          className="flex text-xs bg-white dark:bg-transparent dark:backdrop-blur-xl flex-col z-[35] items-center"
           iClass={[
             "dark:text-white/20 text-black mt-[50px] text-sm px-10 pt-2 mb-4",
             "relative max-w-[480px] overflow-x-hidden overflow-y-visible flex-1 w-full mt-3 flex flex-col justify-start items-center",

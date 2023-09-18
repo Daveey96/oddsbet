@@ -19,7 +19,7 @@ export const sports = [
     id: 1,
     item: "soccer",
     markets: [
-      { item: "1X2", v: "WDL" },
+      { item: "1X2", v: "1X2" },
       { item: "Double Chance", v: "DB" },
       { item: "over | under", v: "OU" },
       { item: "home over | under", v: "HOU" },
@@ -105,7 +105,7 @@ export default function GameLayout() {
   const tags = (v) => {
     return condition(
       v,
-      ["WDL", "WL", "DB", "*"],
+      ["1X2", "WL", "DB", "*"],
       [
         ["1", "X", "2"],
         ["W1", "W2"],
@@ -136,7 +136,10 @@ export default function GameLayout() {
         sport={sport}
         changeSport={changeSport}
         title={"Games"}
-        setMkt={(v) => setMkt(v)}
+        setMkt={(v) => {
+          console.log(v);
+          setMkt(v);
+        }}
       />
       {games.length ? (
         games.map((v, key) => (
@@ -206,14 +209,13 @@ export default function GameLayout() {
                       </span>
                     ))}
                 </div>
-
-                <div
-                  className={`w-full bg-white h-full gap-2 fx md:rounded-b-2xl absolute inset-0 z-20 fx flex-col ${
+                <Error
+                  className={`w-full bg-white h-full md:rounded-b-2xl absolute inset-0 z-20 ${
                     key === games.length - 1 && "rounded-b-2xl"
                   } dark:bg-c4`}
-                >
-                  <Error refresh={() => getGames(1)} />
-                </div>
+                  refresh={() => getGames(1)}
+                  type
+                />
               </div>
             }
           >

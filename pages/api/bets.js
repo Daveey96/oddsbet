@@ -59,7 +59,12 @@ const placeBet = async (req, res, id) => {
   if (!ticket) {
     const code = generateCode();
 
-    let newTicket = await Ticket.create({ tid, code, slip });
+    let newTicket = await Ticket.create({
+      tid,
+      code,
+      slip,
+      createdAt: new Date(),
+    });
     ticket = newTicket;
   }
 
@@ -69,9 +74,10 @@ const placeBet = async (req, res, id) => {
     totalOdds,
     toWin: (totalOdds * parseFloat(stake)).toFixed(2),
     stake,
+    createdAt: new Date(),
   });
 
-  user.balance -= stake;
+  user.balance = (user.balance - stake).toFixed(2);
   await user.save();
 
   const date = new Date().toLocaleTimeString().split(" ")[0].split(":");

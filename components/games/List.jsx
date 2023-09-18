@@ -15,19 +15,14 @@ function List({
 }) {
   const [active, setActive] = useState(0);
 
-  const clicked = (key) => {
-    let a = active;
-    setActive(key);
-    let data = onClick(list[key][v]);
-
-    !data && setActive(a);
-  };
-
   return (
     <ul className={`flex text-sm overflow-x-scroll no-bars gap-3 ${className}`}>
       {list.map((i, key) => (
         <li
-          onClick={() => clicked(key)}
+          onClick={() => {
+            setActive(key);
+            onClick(list[key][v]);
+          }}
           className={`fx last-of-type:mr-3 whitespace-nowrap ${iClass} ${
             active === key ? activeClass : inActiveClass
           }`}

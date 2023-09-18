@@ -87,7 +87,7 @@ export const categories = {
 function Slider() {
   const [mounted, setMounted] = useState(false);
   const [activeSport, setActiveSport] = useState(0);
-  // const { globalGames, getGlobalGames, sport } = useContext(Context);
+  const { globalGames, getGlobalGames, sport } = useContext(Context);
 
   const [games, setGames] = useState(null);
   const [active, setActive] = useState(0);
@@ -99,14 +99,6 @@ function Slider() {
     rubberband: false,
     defaultAnimation: {
       duration: 1000,
-    },
-    slideChanged(e) {
-      let { abs, length } = e.track.details;
-      let a = abs > length ? abs % length : abs;
-
-      leagues.current.v.forEach(
-        (v, i) => e.slides[a].innerText.includes(v) && setActiveLeague(i)
-      );
     },
   });
 
@@ -176,7 +168,7 @@ function Slider() {
       <Retry
         state={games}
         loading={
-          <div className="w-full h-44 relative dark:bg-c4 bg-white inset-0 z-20 fx flex-col mb-1 pb-2">
+          <div className="w-full h-44 relative dark:bg-c4 bg-white inset-0 z-20 fx flex-col pb-2">
             <div className="fx pt-4 flex-1 w-full relative">
               {[0, 1].map((key2) => (
                 <div
@@ -208,7 +200,7 @@ function Slider() {
           </div>
         }
         error={
-          <div className="w-full h-44 gap-2 fx rounded-2xl relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2">
+          <div className="w-full h-44 gap-2 fx relative bg-c4 inset-0 z-20 fx flex-col pb-2">
             <BiXCircle className="text-3xl" />
             Something went wrong
             <button className="text-c2" onClick={() => getGlobalGames(1)}>
@@ -220,7 +212,7 @@ function Slider() {
         {typeof games === "object" && games && games.length > 0 ? (
           <div
             ref={sliderRef}
-            className="keen-slider bg-c3 h-44 relative mb-1 dark:bg-c4 w-full"
+            className="keen-slider bg-c3 h-44 relative dark:bg-c4 w-full"
           >
             {games.map((g, key) => (
               <div
@@ -299,23 +291,27 @@ function Slider() {
           </div>
         )}
       </Retry>
-      <ul className="px-5 py-1 scroll-smooth dark:mb-4 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
+      <ul className="px-5 py-1 mt-1 dark:mb-6 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
         {[0, 1, 2].map((key) => {
           return (
             <li
               key={key}
               onClick={() => setActiveSport(key)}
-              className={`px-4 active:scale-75 duration-200 fx items-center gap-1 py-1.5 rounded-br-2xl rounded-t-2xl dark:rounded-b-2xl dark:rounded-t-md ${
+              className={`px-4 active:scale-90 overflow-hidden relative duration-150 fx items-center gap-1 py-1.5 rounded-br-2xl rounded-t-2xl dark:rounded-b-lg dark:rounded-t-lg ${
                 key === activeSport
-                  ? "text-white dark:from-c1/0 dark:bg-c4 dark:to-c2/0 from-c1 to-c2 bg-gradient-to-l"
-                  : "text-white dark:bg-c4/40 bg-c4/30"
+                  ? "dark:text-c2 text-white dark:from-c1/0 dark:bg-c4 dark:to-c2/0 from-c1 to-c2 bg-gradient-to-l"
+                  : "text-white dark:bg-c4/40 bg-c4/60"
               }`}
             >
               <Svg
                 id={key + 1}
-                className={key === activeSport ? "text-c2" : ""}
+                className={`absolute scale-[2.7] opacity-25 left-2 ${
+                  key === activeSport
+                    ? "text-white dark:opacity-10 dark:text-c2"
+                    : "dark:opacity-5"
+                }`}
               />
-              <span className="text-white">{sports[key].item}</span>
+              <span>{sports[key].item}</span>
             </li>
           );
         })}

@@ -33,6 +33,7 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
         <span className="text-c2 ">{g.starts.split("T")[1].slice(0, -3)}</span>
         <span className="w-[62%] overflow-hidden dark:opacity-30  text-ellipsis whitespace-nowrap">
           {g.league_name}
+          {g.league_id}
         </span>
       </div>
       <div className="w-full flex justify-between items-center">

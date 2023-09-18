@@ -1,12 +1,10 @@
-import { Games } from "@/database";
+import { Games, Stats } from "@/database";
 import { getDate } from "@/helpers";
 import { serverAsync } from "@/helpers/asyncHandler";
 import axios from "axios";
 
 const apiI_options = {
   method: "GET",
-  url: "https://sofascore.p.rapidapi.com/teams/search",
-  params: { name: "Chelsea" },
   headers: {
     "X-RapidAPI-Key": process.env.X_RAPID_API_KEY,
     "X-RapidAPI-Host": "sofascore.p.rapidapi.com",
@@ -40,7 +38,6 @@ const getMatches = async (req, res) => {
 
 const getGlobalGames = async (req, res) => {
   const { id } = req.query;
-  console.log(`id: ${id}`);
 
   const games = await Games.findOne({ id });
 
@@ -81,7 +78,11 @@ const getGlobalGames = async (req, res) => {
         }
       });
 
-      let d = await Games.create({ id, data: non_specials });
+      let d = await Games.create({
+        id,
+        data: non_specials,
+        // createdAt: new Date(),
+      });
 
       return res.send(d.data);
     }
@@ -97,10 +98,81 @@ export const getMatch = async (req, res) => {
 
   const { data } = await axios.request(apiII_options);
 
-  console.log(data);
   if (data) return res.send(data.events[0]);
 
   throw Error("No Internet");
+};
+
+const getTeamId = async (team) => {
+  let options = {
+    url: "https://sofascore.p.rapidapi.com/teams/search",
+    params: { name: team },
+    ...apiI_options,
+  };
+
+  const { data } = await axios.request(options);
+
+  return data.teams[0].id;
+};
+
+const getMatchId = async (team1, team2, teamId) => {
+  let options = {
+    url: "https://sofascore.p.rapidapi.com/teams/get-next-matches",
+    params: {
+      teamId,
+      pageIndex: "0",
+    },
+    ...apiI_options,
+  };
+
+  const { data } = await axios.request(options);
+
+  let game = [];
+
+  array.forEach((element) => {});
+
+  return data.teams[0].id;
+};
+
+const getLastMatches = async (teamId) => {
+  let options = {
+    url: "https://sofascore.p.rapidapi.com/teams/get-last-matches",
+    params: {
+      teamId,
+      pageIndex: "0",
+    },
+    ...apiI_options,
+  };
+
+  const { data } = await axios.request(options);
+
+  let game = [];
+
+  array.forEach((element) => {});
+
+  return data.teams[0].id;
+};
+
+const getStats = async (req, res) => {
+  const { team1, team2, id } = req.query;
+
+  let gameDetails = {};
+
+  let data = await Stats.findOne({ id });
+
+  if (data) gameDetails = data;
+  else {
+    const homeId = await getTeamId(team1);
+    const awayId = await getTeamId(team2);
+    const matchId = await getMatchId(team1, team2, homeId);
+
+    const game = await Stats.create({ id, homeId, awayId, matchId });
+    gameDetails = game;
+  }
+
+  console.log("fin");
+
+  res.send("seen");
 };
 
 export default async function handler(req, res) {
@@ -109,4 +181,6 @@ export default async function handler(req, res) {
   if (req.query.type === "match") return serverAsync(req, res, getMatch);
 
   if (req.query.type === "global") return serverAsync(req, res, getGlobalGames);
+
+  if (req.query.type === "stats") return serverAsync(req, res, getStats);
 }
