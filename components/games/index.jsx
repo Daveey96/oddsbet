@@ -128,6 +128,7 @@ export default function GameLayout() {
 
   useEffect(() => {
     games[0] === null && getGames(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -136,10 +137,7 @@ export default function GameLayout() {
         sport={sport}
         changeSport={changeSport}
         title={"Games"}
-        setMkt={(v) => {
-          console.log(v);
-          setMkt(v);
-        }}
+        setMkt={(v) => setMkt(v)}
       />
       {games.length ? (
         games.map((v, key) => (

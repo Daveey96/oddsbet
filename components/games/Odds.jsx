@@ -61,6 +61,10 @@ export const market = (g, v) => {
   }
 };
 
+let details = {
+  X2: "",
+};
+
 export const Buttons = ({ currentMkt, game, mkt, tags, type }) => {
   const { betList, setBetList } = useContext(Context);
   const { odds, name } = currentMkt;
