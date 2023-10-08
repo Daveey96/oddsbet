@@ -1,18 +1,17 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Retry from "../services/Retry";
-import List from "./List";
-import Game from "./Game";
-import { BiFootball, BiXCircle } from "react-icons/bi";
+import { BiFootball } from "react-icons/bi";
 import { condition, getDate } from "@/helpers";
 import { Context } from "../layout";
 import Header from "./Header";
 import GameList from "./GameList";
 import { alertService } from "@/services";
-import { CircularLoader } from "../services/Loaders";
-import Animated from "../Animated";
+import { Skeleton } from "../services/Loaders";
 import { apiController } from "@/controllers";
 import Error from "../services/Error";
+import { inView } from "framer-motion";
+import { market } from "./Odds";
 
 export const sports = [
   {
@@ -20,10 +19,12 @@ export const sports = [
     item: "soccer",
     markets: [
       { item: "1X2", v: "1X2" },
-      { item: "Double Chance", v: "DB" },
-      { item: "over | under", v: "OU" },
-      { item: "home over | under", v: "HOU" },
-      { item: "away over | under", v: "AOU" },
+      { item: "1X2 - 1st half", v: "01X2" },
+      { item: "Double Chance", v: "DB*" },
+      { item: "Over | Under", v: "OU" },
+      { item: "GG", v: "GG*" },
+      { item: "Fisrt Goal", v: "FTTS*" },
+      { item: "DNB", v: "DNB*" },
     ],
   },
   {
@@ -85,34 +86,24 @@ export default function GameLayout() {
         return true;
       }
     } else {
+      // if (!window.navigator.onLine) {
+      //   if (load) return false;
+      //   else setGames(["error"]);
+      //   return;
+      // }
+      console.log("yes1");
       const data = await apiController.getGlobalGames(id);
+      console.log("yes2");
 
       if (data) {
         globalGames.current[id] = data;
         group(data);
-        if (load) {
-          return true;
-        }
+        if (load) return true;
       } else {
-        !load && setGames(["error"]);
-        if (load) {
-          return false;
-        }
+        if (load) return false;
+        else setGames(["error"]);
       }
     }
-  };
-
-  const tags = (v) => {
-    return condition(
-      v,
-      ["1X2", "WL", "DB", "*"],
-      [
-        ["1", "X", "2"],
-        ["W1", "W2"],
-        ["1X", "12", "2X"],
-        ["points", "over", "under"],
-      ]
-    );
   };
 
   const changeSport = async (id) => {
@@ -123,11 +114,12 @@ export default function GameLayout() {
     if (bool) {
       setMkt(sports[id - 1].markets[0].v);
       setSport(id);
-    } else alertService.error("Connection problem");
+    } else alertService.error("No Internet Connection");
   };
 
   useEffect(() => {
-    games[0] === null && getGames(1);
+    let gamesContainer = document.getElementById("notLive");
+    inView(gamesContainer, () => games[0] === null && getGames(1));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -148,46 +140,36 @@ export default function GameLayout() {
               <div
                 className={`flex aft after:bg-c2 after:blur-2xl after:-z-[2] after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-5 before:z-0 before:rounded-full before:h-28 before:w-28 flex-col relative items-center w-full gap-px `}
               >
-                {Array(4)
-                  .fill("")
-                  .map((i, key1) => (
-                    <div
-                      key={key1}
-                      className={`flex z-[1] rounded-inh overflow-hidden w-full flex-col px-3 pt-3 last-of-type:pb-10 md:last-of-type:rounded-b-2xl pb-3 dark:bg-c4 bg-white ${
-                        key === games.length - 1 && "last-of-type:rounded-b-2xl"
-                      }`}
-                    >
-                      <div className="w-[46%] rounded-md bg-slate-600/25 leading-[14px] mb-1 fade text-[12px]"></div>
-                      <div className="w-full flex overflow-hidden justify-between items-center">
-                        <div className="flex h-10 flex-col justify-between w-[42%]">
-                          {[0, 1].map((key) => (
-                            <span
-                              className="flex bg-white/0 pr-1 w-full gap-1 items-center"
-                              key={key}
-                            >
-                              <Image
-                                width={11}
-                                height={10}
-                                src={"/badge.svg"}
-                                alt=""
-                              />
-                              <span className="fade rounded-md flex-1 bg-slate-600/25 text-[12px] leading-[15px] mr-1"></span>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="w-[58%] flex gap-2">
-                          {Array(3)
-                            .fill("")
-                            .map((i, key2) => (
-                              <span
-                                key={key2}
-                                className="bg-slate-600/25 rounded-md fade flex-1 h-10"
-                              ></span>
-                            ))}
-                        </div>
+                {[0, 1, 2, 3].map((key1) => (
+                  <div
+                    key={key1}
+                    className={`flex z-[1] rounded-inh overflow-hidden w-full flex-col px-3 pt-3 last-of-type:pb-10 md:last-of-type:rounded-b-2xl pb-3 dark:bg-c4 bg-white ${
+                      key === games.length - 1 && "last-of-type:rounded-b-2xl"
+                    }`}
+                  >
+                    <Skeleton className="w-[46%] opacity-50 rounded-md leading-[14px] mb-1 text-[12px]"></Skeleton>
+                    <div className="w-full flex overflow-hidden justify-between items-center">
+                      <div className="flex h-10 flex-col justify-between w-[42%]">
+                        {[0, 1].map((key) => (
+                          <span
+                            className="flex bg-white/0 pr-1 w-full gap-1 items-center"
+                            key={key}
+                          >
+                            <Skeleton className="fade rounded-md flex-1 text-[12px] leading-[15px] mr-1" />
+                          </span>
+                        ))}
+                      </div>
+                      <div className="w-[58%] flex gap-2">
+                        {[0, 1, 2].map((key2) => (
+                          <Skeleton
+                            key={key2}
+                            className="rounded-md flex-1 h-10"
+                          />
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             }
             error={
@@ -227,7 +209,10 @@ export default function GameLayout() {
                 </span>
               </span>
               <span className="w-[60%] text-11 text-black dark:text-c2 fx">
-                {tags(mkt).map((u, key1) => (
+                {market(
+                  undefined,
+                  mkt[0] === "0" ? mkt.slice(1) : mkt
+                ).name.map((u, key1) => (
                   <span key={key1} className="flex-1 text-center">
                     {u}
                   </span>
@@ -261,20 +246,15 @@ export default function GameLayout() {
                 </span>
               ))}
           </div>
-          <div
+          <Error
             className={`w-full bg-white h-full gap-2 fx md:rounded-b-2xl absolute inset-0 z-20 fx flex-col rounded-b-2xl`}
+            refresh={getGames}
           >
             <span className=" relative aft after:h-1 rotate-45 fx after:w-[120%] after:bg-c2">
               <BiFootball className="text-3xl" />
             </span>
             There are no games available
-            <button
-              className="text-c2 bg-c2/5 px-3 rounded-lg pb-1.5 pt-1 "
-              onClick={getGames}
-            >
-              refresh
-            </button>
-          </div>
+          </Error>
         </div>
       )}
     </div>

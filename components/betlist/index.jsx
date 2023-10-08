@@ -7,7 +7,7 @@ import {
 import React, { useContext, useMemo, useState, useEffect, useRef } from "react";
 import { Context } from "../layout";
 import { BiCog, BiEditAlt, BiTrashAlt, BiX, BiXCircle } from "react-icons/bi";
-import Animated from "../Animated";
+import Animated from "../global/Animated";
 import Game from "./Game";
 import Code from "./Code";
 import { CircularLoader } from "../services/Loaders";

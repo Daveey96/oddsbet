@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import { BiChevronLeftCircle } from "react-icons/bi";
 import MatchStats from "./MatchStats";
 import Markets from "./Markets";
-import { Curtain } from "@/components/Animated";
 import { Context } from "@/components/layout";
 import { BsCaretLeftFill } from "react-icons/bs";
-import { SkeletonLoad } from "@/components/services/Loaders";
+import { Skeleton } from "@/components/services/Loaders";
+import { Curtain } from "@/components/global/Animated";
+import { categories } from "@/components/sliders/Slider";
 
 export const Animate = ({ children, className }) => (
   <motion.div
@@ -34,10 +35,10 @@ export default function Stats() {
   useEffect(() => {
     if (game) {
       const cont = document.getElementById("scontainer");
-      cont.scrollTop > 45 ? setHead(true) : setHead(false);
+      cont.scrollTop > 100 ? setHead(true) : setHead(false);
 
       cont.addEventListener("scroll", (e) => {
-        e.target.scrollTop > 45 ? setHead(true) : setHead(false);
+        e.target.scrollTop > 100 ? setHead(true) : setHead(false);
       });
     }
   }, [game]);
@@ -68,12 +69,6 @@ export default function Stats() {
           <span className="flex-1 text-green-500 fx order-2 gap-5">
             {"60'"}
           </span>
-          <button
-            onClick={() => setGame(null)}
-            className="flex text-xs dark:text-white/60 bottom-[110%] items-center gap-0.5 absolute"
-          >
-            <BsCaretLeftFill className="mb-px text-9" /> back
-          </button>
         </div>
       }
       siblingState={head && game}
@@ -81,8 +76,8 @@ export default function Stats() {
       setState={() => setGame(null)}
       className="dark:bg-black bg-white overflow-y-scroll overflow-x-hidden justify-start items-center z-[24] w-full "
     >
-      <header className="top-0 dark:bg-black bg-white fx w-full">
-        <div className="w-[95%] relative rounded-xl mt-9 mb-1  fx ">
+      <header className="top-0 dark:bg-black bg-white fx flex-col w-full">
+        <div className="w-[95%] relative rounded-xl mt-9 fx ">
           {[0, 1].map((key) => (
             <span
               key={key}
@@ -97,31 +92,24 @@ export default function Stats() {
               />
               <span
                 layout
-                className=" duration-200 relative text-sm text-center"
+                className="duration-200 relative text-sm text-center"
               >
                 {key ? game?.away : game?.home}
               </span>
             </span>
           ))}
-          <SkeletonLoad
-            state={time}
-            iClass="rounded-xl"
-            className="flex-1 text-c2 relative text-sm fx order-2 gap-5"
-          >
-            {time && (
-              <>
-                <span className="absolute">{time.split(" ")[0]}</span>
-                <span className="font-bold">{time.split(" ")[1]}</span>
-              </>
-            )}
-          </SkeletonLoad>
-          <button
-            onClick={() => setGame(null)}
-            className="flex text-xs dark:text-white/60 bottom-[105%] items-center gap-0.5 absolute"
-          >
-            <BiChevronLeftCircle className="mt-px" /> back
-          </button>
+          <span className="flex-1 text-c2 relative text-sm fx order-2 gap-5">
+            {game?.time}
+          </span>
+          {game?.rocketOdds && (
+            <span className="fx text-10 bottom-[105%] gap-1 text-orange-500 rounded-xl bg-orange-500/10 py-0.5 px-2 absolute">
+              {categories.icons[2]} rocket odds
+            </span>
+          )}
         </div>
+        <span className="fx text-11 opacity-30 bottom-[105%] gap-1 mb-2 rounded-xl py-0.5 px-2">
+          {game?.league}
+        </span>
       </header>
       <div className="flex w-[90%] bg-c3 dark:bg-c4/40 rounded-xl gap-1 text-xs justify-center pt-2">
         {["Markets", "Stats"].map((v, key) => (

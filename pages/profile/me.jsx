@@ -4,7 +4,7 @@ import { Context } from "@/components/layout";
 import { BiBadgeCheck } from "react-icons/bi";
 import { BsCaretDownFill, BsTrophy } from "react-icons/bs";
 import { promptService } from "@/services";
-import Svg from "@/components/Svg";
+import Svg from "@/components/global/Svg";
 import { sports } from "@/components/games";
 import DropDown from "@/components/DropDown";
 import { useRouter } from "next/navigation";

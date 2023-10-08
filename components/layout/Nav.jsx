@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { BiArrowToLeft } from "react-icons/bi";
+import { BiArrowToLeft, BiWallet, BiWalletAlt } from "react-icons/bi";
 import { Context } from ".";
 import Alert from "../services/Alert";
-import { SkeletonLoad } from "../services/Loaders";
+import { Skeleton } from "../services/Loaders";
 import { format } from "@/helpers";
+import { BsWalletFill } from "react-icons/bs";
 
 export const Naira = ({ className }) => (
   <svg
@@ -69,7 +70,7 @@ function Nav() {
           {visible && (
             <>
               <motion.div
-                className={`justify-center absolute top-0 left-0 -mt-0.5 px-2 h-8 md:px-0 flex md:ml-10 z-10 ${
+                className={`justify-center pt-0.5 absolute top-0 left-0 px-2 h-9 md:px-0 flex md:ml-10 z-10 ${
                   alert ? "opacity-10" : "opacity-100"
                 }`}
                 initial={{ y: "-100%" }}
@@ -78,10 +79,10 @@ function Nav() {
                 transition={{ duration: 0.1 }}
               >
                 <Image
-                  width={75}
+                  width={90}
                   height={10}
                   priority
-                  className="scale-75 md:scale-110"
+                  className=""
                   src={"/logo.svg"}
                   alt="Oddsbet logo"
                 />
@@ -91,27 +92,25 @@ function Nav() {
                 animate={{ y: "0%" }}
                 exit={{ y: "-100%" }}
                 transition={{ duration: 0.1 }}
-                className={`absolute top-0 mr-2 right-0 fx z-10 ${
+                className={`absolute top-0.5 mr-2 right-0 fx z-10 ${
                   alert ? "opacity-10" : "opacity-100"
                 }`}
               >
                 {user?.id ? (
                   <span
-                    className={`fx gap-1 relative text-base px-4 rounded-b-2xl z-30 backdrop-blur-sm " ${
+                    className={`fx gap-1 pt-1 relative text-base pl-4 pr-3 rounded-2xl z-30 backdrop-blur-sm " ${
                       user.balance < 100 ? "text-red-600" : "text-green-600"
                     }`}
                   >
-                    <Naira className="mb-1" />
-                    <span className="mb-[5px]">
-                      {format(user.balance.toString())}
-                    </span>
+                    <BiWallet className="opacity-60" />
+                    <span className="">{format(user.balance.toString())}</span>
                   </span>
                 ) : (
-                  <SkeletonLoad
+                  <Skeleton
                     state={user !== null}
                     tag="button"
                     className={
-                      "fx gap-1 pb-1 px-6 backdrop-blur-sm rounded-b-2xl z-30 h-8"
+                      "fx gap-1 dl after:via-black/20 px-6 backdrop-blur-sm rounded-b-2xl z-30 h-8"
                     }
                     onClick={() => setBackdrop(!backdrop)}
                   >
@@ -121,12 +120,14 @@ function Nav() {
                       </>
                     ) : (
                       <>
-                        join{" "}
+                        <span className="text-gray-500 dark:text-white">
+                          join
+                        </span>
                         <span className="opacity-10 text-white mx-1.5">|</span>
                         <span className="text-c2">login</span>
                       </>
                     )}
-                  </SkeletonLoad>
+                  </Skeleton>
                 )}
               </motion.div>
             </>

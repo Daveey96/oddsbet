@@ -8,7 +8,7 @@ import { betController } from "@/controllers";
 import { FaRegCopy } from "react-icons/fa";
 import { Context } from "@/components/layout";
 import { Naira } from "@/components/layout/Nav";
-import Svg from "@/components/Svg";
+import Svg from "@/components/global/Svg";
 import Error from "@/components/services/Error";
 
 const TicketDots = ({ active, right = false }) => {

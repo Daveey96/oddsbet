@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { sports } from ".";
 import Header from "./Header";
 import Retry from "../services/Retry";
-import Image from "next/image";
 import Game from "./Game";
-import { BsWifiOff } from "react-icons/bs";
 import { apiController } from "@/controllers";
 import { Context } from "../layout";
 import Error from "../services/Error";
+import { Skeleton } from "../services/Loaders";
 
 export default function Live() {
   const [sport, setSport] = useState(1);
@@ -16,9 +15,10 @@ export default function Live() {
   const { setLoading } = useContext(Context);
 
   const getGames = async (id) => {
-    games === null && setGames("loading");
+    (games === null || games === "error") && setGames("loading");
 
-    let data = await apiController.getMatches(id || sport, true);
+    let data = await apiController.getMatches(1, true);
+    console.log(data);
 
     if (data) {
       setGames(
@@ -44,7 +44,7 @@ export default function Live() {
   return (
     <div
       id={"live"}
-      className={`relative mb-1 mt-5 dark:bg-transparent dark:mt-0 text-white mt-4 dark:bg-black bg-c4`}
+      className={`relative mb-1 dark:bg-transparent dark:mt-0 text-white mt-4 dark:bg-black bg-c4`}
     >
       <Header
         sport={sport}
@@ -56,50 +56,40 @@ export default function Live() {
         state={games}
         loading={
           <div
-            className={`flex aft after:bg-c2 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 flex-col relative items-center w-full gap-px `}
+            className={`flex aft after:bg-c2/75 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 flex-col relative items-center w-full gap-px `}
           >
-            {Array(4)
-              .fill("")
-              .map((i, key) => (
-                <div
-                  key={key}
-                  className={`flex z-[1] w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2 dark:bg-c4/40`}
-                >
-                  <div className="w-[46%] rounded-md bg-slate-600/25 leading-[14px] mb-1 fade text-[12px]"></div>
-                  <div className="w-full flex justify-between items-center">
-                    <div className="flex h-10 flex-col justify-between w-[42%]">
-                      {[0, 1].map((key) => (
-                        <span
-                          className="flex bg-white/0 pr-1 w-full gap-1 items-center"
-                          key={key}
-                        >
-                          <Image
-                            width={11}
-                            height={10}
-                            src={"/badge.svg"}
-                            alt=""
-                          />
-                          <span className="fade rounded-md flex-1 bg-slate-600/25 text-[12px] leading-[15px] mr-1"></span>
-                        </span>
-                      ))}
-                    </div>
-                    <div className="w-[58%] flex gap-2">
-                      {Array(3)
-                        .fill("")
-                        .map((i, key2) => (
-                          <span
-                            key={key2}
-                            className="bg-slate-600/25 rounded-md fade flex-1 h-10"
-                          ></span>
-                        ))}
-                    </div>
+            {[0, 1, 2, 3].map((key) => (
+              <div
+                key={key}
+                className={`flex z-[1] w-full flex-col px-3 pt-2.5 last-of-type:pb-12 md:last-of-type:rounded-b-2xl pb-2 bg-c4/40`}
+              >
+                <Skeleton className="w-[46%] rounded-md bg-slate-600/10 after:via-slate-600/10 dl leading-[14px] mb-1 text-[12px]" />
+                <div className="w-full flex justify-between items-center">
+                  <div className="flex h-10 flex-col justify-between w-[42%]">
+                    {[0, 1].map((key) => (
+                      <span
+                        className="flex bg-white/0 pr-1 w-full gap-1 items-center"
+                        key={key}
+                      >
+                        <Skeleton className="rounded-md flex-1 bg-slate-600/20 after:via-slate-600/10 dl text-[12px] leading-[15px] mr-1"></Skeleton>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="w-[58%] flex gap-2">
+                    {[0, 1, 2].map((key2) => (
+                      <Skeleton
+                        key={key2}
+                        className="bg-slate-600/20 after:via-slate-600/10 dl rounded-md flex-1 h-10"
+                      />
+                    ))}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         }
         error={
-          <div className="relative w-full aft after:bg-c2 after:left-[40%] after:-top-4 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28">
+          <div className="relative w-full aft after:bg-c2/75 after:left-[40%] after:-top-4 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28">
             <div className="flex opacity-0 flex-col relative items-center w-full gap-px">
               {Array(4)
                 .fill("")
@@ -125,28 +115,26 @@ export default function Live() {
       >
         {typeof games === "object" && games && games.length > 0 ? (
           <div
-            className={`flex flex-col relative aft after:bg-c2 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px bg-black/40`}
+            className={`flex flex-col relative aft after:bg-c2/75 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px bg-black/40`}
           >
             {games.slice(0, 5).map((game, key) => (
               <Game key={key} isLive={true} game={game} mkt={mkt} />
             ))}
           </div>
         ) : (
-          <div className="relative w-full aft after:bg-c2 after:left-[40%] after:-top-4 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28">
+          <div className="relative w-full aft after:bg-c2/75 after:left-[40%] after:-top-4 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28">
             <div className="flex opacity-0 flex-col relative items-center w-full gap-px">
-              {Array(4)
-                .fill("")
-                .map((i, key) => (
-                  <span
-                    key={key}
-                    className="flex w-full flex-col px-3 pt-2.5 last-of-type:pb-12 pb-2"
-                  >
-                    <span className="w-full leading-[14px] mb-1 text-[12px]">
-                      |
-                    </span>
-                    <span className="w-full h-10"></span>
+              {[0, 1, 2, 3].map((key) => (
+                <span
+                  key={key}
+                  className="flex w-full flex-col px-3 pt-2.5 last-of-type:pb-12 pb-2"
+                >
+                  <span className="w-full leading-[14px] mb-1 text-[12px]">
+                    |
                   </span>
-                ))}
+                  <span className="w-full h-10"></span>
+                </span>
+              ))}
             </div>
             <div
               className={`w-full h-full gap-2 fx md:rounded-b-2xl absolute inset-0 z-20 fx flex-col dark:bg-c4/40`}

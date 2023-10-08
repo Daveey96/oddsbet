@@ -6,7 +6,7 @@ import { apiController } from "@/controllers";
 import Error from "@/components/services/Error";
 import { motion } from "framer-motion";
 import { BsCaretRightFill } from "react-icons/bs";
-import { Page } from "@/components/Animated";
+import { Page } from "@/components/global/Animated";
 import { condition } from "@/helpers";
 
 const Matches = ({ data }) => (

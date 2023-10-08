@@ -5,7 +5,7 @@ import ForgotPassword from "./ForgotPass";
 import Token from "./Token";
 import { BiXCircle } from "react-icons/bi";
 import { CircularLoader, DotLoader } from "../services/Loaders";
-import { Page } from "../Animated";
+import { Page } from "../global/Animated";
 import { userController } from "@/controllers";
 import { alertService, overlayService } from "@/services";
 import { Context } from "../layout";
@@ -151,7 +151,7 @@ export default function Auth() {
       state={currentStage}
       loading={
         <span className="mt-12 fx gap-3">
-          <CircularLoader size={18} /> fetching forms
+          <CircularLoader size={18} depth={2} /> fetching forms
         </span>
       }
       error={<Error refresh={getCurrentStage} className={"mt-2"} />}

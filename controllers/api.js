@@ -23,6 +23,12 @@ const getMatch = (id) => {
     return data;
   }, false);
 };
+const getLogo = (team) => {
+  return clientAsync(
+    async () => (await axios.get(`/api/rapid?team=${team}&type=logo`)).data,
+    false
+  );
+};
 
 const getStats = (team_1, team_2, date) => {
   return clientAsync(async () => {
@@ -38,4 +44,5 @@ export const apiController = {
   getMatch,
   getGlobalGames,
   getStats,
+  getLogo,
 };

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import Svg from "../Svg";
+import Svg from "../global/Svg";
 
 function List({
   list,
@@ -11,12 +11,15 @@ function List({
   onClick,
   activeClass,
   inActiveClass,
-  onActive,
+  id,
 }) {
   const [active, setActive] = useState(0);
 
   return (
-    <ul className={`flex text-sm overflow-x-scroll no-bars gap-3 ${className}`}>
+    <ul
+      id={id}
+      className={`flex text-sm overflow-x-scroll no-bars gap-3 ${className}`}
+    >
       {list.map((i, key) => (
         <li
           onClick={() => {
@@ -28,14 +31,8 @@ function List({
           }`}
           key={key}
         >
-          {icon && (
-            <Svg
-              className={key !== active && "opacity-80"}
-              id={i.id}
-              size={12}
-            />
-          )}
-          {onActive ? <>{active === key && <>{i.item}</>}</> : <>{i.item}</>}
+          {icon && <Svg className={"mt-0.5"} id={i.id} size={11} />}
+          <>{i.item}</>
         </li>
       ))}
     </ul>

@@ -3,7 +3,7 @@ import { PayTemplate } from ".";
 import { overlayService } from "@/services";
 import { BiX } from "react-icons/bi";
 import { CircularLoader } from "@/components/services/Loaders";
-import Animated from "@/components/Animated";
+import Animated from "@/components/global/Animated";
 
 function Pin() {
   const [value, setValue] = useState("");

@@ -3,7 +3,7 @@ import { alertService, overlayService } from "@/services";
 import { FaArrowLeft } from "react-icons/fa";
 import { DotLoader } from "../services/Loaders";
 import { userController } from "@/controllers";
-import { Page } from "../Animated";
+import { Page } from "../global/Animated";
 import Input from "./Input";
 import Token from "./Token";
 

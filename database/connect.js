@@ -5,6 +5,7 @@ export const connectMongo = async (res) => {
     await mongoose.connect(process.env.MONGO_URI);
     return true;
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Server Error" });
     return false;
   }

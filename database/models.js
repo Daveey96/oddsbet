@@ -13,8 +13,12 @@ const userSchema = new Schema({
   forgotPass: Number,
 });
 
+const teamIdSchema = new Schema({
+  team: String,
+  id: String,
+});
+
 const ticketSchema = new Schema({
-  // createdAt: { type: Date, expires: 5 },
   tid: String,
   code: String,
   slip: [
@@ -30,7 +34,8 @@ const ticketSchema = new Schema({
 const gameSchema = new Schema({
   id: Number,
   data: Array,
-  // createdAt: { type: Date, expires: 86400 },
+  date: String,
+  type: Boolean,
 });
 
 const activeBetsSchema = new Schema({
@@ -39,7 +44,6 @@ const activeBetsSchema = new Schema({
   totalOdds: Number,
   toWin: Number,
   stake: Number,
-  // createdAt: { type: Date, expires: 5 },
 });
 
 const transactionsSchema = new Schema({
@@ -81,6 +85,7 @@ export const Ticket = models?.Ticket || model("Ticket", ticketSchema);
 export const Transactions =
   models?.Transactions || model("Transactions", transactionsSchema);
 export const Games = models?.Games || model("Games", gameSchema);
+export const TeamId = models?.TeamId || model("TeamId", teamIdSchema);
 export const ActiveBets =
   models?.ActiveBets || model("ActiveBets", activeBetsSchema);
 export const History = models?.History || model("History", historySchema);

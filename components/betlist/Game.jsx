@@ -1,6 +1,6 @@
 import { animate, motion, useMotionValue } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
-import Svg from "../Svg";
+import Svg from "../global/Svg";
 import { BiChart, BiTrash, BiTrashAlt } from "react-icons/bi";
 import { Context } from "../layout";
 

@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import { ThemeProvider } from "next-themes";
 import Prompt from "../services/Prompt";
 import Overlay from "../services/Overlay";
-import Animated, { BlurredModal } from "../Animated";
+import Animated, { BlurredModal } from "../global/Animated";
 import { userController } from "@/controllers";
 import { AnimatePresence } from "framer-motion";
 import Panel from "./Panel";
@@ -73,38 +73,34 @@ export default function Layout({ children }) {
         <Prompt />
         <Overlay />
         <Hint />
-        <div className="h-screen flex flex-col w-full">
-          <main className="z-[5] dark:bg-black bg-white inset-0 fixed flex flex-col w-full lg:relative lg:flex lg:px-7 lg:gap-3">
-            <div
-              id="scroll-container"
-              className="flex-1 flex text-xs flex-col w-full lg:w-[50%] overflow-y-scroll scroll-smooth overflow-x-hidden"
-            >
-              <div className="relative flex flex-col w-full lg:w-[50%]">
-                <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
-                  <AnimatePresence>{children}</AnimatePresence>
-                </div>
-                <Footer />
-              </div>
-              <Panel />
-              <Tab />
-              <AnimatePresence>
-                {game && <Stats />}
-                {open && <AllGames key={Math.floor(Math.random * 1000)} />}
-              </AnimatePresence>
-              <Animated
-                state={loading}
-                variants={{
-                  init: { x: "-110%" },
-                  show: { x: "-5%" },
-                  exit: { x: "-110%" },
-                }}
-                className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 dark:bg-black bg-c4 py-3"
-              >
-                <CircularLoader size={20} depth={3} color />
-              </Animated>
+        <main
+          id="scroll-container"
+          className="flex-1 flex text-xs inset-0 fixed flex-col w-full lg:w-[50%] overflow-y-scroll scroll-smooth overflow-x-hidden"
+        >
+          <div className="relative flex flex-col w-full lg:w-[50%]">
+            <div className="min-h-[calc(100vh_-_70px)] w-full-c w-full flex flex-col">
+              <AnimatePresence>{children}</AnimatePresence>
             </div>
-          </main>
-        </div>
+            <Footer />
+          </div>
+        </main>
+        <Panel />
+        <Tab />
+        <Animated
+          state={loading}
+          variants={{
+            init: { x: "-110%" },
+            show: { x: "-5%" },
+            exit: { x: "-110%" },
+          }}
+          className="fixed z-30 left-0 pr-3 pl-1.5 rounded-r-3xl top-1/2 dark:bg-black bg-c4 py-3"
+        >
+          <CircularLoader size={20} depth={3} color />
+        </Animated>
+        <AnimatePresence>
+          {game && <Stats />}
+          {open && <AllGames />}
+        </AnimatePresence>
         <BlurredModal
           state={backdrop}
           type={"allChidren"}

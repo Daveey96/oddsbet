@@ -21,7 +21,7 @@ import {
 import Link from "next/link";
 import { Context } from "@/components/layout";
 import { useRouter } from "next/navigation";
-import { CircularLoader, SkeletonLoad } from "@/components/services/Loaders";
+import { CircularLoader, Skeleton } from "@/components/services/Loaders";
 import { appController, userController } from "@/controllers";
 import { format } from "@/helpers";
 import { FaBars, FaUserFriends } from "react-icons/fa";
@@ -104,7 +104,7 @@ export default function Index() {
 
   return (
     <>
-      <SkeletonLoad
+      <Skeleton
         state={user !== null}
         className="dark:bg-c4 bg-white flex flex-col min-h-[100px]"
       >
@@ -164,7 +164,7 @@ export default function Index() {
             </button>
           </span>
         )}
-      </SkeletonLoad>
+      </Skeleton>
       <div className="flex flex-col items-center mt-4 rounded-t-2xl">
         <ul className="flex w-[94%] text-white flex-col relative gap-0.5 rounded-3xl overflow-hidden">
           {arr.map((item, key) => (

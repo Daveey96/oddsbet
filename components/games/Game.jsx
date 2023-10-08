@@ -2,8 +2,11 @@ import Image from "next/image";
 import Odds from "./Odds";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../layout";
-import { categories } from "../Slider";
+import { categories } from "../sliders/Slider";
 import { apiController } from "@/controllers";
+import { mainLeagues } from "@/helpers";
+import { BsFire } from "react-icons/bs";
+import { FaFire } from "react-icons/fa";
 
 const Game = ({ game, mkt, isLive, last, margin }) => {
   const { setGame } = useContext(Context);
@@ -19,7 +22,13 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
         }
       }, 20000);
     }
+    if (g) {
+    }
   }, [g]);
+
+  if (g.event_id === 1579121692) {
+    console.log(g.periods.specials);
+  }
 
   return (
     <div
@@ -30,11 +39,19 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
       }`}
     >
       <div className="w-full flex gap-2 text-[11px]">
-        <span className="text-c2 ">{g.starts.split("T")[1].slice(0, -3)}</span>
-        <span className="w-[62%] overflow-hidden dark:opacity-30  text-ellipsis whitespace-nowrap">
-          {g.league_name}
-          {g.league_id}
+        <span className="text-c2 ">
+          {isLive
+            ? `${new Date(g.last).getMinutes()}'`
+            : g.starts.split("T")[1].slice(0, -3)}
         </span>
+        <span className="flex-1 overflow-hidden dark:opacity-30  text-ellipsis whitespace-nowrap">
+          {g.league_name}
+        </span>
+        {g.rocketOdds && (
+          <span className="fx gap-1 text-orange-500 text-9 mr-3">
+            <>{categories.icons[2]}</> x{g.rocketOdds}
+          </span>
+        )}
       </div>
       <div className="w-full flex justify-between items-center">
         <div className="flex h-9 pr-2 flex-col justify-between w-[42%]">
@@ -46,6 +63,10 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
                   sport: g.sport_id,
                   home: g.home,
                   away: g.away,
+                  league: g.league_name,
+                  rocketOdds: g.rocketOdds,
+                  time: g.starts,
+                  live: false,
                 })
               }
               className="flex pl-1 rounded-md active:bg-white/5 duration-200  bg-white/0 gap-1 items-center"
@@ -83,16 +104,16 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
         </div>
         <Odds
           game={g}
-          key={Math.random()}
+          key={mkt}
           isLive={isLive}
           mkt={mkt}
           className={"w-[58%]"}
+          rOdds={g.rocketOdds}
         />
       </div>
-      <div className="flex mt-0.5 items-center gap-2 ">
-        {"45 >"} {categories.icons[2]}
-        {categories.icons[0]}
-        {categories.icons[3]}
+      <div className="flex mt-0.5 py-0.5 items-center gap-2 ">
+        {mainLeagues.includes(g.league_id) && <>{categories.icons[1]}</>}
+        {g.periods.specials && <>{categories.icons[3]}</>}
       </div>
     </div>
   );

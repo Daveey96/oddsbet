@@ -1,6 +1,11 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import List from "./List";
 import { sports } from ".";
+import {
+  BsCaretRightFill,
+  BsInfoCircle,
+  BsInfoCircleFill,
+} from "react-icons/bs";
 
 function Header({ setMkt, live, title, changeSport, sport }) {
   const header = useRef(null);
@@ -47,9 +52,9 @@ function Header({ setMkt, live, title, changeSport, sport }) {
   return (
     <header
       ref={header}
-      className={`flex mb-px z-20 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
+      className={`flex mb-px duration-200 z-20 pt-8 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
     >
-      <span className="max-w-[90%] text-base gap-1.5 flex items-center pl-4">
+      <span className="max-w-[80%] overflow-hidden rounded-lg text-base gap-1.5 flex items-center pl-4">
         {!live ? (
           <span className="flex items-center pr-1 gap-1">
             {title.split(" ")[0]}
@@ -95,11 +100,9 @@ function Header({ setMkt, live, title, changeSport, sport }) {
         <span className="opacity-50">|</span>
         <List
           className={"w-full"}
-          iClass="py-0.5 shadow-[0px_2px_2px_1px] mt-0.5 mb-0.5 text-[13px] gap-1 pl-2"
-          activeClass={`text-c2 dark:bg-c2/5 shadow-black/20 ${
-            live ? "bg-c2/5" : ""
-          } rounded-lg pr-3`}
-          inActiveClass={"bg-white/5 rounded-lg pr-2 shadow-black/20"}
+          iClass="py-1 shadow-[0px_2px_2px_1px] my-1.5 text-xs gap-1 px-3"
+          activeClass={`text-c2 dark:bg-c2/5 shadow-black/20 rounded-2xl`}
+          inActiveClass={"rounded-2xl dark:bg-black/10 shadow-black/20"}
           onActive={true}
           onClick={changeSport}
           list={sports}
@@ -107,19 +110,38 @@ function Header({ setMkt, live, title, changeSport, sport }) {
           icon
         />
       </span>
-      <List
-        className={"mt-px text-[13px] w-[95%] mb-0.5 py-1 px-2"}
-        iClass={`px-2.5 py-0.5 dark:bg-gray-700/5 dark:shadow-black/20 dark:shadow-[0px_2px_2px_1px] ${
-          live ? "bg-gray-700/5 shadow-black/20 shadow-[0px_2px_2px_1px]" : ""
-        } active:opacity-10 opacity-100 rounded-lg duration-200`}
-        inActiveClass={`dark:text-white/60 ${
-          live ? "text-white/60" : "text-black"
-        }`}
-        activeClass={"text-c2"}
-        onClick={(v) => setMkt(v)}
-        list={sports[sport - 1].markets}
-        key={sport}
-      />
+      <span className="w-full fx relative">
+        <List
+          id={!live && "smkt"}
+          className={"mt-px scroll-smooth text-xs mb-1 w-[95%] py-1 px-2"}
+          iClass={`px-3.5 py-1 dark:shadow-black/20 dark:shadow-[0px_2px_2px_1px] ${
+            live
+              ? "bg-black/50 shadow-black/20 shadow-[0px_2px_2px_1px]"
+              : "shadow-c4/10 last-of-type:mr-7 shadow-[0px_2px_2px_1px]"
+          } active:opacity-10 opacity-100 bg-c4/5 rounded-2xl duration-200`}
+          inActiveClass={`dark:bg-black/40 dark:text-white/60 ${
+            live ? "text-white/60" : "text-black"
+          }`}
+          activeClass={"text-c2 dark:bg-c2/5"}
+          onClick={(v) => setMkt(v)}
+          list={sports[sport - 1].markets}
+          key={sport}
+        />
+        {!live && (
+          <span className="absolute right-0 h-full from-transparent via-c4 to-c4 bg-gradient-to-r pr-2 pl-7 fx">
+            <button
+              onClick={() =>
+                document
+                  .getElementById("smkt")
+                  .scrollTo(document.getElementById("smkt").scrollWidth, 0)
+              }
+              className="rounded-full w-6 h-6 fx bg-black/20"
+            >
+              <BsCaretRightFill className="text-c2" />
+            </button>
+          </span>
+        )}
+      </span>
     </header>
   );
 }

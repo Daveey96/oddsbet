@@ -32,7 +32,7 @@ export default function Button({ toggle, setToggle }) {
               }`}
             >
               {key ? (
-                <span className="w-full from-c1 to-c2 bg-gradient-to-r rounded-t-xl rounded-b-sm h-full"></span>
+                <span className="w-full from-c1 to-c2 bg-gradient-to-r rounded-xl h-full"></span>
               ) : (
                 <>
                   <span className="flex border-r-2 border-c2 pr-3 mr-3">

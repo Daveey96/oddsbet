@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiSearchAlt } from "react-icons/bi";
 import { Context } from "../layout";
 import { sports } from "../games";
-import Svg from "../Svg";
+import Svg from "../global/Svg";
 import {
   BsCaretDownFill,
   BsCaretLeftFill,
@@ -12,31 +12,77 @@ import {
 import Game from "../games/Game";
 import Retry from "../services/Retry";
 import Image from "next/image";
-import { Curtain } from "../Animated";
+import { Curtain } from "../global/Animated";
 import { arrange } from "@/helpers";
+import DropDown from "../global/DropDown";
+import { CircularLoader } from "../services/Loaders";
 
 function AllGames() {
   const { open, setOpen, globalGames } = useContext(Context);
   const [activeSport, setActiveSport] = useState(open?.sport);
   const [games, setGames] = useState(null);
+  const [value, setValue] = useState("");
+  const mainGames = useRef(null);
+  const input = useRef(null);
+  const [searchLoad, setSearchLoad] = useState(false);
+  const [market, setMarket] = useState("1X2");
+  const [sort, setSort] = useState("st");
 
   const getGames = () => {
-    if (open?.date) {
-      setGames(
-        globalGames.current[activeSport].filter(
-          (v) => v.starts.split("T")[0] === open.date
-        )
-      );
-    } else {
-    }
+    let g = globalGames.current[activeSport].filter(
+      (v) => v.starts.split("T")[0] === open.date
+    );
+    mainGames.current = g;
+    setGames(g);
+  };
+
+  const time = (v) => {
+    setTimeout(async () => {
+      if (input.current.value === v) {
+        let g = await mainGames.current.filter(
+          (v) =>
+            v.league_name.toLowerCase().includes(value.toLowerCase()) ||
+            v.home.toLowerCase().includes(value.toLowerCase()) ||
+            v.away.toLowerCase().includes(value.toLowerCase())
+        );
+        setGames(g);
+        setSearchLoad(false);
+      }
+    }, 2000);
+  };
+
+  const typing = (value) => {
+    setValue(value);
+    setSearchLoad(true);
+    time(value);
+  };
+
+  const changed = (v, key) => {
+    console.log(v, key);
+    key ? setMarket(v) : setSort(v);
   };
 
   useEffect(() => {
-    setTimeout(() => games === null && getGames(), 300);
-  }, []);
+    setTimeout(() => games === null && getGames(), 500);
+  }, [games]);
+
+  const details = [
+    [
+      { text: "popularity", v: "p" },
+      { text: "start time", v: "st" },
+    ],
+    [
+      { text: "1X2", v: "1X2" },
+      { text: "1st Half - 1X2", v: "01X2" },
+      { text: "Over Under", v: "OU" },
+      { text: "Home O|U", v: "HOU" },
+      { text: "Away O|U", v: "AOU" },
+    ],
+  ];
 
   return (
     <Curtain
+      id={"allgames"}
       setState={() => setOpen(null)}
       className="dark:bg-c4 pb-12 bg-white z-[23] overflow-y-scroll overflow-x-hidden"
     >
@@ -73,25 +119,41 @@ function AllGames() {
       </div>
       <div className="fx gap-3 pr-1 pt-2 w-full pb-1 dark:bg-c4 bg-white rounded-b-2xl sticky z-10 top-[50px]">
         <div
-          className={`fx h-7 bg-c3 dark:bg-black duration-150 gap-0.5 px-3 rounded-2xl`}
+          className={`fx h-7 bg-c3 dark:bg-black duration-150 gap-1 px-3 rounded-2xl`}
         >
           <input
             type="text"
+            ref={input}
             className={`py-1 peer order-2 w-14 duration-150`}
             placeholder="Search"
+            value={value}
+            onChange={({ target }) => typing(target.value)}
           />
-          <span className="translate-y-px duration-150 order-1 peer-focus:text-c2">
-            <BiSearchAlt />
+          <span className="translate-y-px duration-150 order-1 fx relative peer-focus:text-c2">
+            <BiSearchAlt className={searchLoad ? "opacity-0" : ""} />
+            {searchLoad && (
+              <CircularLoader
+                depth={2}
+                size={12}
+                className={"mr-1 absolute"}
+                color
+              />
+            )}
           </span>
         </div>
-
-        {["start time", "1X2"].map((v, key) => (
-          <span
+        {details.map((v, key) => (
+          <DropDown
+            ngClass={"right-0 mt-2 py-2 px-4 rounded-xl bg-black gap-1"}
+            changed={(key2) => changed(v[key2].v, key)}
+            className="fx gap-1 z-30 text-c2 bg-c2/5 rounded-3xl py-1.5 px-3"
+            iClass="text-c2 bg-black whitespace-nowrap rounded-3xl pt-2 pb-2.5"
+            item={<BsCaretDownFill className=" text-c2 text-9 mt-0.5" />}
             key={key}
-            className="rounded-2xl py-1 h-full bg-c2/10 dark:bg-c2/5  dark:text-c2 pl-4 pr-2.5 fx gap-0.5"
           >
-            {v} <BsCaretDownFill className=" text-c2 text-11" />
-          </span>
+            {v.map((v2, key) => (
+              <React.Fragment key={key}>{v2.text}</React.Fragment>
+            ))}
+          </DropDown>
         ))}
       </div>
       <Retry
@@ -155,10 +217,10 @@ function AllGames() {
       >
         {typeof games !== String &&
           games !== null &&
-          arrange(games).map((game, key) => (
-            <React.Fragment key={key}>
-              <Game game={game} mkt={"1X2"} last={false} margin={false} />
-              <hr className="w-full dark:border-black h-1 bg-c3 dark:bg-black last-of-type:hidden last-of-type:mb-52 fx" />
+          arrange(games, sort).map((game) => (
+            <React.Fragment key={game.event_id}>
+              <Game game={game} mkt={market} last={false} margin={false} />
+              <hr className="w-full dark:border-black h-px bg-c3 dark:bg-black last-of-type:hidden last-of-type:mb-52 fx" />
             </React.Fragment>
           ))}
       </Retry>

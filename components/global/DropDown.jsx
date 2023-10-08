@@ -20,12 +20,10 @@ function DropDown({
   };
 
   let cVariants = {
-    init: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 0 },
+    init: { opacity: 0, x: 10 },
+    show: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 0 },
   };
-
-  console.log(children);
 
   return (
     <button

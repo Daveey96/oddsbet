@@ -73,6 +73,14 @@ export const getDate = (d = 0) => {
   };
 };
 
+export const dateDifference = (
+  date_1 = "2023-04-28",
+  date_2 = "2023-04-29"
+) => {
+  const diff = new Date(date_2).getTime() - new Date(date_1).getTime();
+  return Math.ceil(diff / (1000 * 3600 * 24));
+};
+
 export const format = (v) => {
   let f = v.toString().split(".");
   if (f[0].length < 4) return f.join(".");
@@ -111,25 +119,45 @@ export const filterGames = (games, ...params) => {
   return g;
 };
 
-export const arrange = (games, query = "league") => {
-  let list = [
-    2627, 205451, 5264, 1980, 2196, 1842, 2436, 2036, 10419, 1928, 1977, 1979,
-  ];
+export const mainLeagues = [
+  2627, 205451, 5264, 2630, 1980, 2196, 1842, 2436, 2036, 1834, 10419, 2663,
+  1928, 1977, 1979,
+];
 
-  games.sort(function (a, b) {
-    let aIndex = list.indexOf(a.league_id);
-    let bIndex = list.indexOf(b.league_id);
+export const arrange = (games, query = "p") => {
+  let g = games;
+  if (query === "st") {
+    g.sort(function (a, b) {
+      let aTime = new Date(a.starts);
+      let bTime = new Date(b.starts);
 
-    if (aIndex > -1 && bIndex > -1) {
-      return aIndex - bIndex; // Sort by index in list
-    } else if (aIndex > -1) {
-      return -1; // a comes first
-    } else if (bIndex > -1) {
-      return 1; // b comes first
-    } else {
-      return a.league_id - b.league_id; // Sort normally for non-specific numbers
-    }
-  });
+      if (
+        aTime.getFullYear() <= bTime.getFullYear() &&
+        aTime.getMonth() <= bTime.getMonth() &&
+        aTime.getHours() <= bTime.getFullYear() &&
+        aTime.getMinutes() <= bTime.getFullYear()
+      ) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+  } else if (query === "p") {
+    g.sort(function (a, b) {
+      let aIndex = mainLeagues.indexOf(a.league_id);
+      let bIndex = mainLeagues.indexOf(b.league_id);
 
-  return games;
+      if (aIndex > -1 && bIndex > -1) {
+        return aIndex - bIndex; // Sort by index in list
+      } else if (aIndex > -1) {
+        return -1; // a comes first
+      } else if (bIndex > -1) {
+        return 1; // b comes first
+      } else {
+        return a.league_id - b.league_id; // Sort normally for non-specific numbers
+      }
+    });
+  }
+
+  return g;
 };
