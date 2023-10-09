@@ -14,7 +14,7 @@ body::-webkit-scrollbar-thumb {
 }
 @font-face {
   font-family: "kanit";
-  src: url("../fonts/Kanit-Regular.ttf");
+  src: url("../public/Kanit-Regular.ttf");
 }
 *,
 * > * {

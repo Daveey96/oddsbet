@@ -37,7 +37,7 @@ const Deposit = () => {
   const componentProps = {
     email: user?.email,
     amount: parseFloat(amount) * 100,
-    publicKey: "pk_test_6cc444e4e443b878b1303eb58420f1db9f4c5898",
+    publicKey: "pk_live_46fd297cb732030ffa67369e72818d559136c589",
     onSuccess: () => {
       onSuccess();
     },

@@ -88,22 +88,22 @@ export const categories = {
 };
 
 const Logo = ({ team, placeholder }) => {
-  const [img, setImg] = useState(placeholder);
+  // const [img, setImg] = useState(placeholder);
 
-  const getLogo = async () => {
-    const data = await apiController.getLogo(team);
-    if (data) setImg(data);
-  };
+  // const getLogo = async () => {
+  //   const data = await apiController.getLogo(team);
+  //   if (data) setImg(data);
+  // };
 
-  useEffect(() => {
-    let imgContainer = document.getElementById(team.split(" ").join(""));
-    inView(imgContainer, () => setTimeout(getLogo, 800));
-  }, [img]);
+  // useEffect(() => {
+  //   let imgContainer = document.getElementById(team.split(" ").join(""));
+  //   inView(imgContainer, () => setTimeout(getLogo, 800));
+  // }, [img]);
 
   return (
     <Image
-      id={team.split(" ").join("")}
-      src={img}
+      // id={team.split(" ").join("")}
+      src={placeholder}
       width={40}
       height={30}
       priority
@@ -156,23 +156,33 @@ function Slider() {
     },
   });
 
-  const getGames = async (id) => {
+  const getGames = async (id, filter = "Today") => {
     setGames("loading");
 
-    let data = await apiController.getGlobalGames(id);
+    let data = globalGames.current[id]
+      ? globalGames.current[id]
+      : await apiController.getGlobalGames(id);
 
     if (data) {
-      globalGames.current[id] = data;
+      if (!globalGames.current[id]) globalGames.current[id] = data;
 
       let l = "";
       let arr = [];
-      let todayGames = arrange(
-        data.filter(
-          (v) =>
-            v.starts.split("T")[0] === new Date().toISOString().split("T")[0] &&
-            mainLeagues.includes(v.league_id)
-        )
-      );
+
+      const lFilter = (v) => {
+        if (filter === "Today") {
+          return (
+            v.starts.split("T")[0] === new Date().toISOString().split("T")[0]
+          );
+        } else if (filter === "Popular") {
+          return mainLeagues.includes(v.league_id);
+        }
+        if (filter === "Rocket odds") {
+          return v.rocketOdds;
+        }
+      };
+
+      let todayGames = arrange(data.filter(lFilter).slice(0, 30));
 
       todayGames.forEach((elem, key) => {
         if (elem.league_name !== l) {
@@ -212,7 +222,10 @@ function Slider() {
         {categories.text.map((txt, key) => (
           <button
             key={key}
-            onClick={() => setActive(key)}
+            onClick={() => {
+              setActive(key);
+              getGames(activeSport + 1, txt);
+            }}
             className={`${
               key === active
                 ? `after:h-1 ${condition(
@@ -309,14 +322,14 @@ function Slider() {
                         away: g.away,
                       })
                     }
-                    className="fx rounded-lg pb-3 flex-1 w-full relative"
+                    className="fx rounded-lg pb-2 flex-1 w-full relative"
                   >
                     {[0, 1].map((key2) => (
                       <div
                         key={key2}
                         className={`${
                           key2 && "order-3"
-                        } w-1/3 flex justify-start items-center flex-col h-full overflow-hidden gap-2`}
+                        } w-1/3 flex justify-start items-center flex-col h-full overflow-hidden`}
                       >
                         <motion.span className="w-full h-14 fx">
                           <Logo
@@ -324,7 +337,7 @@ function Slider() {
                             placeholder={key2 ? "/away.svg" : "/home.svg"}
                           />
                         </motion.span>
-                        <span className="text-xs flex-1 max px-2 md:px-5 w-[80%] text-center">
+                        <span className="text-xs fx flex-1 px-2 md:px-5 w-[80%] text-center">
                           {key2 ? g.away : g.home}
                         </span>
                       </div>
@@ -370,11 +383,11 @@ function Slider() {
           </div>
         ) : (
           <Error
-            className="w-full h-44 gap-2 fx relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2"
-            refresh={() => get(1)}
+            className="w-full h-48 gap-2 fx relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2"
+            refresh={() => getGames(activeSport)}
           >
-            <span className=" relative aft after:h-1 rotate-45 fx after:w-[120%] after:bg-c2">
-              <BiFootball className="text-3xl" />
+            <span className=" relative aft after:h-1 rotate-45 fx after:w-[120%] opacity-60 after:bg-c2">
+              <BiFootball className="text-2xl" />
             </span>
             There are no games available
           </Error>

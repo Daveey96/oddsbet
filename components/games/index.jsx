@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import Retry from "../services/Retry";
 import { BiFootball } from "react-icons/bi";
-import { condition, getDate } from "@/helpers";
+import { getDate } from "@/helpers";
 import { Context } from "../layout";
 import Header from "./Header";
 import GameList from "./GameList";
