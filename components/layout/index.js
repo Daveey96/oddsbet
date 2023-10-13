@@ -15,6 +15,7 @@ import { CircularLoader } from "../services/Loaders";
 import AllGames from "../pages/AllGames";
 import Hint from "../services/Hint";
 import Stats from "../pages/stats";
+import Preferences from "../extras/Preferences";
 
 export const Context = createContext(null);
 
@@ -23,9 +24,13 @@ export default function Layout({ children }) {
   const [user, setUser] = useState(null);
   const [game, setGame] = useState(null);
   const [open, setOpen] = useState(null);
+  const [ping, setPing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [backdrop, setBackdrop] = useState(false);
-  const [ping, setPing] = useState(false);
+
+  const [hint, setHint] = useState(null);
+  const [favSport, setFavSport] = useState(null);
+
   const globalGames = useRef({});
 
   useEffect(() => {
@@ -35,18 +40,10 @@ export default function Layout({ children }) {
       setUser(data.user);
     };
 
-    user === null && getUser();
+    setFavSport(localStorage.getItem("favSport") || 0);
+    setHint(localStorage.getItem("showHints") || true);
 
-    ["Default Stake", "Stake +1", "Stake +2", "Stake +3"].forEach(
-      (item, key) => {
-        if (!localStorage.getItem(item)) {
-          localStorage.setItem(
-            item,
-            condition(key, [0, 1, 2, 3], ["100", "100", "500", "1000"])
-          );
-        }
-      }
-    );
+    user === null && getUser();
   }, [user]);
 
   return (
@@ -57,22 +54,27 @@ export default function Layout({ children }) {
         setGame,
         setBackdrop,
         setPing,
+        setHint,
+        setFavSport,
+        setOpen,
         user,
+        favSport,
         betList,
+        hint,
         setLoading,
         game,
         globalGames,
         backdrop,
         ping,
         open,
-        setOpen,
       }}
     >
       <ThemeProvider attribute="class">
         <Nav />
         <Prompt />
         <Overlay />
-        <Hint />
+        {hint && <Hint />}
+        <Preferences />
         <main
           id="scroll-container"
           className="flex-1 flex text-xs inset-0 fixed flex-col w-full lg:w-[50%] overflow-y-scroll scroll-smooth overflow-x-hidden"
@@ -84,7 +86,7 @@ export default function Layout({ children }) {
             <Footer />
           </div>
         </main>
-        <Panel />
+        {/* <Panel /> */}
         <Tab />
         <Animated
           state={loading}

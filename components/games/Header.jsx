@@ -128,14 +128,14 @@ function Header({ setMkt, live, title, changeSport, sport }) {
           key={sport}
         />
         {!live && (
-          <span className="absolute right-0 h-full from-transparent via-c4 to-c4 bg-gradient-to-r pr-2 pl-7 fx">
+          <span className="absolute right-0 h-full from-transparent via-white to-white dark:via-c4 dark:to-c4 bg-gradient-to-r pr-2 pl-7 fx">
             <button
               onClick={() =>
                 document
                   .getElementById("smkt")
                   .scrollTo(document.getElementById("smkt").scrollWidth, 0)
               }
-              className="rounded-full w-6 h-6 fx bg-black/20"
+              className="rounded-full w-6 h-6 fx dark:bg-black/20 bg-c3"
             >
               <BsCaretRightFill className="text-c2" />
             </button>

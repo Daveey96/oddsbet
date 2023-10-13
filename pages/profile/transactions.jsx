@@ -50,7 +50,7 @@ function Transactions() {
                 key={key}
                 className="w-[98%] justify-between flex px-4 rounded-lg dark:from-c4/50 dark:to-c4/40 from-c5 to-c3 bg-gradient-to-r shadow shadow-white/5"
               >
-                <span className="fx gap-1  py-5 text-base ">
+                <span className="fx gap-1 flex-col  py-5 text-base ">
                   {condition(
                     v.info.toLowerCase(),
                     ["deposit", "*"],

@@ -269,13 +269,9 @@ export default function BetList({ toggle, setToggle }) {
                 className="h-2 absolute active:scale-75 duration-150 w-12 z-20 top-0.5 rounded-b-xl from-c1 to-c2 bg-gradient-to-r"
               ></button>
             </header>
-            {betList.length > 0 && (
-              <div className="w-[94%] text-white mr-1 flex justify-start items-center text-xs from-c1 to-c2 bg-gradient-to-r rounded-md py-1 px-3">
-                Add more to get bigger bonuses
-              </div>
-            )}
+
             <motion.div
-              className="flex-1 relative pb-2 no-bars overflow-x-hidden items-center overflow-y-scroll w-full"
+              className="flex-1 relative pb-4 no-bars overflow-x-hidden items-center overflow-y-scroll w-full"
               layout
             >
               <AnimatePresence>

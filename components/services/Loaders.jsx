@@ -58,7 +58,7 @@ export const Skeleton = ({
     )
   ) : (
     <span
-      className={`text-white/0 before:content-["load"] overflow-hidden ${
+      className={`text-white/0 fade before:content-["load"] overflow-hidden ${
         !className.includes("absolute") && "relative"
       } ${
         !className.includes("dl") && "dark:bg-slate-600/20 bg-c5"

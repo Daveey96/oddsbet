@@ -14,7 +14,7 @@ body::-webkit-scrollbar-thumb {
 }
 @font-face {
   font-family: "kanit";
-  src: url("../public/Kanit-Regular.ttf");
+  src: url("../Kanit-Regular.ttf");
 }
 *,
 * > * {
@@ -92,19 +92,7 @@ input:-webkit-autofill:active {
   animation: rotationColor 0.6s linear infinite;
 }
 .fade {
-  @apply relative overflow-hidden text-white/0;
-  background-color: rgb(71, 85, 105 /0.2);
-}
-.fade::after {
-  @apply absolute left-0 top-0 translate-x-[-300%] bg-gradient-to-r h-full w-4/5 from-white/0 to-white/0 dark:via-slate-400/5 via-white/40;
-  content: "";
-  animation: fade 1.5s linear infinite;
-}
-.fade::before {
-  content: "load";
-}
-.fade--animate::after {
-  animation: fade 1.5s linear infinite;
+  animation: fade 2s linear infinite;
 }
 .cent {
   @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
@@ -112,12 +100,13 @@ input:-webkit-autofill:active {
 
 @keyframes fade {
   0% {
-    transform: translateX(-300%);
-    left: 0%;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
   }
   100% {
-    transform: translateX(0%);
-    left: 100%;
+    opacity: 1;
   }
 }
 

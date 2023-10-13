@@ -4,16 +4,19 @@ import Retry from "../services/Retry";
 import Odds from "../games/Odds";
 import { useKeenSlider } from "keen-slider/react";
 import { Skeleton } from "../services/Loaders";
-import { BiFootball, BiRightArrowAlt } from "react-icons/bi";
-import { arrange, condition, mainLeagues, weekDays } from "@/helpers";
+import { BiFootball } from "react-icons/bi";
+import {
+  arrange,
+  condition,
+  dateDifference,
+  mainLeagues,
+  weekDays,
+} from "@/helpers";
 import { Context } from "../layout";
-import "keen-slider/keen-slider.min.css";
-import { sports } from "../games";
 import Error from "../services/Error";
 import { apiController } from "@/controllers";
-import { inView, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { alertService } from "@/services";
-import Svg from "../global/Svg";
 
 export const categories = {
   icons: [
@@ -114,8 +117,7 @@ const Logo = ({ team, placeholder }) => {
 
 function Slider() {
   const [mounted, setMounted] = useState(false);
-  const [activeSport, setActiveSport] = useState(0);
-  const { globalGames, setGame } = useContext(Context);
+  const { globalGames, setGame, favSport } = useContext(Context);
 
   const [games, setGames] = useState(null);
   const [active, setActive] = useState(0);
@@ -156,15 +158,17 @@ function Slider() {
     },
   });
 
-  const getGames = async (id, filter = "Today") => {
+  const getGames = async (filter = "Today") => {
     setGames("loading");
 
-    let data = globalGames.current[id]
-      ? globalGames.current[id]
-      : await apiController.getGlobalGames(id);
+    const favSport = parseInt(localStorage.getItem("favSport") || 0) + 1;
+
+    let data = globalGames.current[favSport]
+      ? globalGames.current[favSport]
+      : await apiController.getGlobalGames(favSport);
 
     if (data) {
-      if (!globalGames.current[id]) globalGames.current[id] = data;
+      if (!globalGames.current[favSport]) globalGames.current[favSport] = data;
 
       let l = "";
       let arr = [];
@@ -199,15 +203,21 @@ function Slider() {
     }
   };
 
-  const changeSport = async (id) => {
-    setActiveSport(id - 1);
-    let res = await getGames(id);
-    if (!res) alertService.error("No Internet Connection");
-  };
+  // const changeSport = async (id) => {
+  //   setActiveSport(id - 1);
+  //   let res = await getGames(id);
+  //   if (!res) alertService.error("No Internet Connection");
+  // };
 
   useEffect(() => {
-    games === null && getGames(activeSport + 1);
+    games === null && getGames();
   }, []);
+
+  const slice = (v) => {
+    if (v.length > 20)
+      return `${v.slice(0, 20).split(" ").slice(0, -1).join(" ")}...`;
+    return v;
+  };
 
   useEffect(() => {
     !mounted && setMounted(true);
@@ -224,21 +234,11 @@ function Slider() {
             key={key}
             onClick={() => {
               setActive(key);
-              getGames(activeSport + 1, txt);
+              getGames(txt);
             }}
             className={`${
-              key === active
-                ? `after:h-1 ${condition(
-                    key,
-                    [0, 1, 2],
-                    [
-                      "after:from-c2 after:to-c1",
-                      "after:from-[#68176f] after:to-[#f00]",
-                      "after:from-[#a40] after:to-[#f00]",
-                    ]
-                  )}`
-                : "after:h-0"
-            } fx gap-1.5 last-of-type:mr-6 active:scale-90 rounded-2xl duration-150 pl-3.5 pr-5 h-9 aft relative after:w-6 fx after:bottom-0 after:bg-gradient-to-r after:rounded-t-xl text-xs`}
+              key === active ? `dark:bg-c4/50 bg-c3/60` : ""
+            } fx gap-1.5 last-of-type:mr-6 active:scale-90 rounded-t-2xl duration-150 pl-3.5 pr-5 pt-2 pb-1.5 mt-1.5 relative text-xs`}
           >
             {categories.icons[key]}
             {txt}
@@ -282,13 +282,13 @@ function Slider() {
         error={
           <Error
             type
-            refresh={() => getGames(activeSport + 1)}
+            refresh={() => getGames()}
             className="w-full h-48 gap-2 fx relative dark:bg-c4 inset-0 z-20 fx flex-col pb-2"
           />
         }
       >
         {typeof games === "object" && games && games.length > 0 ? (
-          <div className="bg-transparent w-full flex flex-col dark:bg-c4">
+          <div className="from-c3/60 to-transparent bg-gradient-to-b w-full flex flex-col dark:from-c4 dark:to-c4">
             <span
               ref={span}
               className=" pl-7 gap-3 scroll-smooth overflow-x-scroll no-bars pt-1 pb-0.5 flex whitespace-nowrap w-full"
@@ -307,7 +307,11 @@ function Slider() {
                 </button>
               ))}
             </span>
-            <div ref={sliderRef} className="keen-slider relative w-full">
+            <div
+              key={active}
+              ref={sliderRef}
+              className="keen-slider relative w-full"
+            >
               {games.map((g, key) => (
                 <div
                   key={key}
@@ -337,8 +341,8 @@ function Slider() {
                             placeholder={key2 ? "/away.svg" : "/home.svg"}
                           />
                         </motion.span>
-                        <span className="text-xs fx flex-1 px-2 md:px-5 w-[80%] text-center">
-                          {key2 ? g.away : g.home}
+                        <span className="text-xs fx max-h-8 flex-1 px-2 md:px-5 w-[80%] text-center">
+                          {slice(key2 ? g.away : g.home)}
                         </span>
                       </div>
                     ))}
@@ -355,12 +359,20 @@ function Slider() {
                       ))} */}
                       <span className="order-2 flex-1  flex items-start px-6 flex-col text-sm text-c2">
                         <span className=" dark:text-white text-sm">
-                          Today
-                          {/* {weekDays[new Date(g.starts.split("T")[0]).getDay()]} */}
-                          <span className="text-c2/80 font-bold ml-2">
-                            {g.starts.split("T")[0].split("-")[1]}/
-                            {g.starts.split("T")[0].split("-")[2]}
-                          </span>
+                          {condition(
+                            dateDifference(
+                              new Date().toISOString(),
+                              g.starts.split("T")[0]
+                            ),
+                            [0, 1, "*"],
+                            [
+                              "Today",
+                              "Tomorrow",
+                              weekDays[
+                                new Date(g.starts.split("T")[0]).getDay()
+                              ],
+                            ]
+                          )}
                         </span>
                         <span className="text-2xl font-bold">
                           {g.starts.split("T")[1].slice(0, -3)}
@@ -384,7 +396,7 @@ function Slider() {
         ) : (
           <Error
             className="w-full h-48 gap-2 fx relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2"
-            refresh={() => getGames(activeSport)}
+            refresh={() => getGames()}
           >
             <span className=" relative aft after:h-1 rotate-45 fx after:w-[120%] opacity-60 after:bg-c2">
               <BiFootball className="text-2xl" />
@@ -393,7 +405,7 @@ function Slider() {
           </Error>
         )}
       </Retry>
-      <ul className="px-5 py-1 mt-1 dark:mb-2 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
+      {/* <ul className="px-5 py-1 mt-1 dark:mb-2 whitespace-nowrap overflow-x-scroll no-bars overflow-y-hidden flex gap-2 w-full">
         {[0, 1, 2].map((key) => {
           return (
             <li
@@ -417,7 +429,7 @@ function Slider() {
             </li>
           );
         })}
-      </ul>
+      </ul> */}
     </>
   );
 }

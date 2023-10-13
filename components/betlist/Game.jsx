@@ -42,7 +42,7 @@ export default function Game({ v, index, deleteGame, setToggle }) {
 
   return (
     <motion.div
-      className={`relative h-[70px] w-full flex items-center overflow-hidden`}
+      className={`relative w-[96%] mx-auto rounded-xl my-2 flex items-center overflow-hidden`}
       initial={{ maxHeight: "70px" }}
       animate={{ maxHeight: "70px" }}
       exit={{ maxHeight: "0px", transition: { duration: 0.1 } }}
@@ -52,42 +52,40 @@ export default function Game({ v, index, deleteGame, setToggle }) {
         onDragEnd={dragEnded}
         style={{ x }}
         onDragStart={() => setDragStart(true)}
-        className={`px-5 z-[1] relative aft after:left-0 after:h-2/5 after:w-1 after:rounded-r-3xl after:bg-white/30 dark:bg-black bg-c4 w-full justify-between items-center h-full flex `}
+        className={`z-[1] dark:bg-black rounded-xl bg-c4 w-full justify-center items-center h-full flex `}
       >
-        <span className="flex w-3/4 flex-col gap-1">
-          <span className="flex w-full items-center text-c2">
-            <Svg id={v.sport_id} className="mr-1 text-c1" />
-            <span className="flex items-center capitalize gap-1">
-              {v.text || v.outcome}
+        <div className="w-full overflow-hidden relative px-4 rounded-xl bg-c4/40 py-3.5 gap-3 flex items-center justify-between">
+          <span className="fx text-white/40 flex-col">
+            Today <span>{v.time}</span>
+          </span>
+          <span className="flex flex-1 flex-col gap-1">
+            <span className="w-full flex">
+              <span className="flex-1 whitespace-nowrap text-ellipsis overflow-hidden">
+                {v.home} <span className="text-c2">vs</span> {v.away}
+              </span>
             </span>
-            <span className="text-white ml-2">@{v.odd}</span>
+            <span className="flex w-full items-center gap-1 text-c2">
+              <span className="text-white/30">Pick: </span>
+              <span className="flex items-center capitalize gap-1">
+                {v.text || v.outcome}
+              </span>
+            </span>
           </span>
-          <span className="w-full ml-2 whitespace-nowrap text-ellipsis overflow-hidden">
-            {v.home} <span className="text-c2">vs</span> {v.away}
-          </span>
-        </span>
-        <span className=" gap-2 fx">
-          {["text-c2 bg-c2/5", "text-red-500 bg-red-500/5"].map(
-            (className, key) => (
-              <button
-                className={`w-6 h-6 active:scale-75 duration-150 rounded-md fx text-sm ${className}`}
-                key={key}
-                onClick={() => clicked(key)}
-              >
-                {!key ? <BiChart /> : <BiTrash />}
-              </button>
-            )
-          )}
-        </span>
+          <span className=" gap-2 fx text-c2 text-sm">{v.odd}</span>
+          <Svg
+            size={50}
+            className={"absolute opacity-5 left-2 -z-10 -translate-x-1/2"}
+          />
+        </div>
       </motion.div>
       <div
-        className={`absolute text-white flex inset-x-0 h-[97%] w-full justify-between ${
+        className={`absolute text-white flex inset-x-0 h-[96%] w-full justify-between ${
           dragStart ? "bg-red-600" : "dark:bg-black bg-c4"
         }`}
       >
         {dragStart &&
           [0, 1].map((key) => (
-            <span key={key} className="fx w-1/4 text-2xl">
+            <span key={key} className="fx w-[15%] text-2xl">
               <BiTrashAlt />
             </span>
           ))}

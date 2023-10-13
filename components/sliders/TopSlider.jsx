@@ -34,7 +34,7 @@ function TopSlider() {
           if (mouseOver) return;
           timeout = setTimeout(() => {
             slider.next();
-          }, 2500);
+          }, 4500);
         };
 
         slider.on("created", () => {
@@ -74,7 +74,7 @@ function TopSlider() {
                   />
                   <span className="absolute text-base flex items-center -inset-0.5 from-transparent bg-gradient-to-b to-black/90 z-20">
                     {key === 0 && (
-                      <span className="w-full opacity-80 flex flex-col items-end text-right text-white/80 px-6">
+                      <span className="w-full opacity-80 flex flex-col items-end text-right text-white px-6">
                         <span>Shoot!! and Score!!</span>
                         <div
                           className={`justify-center px-2 pb-0.5 h-9 flex z-10`}

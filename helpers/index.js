@@ -131,16 +131,9 @@ export const arrange = (games, query = "p") => {
       let aTime = new Date(a.starts);
       let bTime = new Date(b.starts);
 
-      if (
-        aTime.getFullYear() <= bTime.getFullYear() &&
-        aTime.getMonth() <= bTime.getMonth() &&
-        aTime.getHours() <= bTime.getFullYear() &&
-        aTime.getMinutes() <= bTime.getFullYear()
-      ) {
-        return 1;
-      } else {
-        return -1;
-      }
+      if (aTime.getHours() === bTime.getHours())
+        return bTime.getMinutes() - aTime.getMinutes();
+      else return bTime.getHours() - aTime.getHours();
     });
   } else if (query === "p") {
     g.sort(function (a, b) {

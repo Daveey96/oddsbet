@@ -85,7 +85,7 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
                   alt=""
                 />
               </span>
-              <span className="flex flex-1 text-ellipsis whitespace-nowrap overflow-hidden text-[12px] leading-[20px] items-center justify-between">
+              <span className="flex-1 text-ellipsis whitespace-nowrap overflow-hidden text-[12px] leading-[20px]">
                 {key ? g.away : g.home}
               </span>
               {isLive && (

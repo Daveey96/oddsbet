@@ -18,7 +18,7 @@ const deposit = async (req, res, id) => {
   Transactions.create({
     user: id,
     amount,
-    date: date.slice(0, 2).join(":"),
+    date: `${new Date().toISOString()}T${date.slice(0, 2).join(":")}`,
     info: "Deposit",
   });
 

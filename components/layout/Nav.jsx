@@ -110,7 +110,7 @@ function Nav() {
                     state={user !== null}
                     tag="button"
                     className={
-                      "fx gap-1 dl after:via-black/20 px-6 backdrop-blur-sm rounded-b-2xl z-30 h-8"
+                      "fx gap-1 dl after:via-black/20 px-3 backdrop-blur-sm rounded-b-2xl z-30 h-8"
                     }
                     onClick={() => setBackdrop(!backdrop)}
                   >
@@ -120,10 +120,10 @@ function Nav() {
                       </>
                     ) : (
                       <>
-                        <span className="text-gray-500 dark:text-white">
-                          join
+                        <span className="text-black dark:text-white">join</span>
+                        <span className="dark:text-white/10 text-black/50 mx-1.5">
+                          |
                         </span>
-                        <span className="opacity-10 text-white mx-1.5">|</span>
                         <span className="text-c2">login</span>
                       </>
                     )}

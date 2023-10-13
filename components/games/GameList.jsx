@@ -15,18 +15,16 @@ export default function GameList({ games, mkt, last, title, sport, date }) {
           className={`flex flex-col relative aft after:bg-c2 after:blur-2xl after:-z-[2] after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px dark:bg-transparent`}
         >
           {games &&
-            arrange(games)
-              .slice(0, len)
-              .map((game, key) => (
-                <Game
-                  key={key}
-                  isLive={false}
-                  game={game}
-                  mkt={mkt}
-                  last={last}
-                  margin={games && games.length > len}
-                />
-              ))}
+            arrange(arrange(games).slice(0, len), "st").map((game, key) => (
+              <Game
+                key={key}
+                isLive={false}
+                game={game}
+                mkt={mkt}
+                last={last}
+                margin={games && games.length > len}
+              />
+            ))}
           {games && games.length > len && (
             <button
               onClick={() => setOpen({ title, sport, date })}
