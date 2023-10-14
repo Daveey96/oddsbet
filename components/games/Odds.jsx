@@ -162,7 +162,7 @@ const getMarket = (v, first, out) => {
   return text;
 };
 
-export const Buttons = ({ currentMkt, game, mkt, tags, slider }) => {
+export const Buttons = ({ currentMkt, game, mkt, tags, slider, isLive }) => {
   const { betList, setBetList } = useContext(Context);
   const { odds, name } = currentMkt;
   const [active, setActive] = useState(undefined);
