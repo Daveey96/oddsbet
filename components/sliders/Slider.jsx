@@ -248,7 +248,7 @@ function Slider() {
       <Retry
         state={games}
         loading={
-          <div className="w-full h-48 relative dark:bg-c4 bg-white inset-0 z-20 fx flex-col pb-2">
+          <div className="w-full h-48 relative from-c3/60 to-transparent bg-gradient-to-b dark:from-c4 dark:to-c4 inset-0 z-20 fx flex-col pb-2">
             <Skeleton className="pl-7 pb-0.5 flex rounded-lg ml-3 mt-3 w-2/3" />
             <div className="fx flex-1 w-full relative">
               {[0, 1].map((key2) => (
@@ -283,7 +283,7 @@ function Slider() {
           <Error
             type
             refresh={() => getGames()}
-            className="w-full h-48 gap-2 fx relative dark:bg-c4 inset-0 z-20 fx flex-col pb-2"
+            className="w-full h-48 gap-2 fx relative from-c3/60 to-transparent bg-gradient-to-b dark:from-c4 dark:to-c4 inset-0 z-20 fx flex-col pb-2"
           />
         }
       >
@@ -395,7 +395,7 @@ function Slider() {
           </div>
         ) : (
           <Error
-            className="w-full h-48 gap-2 fx relative bg-c4 inset-0 z-20 fx flex-col mb-1 pb-2"
+            className="w-full h-48 gap-2 fx relative from-c3/60 to-transparent bg-gradient-to-b dark:from-c4 dark:to-c4 inset-0 z-20 fx flex-col mb-1 pb-2"
             refresh={() => getGames()}
           >
             <span className=" relative aft after:h-1 rotate-45 fx after:w-[120%] opacity-60 after:bg-c2">
