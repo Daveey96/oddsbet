@@ -212,4 +212,36 @@ export const BlurredModal = ({
   );
 };
 
+export const Modal = ({
+  state,
+  className,
+  iClass,
+  variants,
+  transition,
+  setState,
+  children,
+}) => {
+  return (
+    <Animated
+      onClick={setState}
+      transition={transition}
+      variants={{
+        init: { opacity: 0 },
+        show: { opacity: 1 },
+        exit: { opacity: 1 },
+      }}
+      className={"inset-0 " + className}
+      state={state}
+    >
+      <motion.div
+        variants={{ init: { y: 20 }, show: { y: 0 }, exit: { y: 0 } }}
+        onClick={(e) => e.stopPropagation()}
+        className={iClass}
+      >
+        {children}
+      </motion.div>
+    </Animated>
+  );
+};
+
 export default Animated;

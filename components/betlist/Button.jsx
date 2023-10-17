@@ -27,7 +27,7 @@ export default function Button({ toggle, setToggle }) {
               style={{ x: "-50%", left: "50%" }}
               className={`absolute fx rounded-xl z-20 ${
                 key
-                  ? "h-[6px] w-12 bottom-[106%]"
+                  ? "h-2 w-12 bottom-[106%]"
                   : "bottom-[110%] py-2 dark:bg-black bg-c4 px-4 shadow dark:shadow-black shadow-c4"
               }`}
             >

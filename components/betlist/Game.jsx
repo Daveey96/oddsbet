@@ -1,7 +1,7 @@
 import { animate, motion, useMotionValue } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
 import Svg from "../global/Svg";
-import { BiChart, BiTrash, BiTrashAlt } from "react-icons/bi";
+import { BiTrashAlt } from "react-icons/bi";
 import { Context } from "../layout";
 
 export default function Game({ v, index, deleteGame, setToggle }) {
@@ -41,55 +41,55 @@ export default function Game({ v, index, deleteGame, setToggle }) {
   };
 
   return (
-    <motion.div
-      className={`relative w-[96%] mx-auto rounded-xl my-2 flex items-center overflow-hidden`}
-      initial={{ maxHeight: "70px" }}
-      animate={{ maxHeight: "70px" }}
-      exit={{ maxHeight: "0px", transition: { duration: 0.1 } }}
-    >
+    <>
+      <span className="w-[100%] h-[2px] bg-c4/50 rounded-2xl fx mx-auto"></span>
       <motion.div
-        drag="x"
-        onDragEnd={dragEnded}
-        style={{ x }}
-        onDragStart={() => setDragStart(true)}
-        className={`z-[1] dark:bg-black rounded-xl bg-c4 w-full justify-center items-center h-full flex `}
+        className={`relative w-full mx-auto flex items-center overflow-hidden`}
+        initial={{ maxHeight: "100px" }}
+        animate={{ maxHeight: "100px" }}
+        exit={{ maxHeight: "0px", transition: { duration: 0.1 } }}
       >
-        <div className="w-full overflow-hidden relative px-4 rounded-xl bg-c4/40 py-3.5 gap-3 flex items-center justify-between">
-          <span className="fx text-white/40 flex-col">
-            Today <span>{v.time}</span>
-          </span>
-          <span className="flex flex-1 flex-col gap-1">
-            <span className="w-full flex">
-              <span className="flex-1 whitespace-nowrap text-ellipsis overflow-hidden">
+        <motion.div
+          drag="x"
+          onDragEnd={dragEnded}
+          style={{ x }}
+          onDragStart={() => setDragStart(true)}
+          className={`z-[1] dark:bg-black bg-c4 w-full justify-center items-center h-full flex `}
+        >
+          <div className="w-full overflow-hidden mb-0.5 relative pr-4 shadow shadow-black/50 dark:shadow-none flex">
+            <span className="fx text-white/40 py-3.5 bg-black/20 dark:bg-c4/30 px-2.5 flex-col">
+              Today{" "}
+              <span className="text-white/80">
+                {v.time.split("T")[1].slice(0, -3)}
+              </span>
+            </span>
+            <span className="flex px-3 py-3 relative overflow-hidden h-full  flex-1 flex-col gap-1">
+              <span className="flex items-center gap-1 text-base capitalize">
+                <Svg id={v.sport_id} className={" text-c1 text-lg"} />
+                {v.outcome}
+              </span>
+              <span className=" text-c2">{v.outcomeName}</span>
+              <span className="flex-1 opacity-50 whitespace-nowrap text-ellipsis overflow-hidden">
                 {v.home} <span className="text-c2">vs</span> {v.away}
               </span>
             </span>
-            <span className="flex w-full items-center gap-1 text-c2">
-              <span className="text-white/30">Pick: </span>
-              <span className="flex items-center capitalize gap-1">
-                {v.text || v.outcome}
+
+            <span className=" gap-2 fx text-c2 text-base">{v.odd}</span>
+          </div>
+        </motion.div>
+        <div
+          className={`absolute text-white flex inset-x-0 h-[96%] w-full justify-between ${
+            dragStart ? "bg-red-600" : "dark:bg-black bg-c4"
+          }`}
+        >
+          {dragStart &&
+            [0, 1].map((key) => (
+              <span key={key} className="fx w-[15%] text-2xl">
+                <BiTrashAlt />
               </span>
-            </span>
-          </span>
-          <span className=" gap-2 fx text-c2 text-sm">{v.odd}</span>
-          <Svg
-            size={50}
-            className={"absolute opacity-5 left-2 -z-10 -translate-x-1/2"}
-          />
+            ))}
         </div>
       </motion.div>
-      <div
-        className={`absolute text-white flex inset-x-0 h-[96%] w-full justify-between ${
-          dragStart ? "bg-red-600" : "dark:bg-black bg-c4"
-        }`}
-      >
-        {dragStart &&
-          [0, 1].map((key) => (
-            <span key={key} className="fx w-[15%] text-2xl">
-              <BiTrashAlt />
-            </span>
-          ))}
-      </div>
-    </motion.div>
+    </>
   );
 }

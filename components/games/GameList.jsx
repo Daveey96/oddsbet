@@ -22,7 +22,11 @@ export default function GameList({ games, mkt, last, title, sport, date }) {
                 game={game}
                 mkt={mkt}
                 last={last}
-                margin={games && games.length > len}
+                className={`dark:bg-c4 bg-white pb-1 ${
+                  games && games.length > len
+                    ? "last-of-type:pb-9"
+                    : "last-of-type:pb-7"
+                } ${last && "last-of-type:rounded-b-2xl"}`}
               />
             ))}
           {games && games.length > len && (

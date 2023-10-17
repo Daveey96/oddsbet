@@ -10,6 +10,7 @@ import { Context } from "@/components/layout";
 import { Naira } from "@/components/layout/Nav";
 import Svg from "@/components/global/Svg";
 import Error from "@/components/services/Error";
+import Animated from "@/components/global/Animated";
 
 const TicketDots = ({ active, right = false }) => {
   return (
@@ -195,7 +196,7 @@ const DateList = ({ setDate }) => {
     "Jul",
     "Aug",
     "Sep",
-    "Oct",
+    "October",
     "Nov",
     "Dec",
   ];
@@ -245,7 +246,7 @@ const DateList = ({ setDate }) => {
             className={`from-transparent relative active:scale-110 duration-200 bg-gradient-to-b rounded-2xl gap-2 w-14 h-14 ${
               active === dates.split(" ")[1]
                 ? "dark:to-c1/75 to-c2/50"
-                : "dark:to-c4 to-c3"
+                : "dark:to-black/25 to-c3"
             }`}
             key={key}
             ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
@@ -266,6 +267,7 @@ function Index() {
   const [activeBets, setActiveBets] = useState(null);
   const [active, setActive] = useState(0);
   const [date, setDate] = useState(getDate().isoString);
+  const [head, setHead] = useState(null);
 
   const getBets = async () => {
     setActiveBets("loading");
@@ -280,6 +282,19 @@ function Index() {
 
   useEffect(() => {
     setTimeout(() => activeBets === null && getBets(), 2000);
+
+    const optimize = (v) => {
+      v ? !head && setHead(true) : head && setHead(false);
+    };
+
+    const main = document.getElementById("scroll-container");
+    if (main) {
+      main.scrollTop > 100 ? optimize(true) : optimize();
+
+      main.addEventListener("scroll", (e) => {
+        e.target.scrollTop > 100 ? optimize(true) : optimize();
+      });
+    }
   }, [activeBets]);
 
   useEffect(() => {
@@ -288,21 +303,33 @@ function Index() {
 
   return (
     <>
-      <DateList setDate={(d) => setDate(d)} />
-      <div className="fx mb-5 pb-1 w-[95%] px-4">
-        {["active", "history"].map((item, key) => (
-          <button
-            key={key}
-            className={`px-5 py-2 gap-1 fx active:scale-90 relative aft after:bottom-0 after:from-c2 after:to-c1 after:bg-gradient-to-r after:h-0.5 after:rounded-2xl duration-150 rounded-xl ${
-              active === key
-                ? "after:w-4 text-c2"
-                : "dark:text-white/30 text-black/30"
-            }`}
-            onClick={() => setActive(key)}
-          >
-            {item}
-          </button>
-        ))}
+      <div className={`bg-c4/80 pb-3 flex flex-col pt-5 ${!head && "z-20"}`}>
+        <DateList setDate={(d) => setDate(d)} />
+      </div>
+      <div
+        className={`top-12 aft z-10 after:-z-[1] after:duration-150 sticky after:h-32 after:bottom-0 after:inset-x-0 w-full ${
+          head && "after:bg-c4"
+        }`}
+      >
+        <div
+          className={`flex whitespace-nowrap no-bars pl-9 overflow-x-scroll pb-3 mt-2 w-full`}
+        >
+          {["All", "Cashout Available", "live", "history"].map((item, key) => (
+            <button
+              key={key}
+              className={`px-5 py-2 mr-4 whitespace-nowrap gap-1 fx active:scale-90 relative duration-150 rounded-3xl ${
+                active === key
+                  ? "text-c2 bg-c2/5"
+                  : head
+                  ? "dark:text-white/30 text-black/30 bg-black/20"
+                  : "bg-c4/70"
+              }`}
+              onClick={() => setActive(key)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="flex mb-7 items-center flex-col gap-4 w-full">
         <Retry
@@ -312,7 +339,7 @@ function Index() {
               <CircularLoader size={35} depth={4} color />
             </span>
           }
-          error={<Error className={"mt-11"} refresh={() => getBets(1)} />}
+          error={<Error className={"mt-20"} type refresh={() => getBets(1)} />}
         >
           {typeof activeBets === "object" && activeBets?.length > 0 ? (
             activeBets.map((bet, key) => (

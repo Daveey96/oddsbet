@@ -118,7 +118,13 @@ export default function Live() {
             className={`flex flex-col relative aft after:bg-c2/75 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px bg-black/40`}
           >
             {games.slice(0, 5).map((game, key) => (
-              <Game key={key} isLive={true} game={game} mkt={mkt} />
+              <Game
+                key={key}
+                className={"last-of-type:pb-12 bg-c4/50 text-white pb-3"}
+                isLive={true}
+                game={game}
+                mkt={mkt}
+              />
             ))}
           </div>
         ) : (

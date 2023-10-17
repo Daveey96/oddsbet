@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import Retry from "../services/Retry";
 import { BiFootball } from "react-icons/bi";
-import { getDate } from "@/helpers";
+import { getDate, mktDb } from "@/helpers";
 import { Context } from "../layout";
 import Header from "./Header";
 import GameList from "./GameList";
@@ -22,7 +22,7 @@ export const sports = [
       { item: "Double Chance", v: "DB*" },
       { item: "Over | Under", v: "OU" },
       { item: "GG", v: "GG*" },
-      { item: "Fisrt Goal", v: "FTTS*" },
+      { item: "First Goal", v: "FTTS*" },
       { item: "DNB", v: "DNB*" },
     ],
   },
@@ -208,10 +208,7 @@ export default function GameLayout() {
                 </span>
               </span>
               <span className="w-[60%] text-11 text-black dark:text-c2 fx">
-                {market(
-                  undefined,
-                  mkt[0] === "0" ? mkt.slice(1) : mkt
-                ).name.map((u, key1) => (
+                {mktDb(mkt).tags.map((u, key1) => (
                   <span key={key1} className="flex-1 text-center">
                     {u}
                   </span>

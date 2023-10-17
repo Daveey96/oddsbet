@@ -1,168 +1,144 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { BiInfoCircle } from "react-icons/bi";
 import { Context } from "@/components/layout";
 import { Animate } from ".";
 import Retry from "@/components/services/Retry";
 import { CircularLoader } from "@/components/services/Loaders";
-import { BsCaretUpFill } from "react-icons/bs";
-import { Buttons, market } from "@/components/games/Odds";
+import {
+  BsArrowBarUp,
+  BsCaretUpFill,
+  BsChevronDoubleUp,
+  BsInfoCircleFill,
+  BsStar,
+  BsStarFill,
+  BsX,
+} from "react-icons/bs";
+import { getMarket } from "@/components/games/Odds";
 import { categories } from "@/components/sliders/Slider";
 import Error from "@/components/services/Error";
+import { mktDb } from "@/helpers";
+import { Buttons } from "@/components/games/Buttons";
+import Animated, { Modal } from "@/components/global/Animated";
 
-const Markets = ({ game, live }) => {
+const Markets = ({ game, live, head, setInfo }) => {
   const [data, setData] = useState(null);
   const { globalGames } = useContext(Context);
-  const [active, setActive] = useState(0);
-  const markets = useRef([
-    "All",
+  const [active, setActive] = useState("Main");
+  const [closed, setClosed] = useState([]);
+  const scroll = useRef(null);
+  const [markets, setMarkets] = useState([
+    "Favourites",
+    "Main",
     "1st Half",
     "Goals",
-    "Corners",
-    "Bookings",
-    "Specials",
   ]);
-  const [closed, setClosed] = useState([]);
+  const [favourites, setFavourites] = useState([]);
 
-  const getMarkets = (active) => {
+  const getMarkets = () => {
     if (data === "string" || data === null) return false;
 
-    let arr = [];
-    const db = (text) => {
-      let g = [
-        {
-          text: `${text}${text ? " -" : ""} 1X2`,
-          infoText: "",
-          v: "1X2",
-          type: true,
-        },
-        {
-          text: `${text} ${text ? " -" : ""} Total Over | Under`,
-          infoText: "",
-          v: "OU",
-        },
-        {
-          text: (
-            <>
-              {game?.home} - Over | Under {text ? "(1st Half)" : ""}
-            </>
-          ),
-          infoText: "",
-          v: "HOU",
-        },
-        {
-          text: (
-            <>
-              {game?.away} - Over | Under {text ? "(1st Half)" : ""}
-            </>
-          ),
-          infoText: "",
-          v: "AOU",
-        },
+    if (active === "Main")
+      return [
+        "1X2",
+        "DB*",
+        "OU",
+        "GG*",
+        "FTTS*",
+        "HOU",
+        "AOU",
+        "COR*",
+        "BOO*",
+        "HAN*",
+        "DNB*",
+        "CS*",
+        "OE*",
+        "WM*",
       ];
+    else if (active === "1st Half")
+      return [
+        "01X2",
+        "0DB*",
+        "0OU",
+        "0GG*",
+        "0HOU",
+        "0AOU",
+        "0COR*",
+        "0BOO*",
+        "0DNB*",
+        "0CS*",
+        "0OE*",
+        "0WM*",
+      ];
+    else if (active === "Goals")
+      return [
+        "GG*",
+        "GR*",
+        "HG*",
+        "HTS*",
+        "HTWN*",
+        "AG*",
+        "ATS*",
+        "ATWN*",
+        "0GG*",
+        "0GR*",
+        "0HG*",
+        "0HTS*",
+        "0HTWN*",
+        "0AG*",
+        "0ATS*",
+        "0ATWN*",
+      ];
+    else if (active === data?.home)
+      return ["HOU", "HG*", "HTS*", "HTWN*", "0HOU", "0HG*", "0HTS*", "0HTWN*"];
+    else if (active === data?.away)
+      return ["AOU", "AG*", "ATS*", "ATWN*", "0AOU", "0AG*", "0ATS*", "0ATWN*"];
+    else if (active === "Favourites") return favourites;
 
-      g.forEach((ga, key) => {
-        ga.tags = key ? ["points", "over", "under"] : ["1", "X", "2"];
-        ga.mkt = text === "" ? ga.v : `0${ga.v}`;
-        ga.period = text === "" ? data?.periods?.num_0 : data?.periods?.num_1;
-      });
-
-      return g;
-    };
-
-    const dc = (text) => [
-      {
-        text: `Total ${text}`,
-        infoText: "",
-        v: "OU",
-        period:
-          text === "Corners" ? data?.Corners?.num_0 : data?.Bookings?.num_0,
-        tags: ["", "over", "under"],
-        mkt: text === "Corners" ? "TC" : "TB",
-      },
-      {
-        text: `Total ${text} - 1st Half`,
-        infoText: "",
-        v: "OU",
-        period:
-          text === "Corners" ? data?.Corners?.num_1 : data?.Bookings?.num_1,
-        tags: ["", "over", "under"],
-        mkt: text === "Corners" ? "0TC" : "0TB",
-      },
-    ];
-
-    if (active === 0) {
-      arr = [...db(""), ...db("1st Half"), ...dc("Corners"), ...dc("Bookings")];
-    } else if (active === 1) arr = db("1st Half");
-    else if (active > 1) arr = active === 2 ? dc("Corners") : dc("Bookings");
-
-    return arr;
+    return [];
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const mkt = useMemo(() => getMarkets(active), [data, active]);
+  const mkt = useMemo(getMarkets, [data, active, favourites]);
 
   const getData = async () => {
     // dev
     const d = globalGames.current[game.sport].filter(
       (v) => v.event_id === game.id
     )[0];
-    let mkts = [
-      "1X2",
-      "DB*",
-      "OU",
-      "01X2",
-      "0DB*",
-      "0OU",
-      "0HOU",
-      "0AOU",
-      "0GG",
-      "0COR",
-      "0CSC",
-      "0DNB",
-      "0ETS",
-      "0ETG",
-      "0HG",
-      "0HTS",
-      "0HTWN",
-      "0AG",
-      "0ATS",
-      "0ATWN",
-      "0EO",
-      "0GR",
-      "0WM",
-      "1X2",
-      "1X2",
-      "1X2",
-    ];
-
-    // hintService.hint(
-    //   <>
-    //     <FaLongArrowAltLeft />
-    //   </>,
-    //   "rounded-xl cent pt-4 pb-6 px-12"
-    // );
 
     // production
     // const data = await apiController.getMatch(game.id);
 
     if (d) {
-      // let m = [];
+      if (d?.periods?.specials) setMarkets([...markets, d.home, d.away]);
+      setData(d);
+    } else setData("error");
+  };
 
-      // [0, 1, 2, 3].forEach((key) => {
-      //   if (key === 0) d.periods.num_1 && m.push("All");
-      //   else if (key === 1) d.periods.num_0 && m.push("1st Half");
-      //   else if (key === 2) d.Corners && m.push("Corners");
-      //   else if (key === 3) d.Bookings && m.push("Bookings");
-      // });
+  const activate = ({ target }, v) => {
+    setActive(v);
+    scroll.current.scrollTo(
+      target.offsetLeft -
+        scroll.current.offsetWidth / 2 +
+        target.offsetWidth / 2,
+      0
+    );
+  };
 
-      markets.current = [...markets.current, d.home, d.away];
-
-      return setData(d);
+  const updateFavourites = (v) => {
+    if (favourites.includes(v)) {
+      let removeValue = favourites.filter((m) => m !== v);
+      localStorage.setItem("favourites", removeValue.join());
+      setFavourites(removeValue);
+    } else {
+      let addValue = [...favourites, v];
+      localStorage.setItem("favourites", addValue.join());
+      setFavourites(addValue);
     }
-    setData(false);
   };
 
   useEffect(() => {
+    if (localStorage.getItem("favourites"))
+      setFavourites(localStorage.getItem("favourites").split(","));
+
     setTimeout(() => data === null && getData(), 500);
   }, [data]);
 
@@ -174,53 +150,65 @@ const Markets = ({ game, live }) => {
         error={
           <Error
             className={`w-full mt-24 gap-2 fx flex-col`}
-            refresh={() => getData(1)}
+            refresh={getData}
             type
           />
         }
       >
         {typeof data === "object" && data !== null && (
           <>
-            <div className="w-full flex text-xs items-center dark:bg-black no-bars overflow-x-scroll gap-3 pl-8 pt-2 pb-2 overflow-y-hidden whitespace-nowrap bg-white top-[70px] dark:shadow-lg shadow-black/50 sticky z-10">
-              {markets.current.map((v, key) => (
+            <div
+              ref={scroll}
+              className={`w-full scroll-smooth flex text-xs items-center dark:bg-black no-bars overflow-x-scroll gap-3 pl-8 pt-2 pb-2 overflow-y-hidden whitespace-nowrap bg-white top-[70px] shadow-black/30 dark:shadow-black/50 sticky z-10 ${
+                head && "shadow-md"
+              }`}
+            >
+              {markets.map((v, key) => (
                 <button
                   className={`fx active:scale-75 duration-100 px-5 py-1 relative last:mr-4 rounded-xl ${
-                    key === active
+                    v === active
                       ? "dark:bg-c2/5 dark:text-c2 bg-c2 text-white"
-                      : "dark:bg-c4/40 bg-c3"
+                      : "dark:bg-c4/60 bg-c3"
                   }`}
-                  onClick={() => setActive(key)}
+                  onClick={(e) => activate(e, v)}
                   key={key}
                 >
+                  {v === "Specials" ? categories.icons[3] : <></>}
                   {v}
                 </button>
               ))}
-              <button
-                className={`fx pl-3.5 pr-4 gap-1 py-1 rounded-xl ${
-                  active === 4
-                    ? "bg-c2/5 text-c2"
-                    : "dark:bg-c4/60 bg-purple-700/30 dark:text-white/80"
-                }`}
-              >
-                {categories.icons[3]} Specials
-              </button>
             </div>
-            <div className="flex mb-24 flex-col w-full">
-              {mkt.map(
-                (d, key) =>
-                  d.period && (
-                    <div
-                      key={key}
-                      className="w-full mt-5 flex-col items-start flex gap-2"
-                    >
-                      <span className="w-full dark:from-c4/30 dark:to-c4/20 from-c4/0 via-c4/10 to-c2/0 bg-gradient-to-r text-xs flex gap-1 justify-between items-center px-4 py-1.5">
-                        <span className="fx gap-1">
-                          <BiInfoCircle className="text-c2" /> {d.text}
-                        </span>
-                        <button
-                          className={`duration-150 text-c2 px-2 ${
-                            closed.includes(key) ? "rotate-180" : "rotate-0"
-                          }`}
+            <div className="flex flex-col w-full">
+              <div
+                className={`relative empty:after:flex after:hidden after:opacity-80 after:content-["No_markets_available"] after:text-sm aft after:w-full after:justify-center after:top-24 flex-col min-h-[70vh] w-full`}
+              >
+                {mkt.map((v, key) => {
+                  let g = mktDb(v, data);
+                  let f = v.includes("*")
+                    ? data?.periods?.specials
+                    : data?.periods;
+                  const odds = getMarket(
+                    v[0] === "0" ? f?.num_1 : f?.num_0,
+                    v[0] === "0" ? v.slice(1) : v,
+                    data?.rocketOdds,
+                    data
+                  );
+                  let isNull = null;
+
+                  odds.forEach((v) => {
+                    if (v !== null && v?.length !== 0) {
+                      isNull = true;
+                      return;
+                    }
+                  });
+
+                  return (
+                    isNull && (
+                      <div
+                        key={key}
+                        className="w-full mt-3 flex-col items-start flex gap-2"
+                      >
+                        <span
                           onClick={() =>
                             setClosed(
                               closed.includes(key)
@@ -228,37 +216,70 @@ const Markets = ({ game, live }) => {
                                 : [...closed, key]
                             )
                           }
+                          className="w-full dark:from-c4/30 dark:to-c4/20 from-c3/20 dark:via-c4/10 via-c3/20 to-c3/20 bg-gradient-to-r text-xs flex gap-1 justify-between items-center px-4 py-1.5"
                         >
-                          <BsCaretUpFill />
-                        </button>
-                      </span>
-                      {!closed.includes(key) && (
-                        <>
-                          {d.type ? (
-                            <div className="flex gap-2 px-4 w-full">
-                              <Buttons
-                                currentMkt={market(d.period, d.v)}
-                                mkt={d.mkt}
-                                key={active}
-                                game={data}
-                                tags={d.tags}
-                                type
-                              />
-                            </div>
-                          ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInfo({
+                                text: g.text,
+                                info: g?.info || "i am info",
+                              });
+                            }}
+                            className="fx gap-1"
+                          >
+                            <BsInfoCircleFill className="text-c2" />
+                            {g.text}
+                          </button>
+                          <span className="fx h-full text-c2">
+                            <span
+                              className={`duration-150 text-c2 px-2 ${
+                                closed.includes(key) ? "rotate-0" : "rotate-180"
+                              }`}
+                            >
+                              <BsCaretUpFill />
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateFavourites(v);
+                              }}
+                              className="px-1"
+                            >
+                              {favourites.includes(v) ? (
+                                <BsStarFill />
+                              ) : (
+                                <BsStar />
+                              )}
+                            </button>
+                          </span>
+                        </span>
+                        {!closed.includes(key) && (
+                          <div
+                            className={`${!g.type && "flex gap-2 px-4"} w-full`}
+                          >
                             <Buttons
-                              currentMkt={market(d.period, d.v)}
-                              mkt={d.mkt}
+                              odds={odds}
+                              mkt={v}
                               key={active}
                               game={data}
-                              tags={d.tags}
+                              main
                             />
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )
-              )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  );
+                })}
+              </div>
+              <span
+                onClick={() => {
+                  document.getElementById("scontainer").scrollTo(0, 0);
+                }}
+                className="w-full duration-200 active:scale-75 bg-c5 dark:bg-c4/50 text-c2 gap-2 text-sm pb-20 pt-5 rounded-t-3xl fx mt-8"
+              >
+                Back to top <BsChevronDoubleUp />
+              </span>
             </div>
           </>
         )}

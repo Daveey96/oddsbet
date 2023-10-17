@@ -8,44 +8,38 @@ import { mainLeagues } from "@/helpers";
 import { BsFire } from "react-icons/bs";
 import { FaFire } from "react-icons/fa";
 
-const Game = ({ game, mkt, isLive, last, margin }) => {
+const Game = ({ game, mkt, isLive, last, margin, className }) => {
   const { setGame } = useContext(Context);
   const [g, setG] = useState(game);
 
   useEffect(() => {
     if (isLive) {
       setTimeout(async () => {
-        const data = await apiController.getMatch(g.event_id);
-
-        if (data) {
-          setG(data);
-        }
+        // const data = await apiController.getMatch(g.event_id);
+        // if (data) setG(data);
       }, 20000);
-    }
-    if (g) {
     }
   }, [g]);
 
-  if (g.event_id === 1579121692) {
+  if (g.event_id === 1580133770) {
     console.log(g.periods.specials);
   }
 
   return (
-    <div
-      className={`flex z-[2] w-full flex-col px-3 pt-3 md:last-of-type:rounded-b-2xl pb-1 ${
-        isLive ? "bg-c4/50 text-white" : "dark:bg-c4 bg-white"
-      } ${last && "last-of-type:rounded-b-2xl"} ${
-        margin ? "last-of-type:pb-9" : "last-of-type:pb-7"
-      }`}
-    >
+    <div className={`flex z-[2] w-full flex-col px-3 pt-3 ${className} `}>
       <div className="w-full flex gap-2 text-[11px]">
         <span className="text-c2 ">
           {isLive
             ? `${new Date(g.last).getMinutes()}'`
             : g.starts.split("T")[1].slice(0, -3)}
         </span>
-        <span className="flex-1 overflow-hidden dark:opacity-30  text-ellipsis whitespace-nowrap">
+        <span
+          className={`flex-1 overflow-hidden dark:opacity-30  text-ellipsis whitespace-nowrap ${
+            isLive ? "opacity-30" : "opacity-70"
+          }`}
+        >
           {g.league_name}
+          {g.event_id}
         </span>
         {g.rocketOdds && (
           <span className="fx gap-1 text-orange-500 text-9 mr-3">
@@ -66,15 +60,19 @@ const Game = ({ game, mkt, isLive, last, margin }) => {
                   league: g.league_name,
                   rocketOdds: g.rocketOdds,
                   time: g.starts,
-                  live: false,
+                  live: isLive,
                 })
               }
               className="flex pl-1 rounded-md active:bg-white/5 duration-200  bg-white/0 gap-1 items-center"
               key={key}
             >
               <span
-                className={`dark:-translate-y-0.5 dark:after:hidden dark:shadow-none after:bg-white shadow-md shadow-black after:w-6 after:h-6 fx after:rounded-full aft relative ${
+                className={`dark:-translate-y-0.5 dark:after:hidden dark:shadow-none fx relative ${
                   key ? "-z-[2]" : "-z-[1]"
+                } ${
+                  !isLive
+                    ? "after:bg-white shadow-md shadow-black after:w-6 after:h-6 after:rounded-full aft"
+                    : ""
                 }`}
               >
                 <Image

@@ -36,7 +36,7 @@ export const getDate = (d = 0) => {
 
   const normalize = (value) => {
     let g = value.toString();
-    if (g.length === 1) g = "0" + g;
+    if (g?.length === 1) g = "0" + g;
     return g;
   };
 
@@ -105,10 +105,10 @@ export const filterGames = (games, ...params) => {
   let g = games;
 
   params.forEach((p) => {
-    if (p === "pr") g = g.filter((v) => v.parent_id !== null);
-    else if (p === "npr") g = g.filter((v) => v.parent_id === null);
+    if (p === "pr") g = g?.filter((v) => v.parent_id !== null);
+    else if (p === "npr") g = g?.filter((v) => v.parent_id === null);
     else if (p === "t") {
-      g = g.sort((a, b) =>
+      g = g?.sort((a, b) =>
         parseInt(a.starts.split(":")[0]) === parseInt(b.starts.split(":")[0])
           ? parseInt(a.starts.split(":")[1]) - parseInt(b.starts.split(":")[1])
           : parseInt(a.starts.split(":")[0]) - parseInt(b.starts.split(":")[0])
@@ -127,7 +127,7 @@ export const mainLeagues = [
 export const arrange = (games, query = "p") => {
   let g = games;
   if (query === "st") {
-    g.sort(function (a, b) {
+    g?.sort(function (a, b) {
       let aTime = new Date(a.starts);
       let bTime = new Date(b.starts);
 
@@ -136,7 +136,7 @@ export const arrange = (games, query = "p") => {
       else return bTime.getHours() - aTime.getHours();
     });
   } else if (query === "p") {
-    g.sort(function (a, b) {
+    g?.sort(function (a, b) {
       let aIndex = mainLeagues.indexOf(a.league_id);
       let bIndex = mainLeagues.indexOf(b.league_id);
 
@@ -153,4 +153,236 @@ export const arrange = (games, query = "p") => {
   }
 
   return g;
+};
+
+export const mktDb = (v, g) => {
+  let mkt = [
+    {
+      mkt: "1X2",
+      text: "1X2",
+      tags: ["1", "X", "2"],
+      out: ["Home", "Draw", "Away"],
+    },
+    {
+      mkt: "01X2",
+      text: "1st Half 1X2",
+      tags: ["1", "X", "2"],
+      out: ["Home", "Draw", "Away"],
+    },
+    {
+      mkt: "OU",
+      text: "Over/Under",
+      tags: ["", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "0OU",
+      text: "1st Half O/U",
+      tags: ["", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "HOU",
+      text: `${g?.home} - Over/Under`,
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "0HOU",
+      text: `${g?.home} - 1st Half O/U`,
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "AOU",
+      text: `${g?.away} - Over/Under`,
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "0AOU",
+      text: `${g?.away} - 1st Half O/U`,
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "DB*",
+      text: "Double Chance",
+      tags: ["1X", "12", "X2"],
+      out: ["Home or Draw", "Home or Away", "Draw or Away"],
+    },
+    {
+      name: "Double Chance 1st Half",
+      mkt: "0DB*",
+      text: "1st Half Double Chance",
+      tags: ["1X", "12", "X2"],
+      out: ["Home or Draw", "Home or Away", "Draw or Away"],
+    },
+    {
+      mkt: "GG*",
+      text: "Both Teams to Score?",
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "0GG*",
+      text: "Both Teams to Score? 1st Half",
+      tags: ["Yes", "No"],
+    },
+    { mkt: "DNB*", text: "Draw No Bet", tags: ["home", "away"] },
+    {
+      name: "Draw No Bet 1st Half",
+      mkt: "0DNB*",
+      text: "1st Half - DNB",
+      tags: ["home", "away"],
+    },
+    {
+      name: "Corners",
+      mkt: "COR*",
+      text: "Total Corners",
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      name: "Corners",
+      mkt: "0COR*",
+      text: "1st Half Corners",
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      name: "Bookings",
+      mkt: "BOO*",
+      text: "Total Bookings",
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      name: "Bookings",
+      mkt: "0BOO*",
+      text: "1st Half Bookings",
+      tags: ["points", "over", "under"],
+      type: 1,
+    },
+    {
+      mkt: "CS*",
+      text: "Correct Score",
+      type: 2,
+    },
+    {
+      name: "Correct Score 1st Half",
+      mkt: "0CS*",
+      text: "1st Half Correct Score",
+      type: 2,
+    },
+    { mkt: "HG*", text: `${g?.home} Goals`, type: 2, out: "Goals" },
+    { mkt: "AG*", text: `${g?.away} Goals`, type: 2, out: "Goals" },
+    {
+      mkt: "HTS*",
+      text: `${g?.home} To Score?`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "ATS*",
+      text: `${g?.away} To Score?`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "HTWN*",
+      text: `${g?.home} To Win to Nil?`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "ATWN*",
+      text: `${g?.away} To Win to Nil?`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "0HG*",
+      text: `${g?.home} Goals 1st Half`,
+      type: 2,
+      out: "Goals",
+    },
+    {
+      mkt: "0AG*",
+      text: `${g?.away} Goals 1st Half`,
+      type: 2,
+      out: "Goals",
+    },
+    {
+      mkt: "0HTS*",
+      text: `${g?.home} To Score? 1st Half`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "0ATS*",
+      text: `${g?.away} To Score? 1st Half`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "0HTWN*",
+      text: `${g?.home} To Win to Nil? 1st Half`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "0ATWN*",
+      text: `${g?.away} To Win to Nil? 1st Half`,
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "ETTS*",
+      text: "Either Team to Score?",
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "0ETTS*",
+      text: "Either Team to Score? 1st Half",
+      tags: ["Yes", "No"],
+    },
+    {
+      mkt: "GR*",
+      text: "Total Goals Range",
+      type: 2,
+    },
+    {
+      mkt: "0GR*",
+      text: "Total Goals Range 1st Half",
+      type: 2,
+    },
+    {
+      mkt: "OE*",
+      text: "Total Goals Odd/Even",
+      tags: ["odd", "even"],
+    },
+    {
+      mkt: "0OE*",
+      text: "Total Goals Odd/Even 1st Half",
+      tags: ["odd", "even"],
+    },
+    {
+      mkt: "WM*",
+      text: "Winning Margin",
+      type: 3,
+      tags: ["", "home", "away"],
+    },
+    {
+      mkt: "0WM*",
+      text: "Winning Margin 1st Half",
+      type: 3,
+      tags: ["", "home", "away"],
+    },
+    {
+      name: "First team to score",
+      mkt: "FTTS*",
+      text: "First Goal",
+      tags: ["home", "none", "away"],
+    },
+    {
+      mkt: "HAN*",
+      text: "Handicap",
+      type: 4,
+      tags: ["", "home", "draw", "away"],
+    },
+  ];
+
+  for (let i = 0; i < mkt.length; i++) if (mkt[i].mkt === v) return mkt[i];
 };
