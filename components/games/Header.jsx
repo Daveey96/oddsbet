@@ -52,7 +52,7 @@ function Header({ setMkt, live, title, changeSport, sport }) {
   return (
     <header
       ref={header}
-      className={`flex mb-px duration-200 z-20 pt-8 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
+      className={`flex mb-px duration-200 z-20 pt-11 md:rounded-t-2xl sticky items-center w-full -top-[1px] flex-col pb-1 `}
     >
       <span className="max-w-[80%] overflow-hidden rounded-lg text-base gap-1.5 flex items-center pl-4">
         {!live ? (
@@ -117,8 +117,8 @@ function Header({ setMkt, live, title, changeSport, sport }) {
           iClass={`px-3.5 py-1 dark:shadow-black/20 dark:shadow-[0px_2px_2px_1px] ${
             live
               ? "bg-black/50 shadow-black/20 shadow-[0px_2px_2px_1px]"
-              : "shadow-c4/10 last-of-type:mr-7 shadow-[0px_2px_2px_1px]"
-          } active:opacity-10 opacity-100 bg-c4/5 rounded-2xl duration-200`}
+              : "shadow-black/20 last-of-type:mr-1 shadow-[0px_2px_2px_1px]"
+          } active:scale-75 bg-c4/5 rounded-2xl duration-200`}
           inActiveClass={`dark:bg-black/40 dark:text-white/60 ${
             live ? "text-white/60" : "text-black"
           }`}
@@ -127,20 +127,6 @@ function Header({ setMkt, live, title, changeSport, sport }) {
           list={sports[sport - 1].markets}
           key={sport}
         />
-        {!live && (
-          <span className="absolute right-0 h-full from-transparent via-white to-white dark:via-c4 dark:to-c4 bg-gradient-to-r pr-2 pl-7 fx">
-            <button
-              onClick={() =>
-                document
-                  .getElementById("smkt")
-                  .scrollTo(document.getElementById("smkt").scrollWidth, 0)
-              }
-              className="rounded-full w-6 h-6 fx dark:bg-black/20 bg-c3"
-            >
-              <BsCaretRightFill className="text-c2" />
-            </button>
-          </span>
-        )}
       </span>
     </header>
   );

@@ -155,6 +155,9 @@ export const arrange = (games, query = "p") => {
   return g;
 };
 
+export const isArray = (v) =>
+  v === null || typeof v === "string" ? false : true;
+
 export const mktDb = (v, g) => {
   let mkt = [
     {

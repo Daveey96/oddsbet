@@ -3,10 +3,7 @@ import Odds from "./Odds";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../layout";
 import { categories } from "../sliders/Slider";
-import { apiController } from "@/controllers";
 import { mainLeagues } from "@/helpers";
-import { BsFire } from "react-icons/bs";
-import { FaFire } from "react-icons/fa";
 
 const Game = ({ game, mkt, isLive, last, margin, className }) => {
   const { setGame } = useContext(Context);
@@ -20,10 +17,6 @@ const Game = ({ game, mkt, isLive, last, margin, className }) => {
       }, 20000);
     }
   }, [g]);
-
-  if (g.event_id === 1580133770) {
-    console.log(g.periods.specials);
-  }
 
   return (
     <div className={`flex z-[2] w-full flex-col px-3 pt-3 ${className} `}>
@@ -39,7 +32,6 @@ const Game = ({ game, mkt, isLive, last, margin, className }) => {
           }`}
         >
           {g.league_name}
-          {g.event_id}
         </span>
         {g.rocketOdds && (
           <span className="fx gap-1 text-orange-500 text-9 mr-3">

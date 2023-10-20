@@ -8,6 +8,7 @@ import Alert from "../services/Alert";
 import { Skeleton } from "../services/Loaders";
 import { format } from "@/helpers";
 import { BsWalletFill } from "react-icons/bs";
+import Link from "next/link";
 
 export const Naira = ({ className }) => (
   <svg
@@ -70,7 +71,7 @@ function Nav() {
           {visible && (
             <>
               <motion.div
-                className={`justify-center pt-0.5 absolute top-0 left-0 px-2 h-9 md:px-0 flex md:ml-10 z-10 ${
+                className={`justify-center pt-0.5 absolute top-1.5 left-0 px-2 h-9 md:px-0 flex md:ml-10 z-10 ${
                   alert ? "opacity-10" : "opacity-100"
                 }`}
                 initial={{ y: "-100%" }}
@@ -92,19 +93,20 @@ function Nav() {
                 animate={{ y: "0%" }}
                 exit={{ y: "-100%" }}
                 transition={{ duration: 0.1 }}
-                className={`absolute top-0.5 mr-2 right-0 fx z-10 ${
+                className={`absolute top-2 mr-2 right-0 fx z-10 ${
                   alert ? "opacity-10" : "opacity-100"
                 }`}
               >
                 {user?.id ? (
-                  <span
+                  <Link
+                    href={"/profile/deposit"}
                     className={`fx gap-1 pt-1 relative text-base pl-4 pr-3 rounded-2xl z-30 backdrop-blur-sm " ${
                       user.balance < 100 ? "text-red-600" : "text-green-600"
                     }`}
                   >
                     <BiWallet className="opacity-60" />
                     <span className="">{format(user.balance.toString())}</span>
-                  </span>
+                  </Link>
                 ) : (
                   <Skeleton
                     state={user !== null}

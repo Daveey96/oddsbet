@@ -7,22 +7,28 @@ const placeBet = (details) =>
     return data;
   });
 
-const loadBet = (details) =>
+const loadBet = ({ code }) =>
   clientAsync(async () => {
-    const { data } = await axios.get(`api/bets?code=${details.code}&type=load`);
+    const { data } = await axios.get(`api/bets?code=${code}&type=load`);
     return data;
   });
 
-const deleteBet = (details) =>
+const getCode = (details) =>
   clientAsync(async () => {
-    const { data } = await axios.delete(`/api/bets?aid=${details?.aid}`);
+    const { data } = await axios.post("/api/bets", { ...details, type: true });
     return data;
   });
 
-const getBets = (details) =>
+const deleteBet = ({ aid }) =>
+  clientAsync(async () => {
+    const { data } = await axios.delete(`/api/bets?aid=${aid}`);
+    return data;
+  });
+
+const getBets = ({ active, date }) =>
   clientAsync(async () => {
     const { data } = await axios.get(
-      `/api/bets?active=${details.active}&type=get&date=${details?.date}`
+      `/api/bets?active=${active}&type=get&date=${date}`
     );
     return data;
   });
@@ -32,4 +38,5 @@ export const betController = {
   loadBet,
   getBets,
   deleteBet,
+  getCode,
 };

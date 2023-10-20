@@ -58,7 +58,7 @@ function TopSlider() {
   useEffect(() => setMounted(true), []);
 
   return (
-    <div className="mt-10 relative w-[98%] fx">
+    <div className="mt-14 relative w-[98%] fx">
       {mounted ? (
         <>
           <div ref={sliderRef} className="w-[98%] keen-slider h-20 mb-2">

@@ -23,19 +23,17 @@ const Deposit = () => {
   }, [amount]);
 
   const onSuccess = async () => {
-    overlayService.lay();
     const data = await appController.deposit({ amount });
 
     if (data) {
       setUser({ ...user, balance: data.balance });
-      replace("/");
       alertService.success("Deposit Successful");
+      replace("/");
     }
-    overlayService.clear();
   };
 
   const componentProps = {
-    email: user?.email,
+    email: user.email,
     amount: parseFloat(amount) * 100,
     publicKey: "pk_live_46fd297cb732030ffa67369e72818d559136c589",
     onSuccess: () => {
@@ -46,6 +44,8 @@ const Deposit = () => {
   useEffect(() => {
     input.current.focus();
   }, []);
+
+  if (!user) replace("/profile");
 
   return (
     <PayTemplate v={"Deposit"}>
@@ -60,7 +60,7 @@ const Deposit = () => {
         />
         <div className="w-full relative">
           <PaystackButton
-            className="w-full text-white rounded-b-lg rounded-t-sm fx relative dark:bg-c4 bg-c4/25 overflow-hidden"
+            className="w-full active:opacity-40 duration-200 text-white rounded-b-lg rounded-t-sm fx relative dark:bg-c4 bg-c4/25 overflow-hidden"
             {...componentProps}
           >
             <span

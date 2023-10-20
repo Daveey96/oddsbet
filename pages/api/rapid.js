@@ -2,7 +2,6 @@ import { Games, Stats, TeamId } from "@/database";
 import { getDate } from "@/helpers";
 import { serverAsync } from "@/helpers/asyncHandler";
 import axios from "axios";
-import { BsDatabaseExclamation } from "react-icons/bs";
 
 const apiI_options = {
   method: "GET",
@@ -23,17 +22,31 @@ const apiII_options = {
 const getMatches = async (req, res) => {
   const { id, live } = req.query;
 
-  apiII_options.url = "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets";
-  apiII_options.params = {
-    sport_id: id.toString(),
-    is_have_odds: "true",
-    event_type: live ? "live" : "prematch",
+  const options = {
+    url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets",
+    params: {
+      sport_id: id.toString(),
+      is_have_odds: "true",
+      event_type: live ? "live" : "prematch",
+    },
+    ...apiII_options,
+  };
+  const options2 = {
+    url: "https://sofascore.p.rapidapi.com/tournaments/get-live-events",
+    params: { sport: "football" },
+    ...apiI_options,
   };
 
-  const { data } = await axios.request(apiII_options);
-  if (data) return res.send(data.events);
+  const matches = await axios.request(options2);
 
-  throw Error("No Internet");
+  if (matches.data?.events?.length > 0) {
+    const { data } = await axios.request(options);
+
+    // matches.data.events.forEach((event) => {
+
+    // });
+    res.send(matches);
+  }
 };
 
 const getEvents = async (res, id) => {
@@ -226,7 +239,6 @@ const getTeamLogo = async (req, res) => {
   const response = await axios.request(options);
 
   if (response.status === 200) {
-    console.log(response.headers);
     const imageType = response.headers["content-type"];
     const imageData = Buffer.from(response.data, "binary").toString("base64");
     const dataURI = `data:${imageType};base64,${imageData}`;

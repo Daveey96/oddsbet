@@ -12,7 +12,7 @@ const clientAsync = (fn, alertError = true) =>
 
 const serverAsync = (req, res, fn, id) =>
   fn(req, res, id).catch(async (err) => {
-    res.status(400).json({ message: err.message });
+    res.status(err?.response?.statusCode || 400).json({ message: err.message });
   });
 
 export { serverAsync, clientAsync };

@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Svg from "../global/Svg";
 import { BiTrashAlt } from "react-icons/bi";
 import { Context } from "../layout";
+import { weekDays } from "@/helpers";
 
 export default function Game({ v, index, deleteGame, setToggle }) {
   const x = useMotionValue(0);
@@ -21,29 +22,29 @@ export default function Game({ v, index, deleteGame, setToggle }) {
     }
   };
 
-  const clicked = (key) => {
-    if (key) {
-      setDragStart(true);
-      animate(x, window.innerWidth * -1.5, {
-        duration: 0.25,
-      });
-      setTimeout(() => deleteGame(index), 95);
-    } else {
-      setGame({
-        id: v.id,
-        sport: v.sport_id,
-        home: v.home,
-        away: v.away,
-        live: false,
-      });
-      setToggle(false);
-    }
+  let date = new Date(v.time);
+
+  const clicked = () => {
+    setGame({
+      id: v.id,
+      sport: v.sport_id,
+      home: v.home,
+      away: v.away,
+      league: v.league_name,
+      rocketOdds: v.rOdds,
+      time: v.time,
+      live: false,
+    });
+    setToggle(false);
   };
+
+  const addZero = (v) => (v.toString().length === 1 ? `0${v}` : v);
 
   return (
     <>
       <span className="w-[100%] h-[2px] bg-c4/50 rounded-2xl fx mx-auto"></span>
       <motion.div
+        onClick={clicked}
         className={`relative w-full mx-auto flex items-center overflow-hidden`}
         initial={{ maxHeight: "100px" }}
         animate={{ maxHeight: "100px" }}
@@ -58,9 +59,11 @@ export default function Game({ v, index, deleteGame, setToggle }) {
         >
           <div className="w-full overflow-hidden mb-0.5 relative pr-4 shadow shadow-black/50 dark:shadow-none flex">
             <span className="fx text-white/40 py-3.5 bg-black/20 dark:bg-c4/30 px-2.5 flex-col">
-              Today{" "}
+              {date.getDay() === new Date().getDay()
+                ? "Today"
+                : weekDays[date.getDay()].slice(0, 3)}
               <span className="text-white/80">
-                {v.time.split("T")[1].slice(0, -3)}
+                {addZero(date.getHours())}:{addZero(date.getMinutes())}
               </span>
             </span>
             <span className="flex px-3 py-3 relative overflow-hidden h-full  flex-1 flex-col gap-1">
@@ -69,12 +72,17 @@ export default function Game({ v, index, deleteGame, setToggle }) {
                 {v.outcome}
               </span>
               <span className=" text-c2">{v.outcomeName}</span>
-              <span className="flex-1 opacity-50 whitespace-nowrap text-ellipsis overflow-hidden">
-                {v.home} <span className="text-c2">vs</span> {v.away}
+              <span className="flex-1 opacity-60 whitespace-nowrap text-ellipsis overflow-hidden">
+                {v.home} <span className="text-white/50">vs</span> {v.away}
               </span>
             </span>
-
-            <span className=" gap-2 fx text-c2 text-base">{v.odd}</span>
+            <span
+              className={`gap-2 fx text-base ${
+                v.rOdds ? "text-orange-600 font-bold" : "text-white/80"
+              }`}
+            >
+              {v.odd}
+            </span>
           </div>
         </motion.div>
         <div

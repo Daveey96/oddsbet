@@ -5,23 +5,8 @@ import { condition, mktDb } from "@/helpers";
 import { BsCaretUpFill } from "react-icons/bs";
 import { motion } from "framer-motion";
 
-const Visible = ({
-  active,
-  odds,
-  locked,
-  tags,
-  betList,
-  addGame,
-  game,
-  mkt,
-}) => {
-  const checklist = (list, odds) => {
-    for (let i = 0; i < list.length; i++)
-      if (list[i].id === game.event_id && list[i].mkt === mkt)
-        return parseInt(list[i].v[0]);
-    return Math.floor(odds.length / 2);
-  };
-  const [visible, setVisible] = useState(odds && checklist(betList, odds));
+const Visible = ({ active, odds, locked, tags, addGame, game }) => {
+  const [visible, setVisible] = useState(odds && parseInt(odds.length / 2));
   const [open, setOpen] = useState(false);
 
   return (odds[visible] ? odds[visible] : [null, null, null]).map((v, key) =>
@@ -76,7 +61,7 @@ const Visible = ({
         disabled={locked(v)}
         onClick={() => addGame(v, key, odds[visible][0])}
         className={`bg-c3 active:scale-[3] duration-150 dark:bg-black h-10 text-sm w-full rounded-md relative fx ${
-          active === `${tags[key]} ${odds[visible][0]}` &&
+          active === `${tags[key]} ${odds[visible] && odds[visible][0]}` &&
           "from-c1/75 to-c2/75 text-white bg-gradient-to-br"
         } `}
         key={key}

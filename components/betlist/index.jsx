@@ -6,18 +6,34 @@ import {
 } from "framer-motion";
 import React, { useContext, useMemo, useState, useEffect, useRef } from "react";
 import { Context } from "../layout";
-import { BiCog, BiEditAlt, BiTrashAlt, BiX, BiXCircle } from "react-icons/bi";
+import {
+  BiCog,
+  BiEditAlt,
+  BiTrashAlt,
+  BiUpArrow,
+  BiUpArrowAlt,
+  BiX,
+  BiXCircle,
+} from "react-icons/bi";
 import Animated from "../global/Animated";
 import Game from "./Game";
-import Code from "./Code";
+import Code, { ShareCode } from "./Code";
 import { CircularLoader } from "../services/Loaders";
-import { BsChevronDown, BsTrash, BsUiChecks } from "react-icons/bs";
+import {
+  BsCaretUpFill,
+  BsChevronDown,
+  BsMenuUp,
+  BsShare,
+  BsTrash,
+  BsUiChecks,
+} from "react-icons/bs";
 import { FaRegCopy } from "react-icons/fa";
 import { Naira } from "../layout/Nav";
 import { condition, format } from "@/helpers";
 import Link from "next/link";
 import { overlayService } from "@/services";
 import { betController } from "@/controllers";
+import Retry from "../services/Retry";
 
 export function calcWinPotential(totalOdds, stake) {
   return format(
@@ -49,6 +65,7 @@ export default function BetList({ toggle, setToggle }) {
   const [stake, setStake] = useState(
     user?.balance ? Math.floor(user?.balance).toString() : "100"
   );
+  const [share, setShare] = useState(false);
   const totalOdds = useMemo(() => findTotalOdds(betList), [betList]);
   const [betcodeLoad, setBetcodeLoad] = useState(betList.length > 0);
   const potWin = useMemo(
@@ -59,10 +76,7 @@ export default function BetList({ toggle, setToggle }) {
   const div = useRef(null);
 
   const buttonClicked = (button) => {
-    if (button === "del") {
-      const s = stake.slice(0, -1);
-      return setStake(s);
-    }
+    if (button === "clear") return setStake("");
     if (stake.length > 6) return;
     if (button.toString().slice(0, 1) === "+") {
       let s =
@@ -73,15 +87,17 @@ export default function BetList({ toggle, setToggle }) {
     setStake(stake + button.toString());
   };
 
+  const copy = (v) => {
+    navigator.clipboard.writeText(v);
+    alertService.success("Copied");
+  };
+
   const removeGame = (index) => {
     let newBetList = betList.filter((v, key) => key !== index);
     setBetList(newBetList);
   };
 
-  const submitBetSlip = async (e) => {
-    setPlaceBet(true);
-    overlayService.lay();
-
+  const getTicket = () => {
     let newBetList = [];
     let nBetList = [];
 
@@ -90,9 +106,18 @@ export default function BetList({ toggle, setToggle }) {
       nBetList.push({ id, mkt, outcome, odd });
     });
 
+    return { tid: newBetList.join("|"), slip: nBetList };
+  };
+
+  const submitBetSlip = async (e) => {
+    setPlaceBet(true);
+    overlayService.lay();
+
+    const { tid, slip } = getTicket();
+
     const data = await betController.placeBet({
-      tid: newBetList.join("|"),
-      slip: nBetList,
+      tid,
+      slip,
       totalOdds: parseFloat(totalOdds),
       stake: parseFloat(stake),
     });
@@ -132,47 +157,53 @@ export default function BetList({ toggle, setToggle }) {
             animate={{ y: "0%", opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ ease: "anticipate" }}
-            className="z-[26] dark:bg-black text-white bg-c4 max-h-[80vh] pb-12 absolute inset-x-0 w-full bottom-0 fx flex-col "
+            className={`z-[26] dark:bg-black text-white bg-c4 max-h-[80vh] pb-12 absolute inset-x-0 w-full bottom-0 fx flex-col ${
+              !betList.length && "rounded-t-[2rem]"
+            }`}
           >
             <header
               onClick={() => setToggle(null)}
-              className="pt-3.5 bg-black/20 dark:bg-c4/20 px-3 pb-2 text-sm items-center relative justify-between w-full flex"
+              className={`pt-3.5 pb-2 text-sm items-center relative justify-between w-full flex ${
+                betList.length ? "bg-black/20 dark:bg-c4/20 px-3" : "mb-3 px-5"
+              }`}
             >
               <span className="flex items-center gap-5">
                 Betslip
-                {betList.length && (
+                {betList.length ? (
                   <span className="relative fx aft after:w-6 after:h-6 text-c2 after:bg-c2/5 after:rounded-lg">
                     {betList.length}
                   </span>
+                ) : (
+                  <></>
                 )}
               </span>
               {betList.length > 0 && (
-                <span className="fx text-sm mt-1 gap-2.5">
-                  {[
-                    <BiEditAlt key={12} />,
-                    <BsTrash key={23} className="text-red-600" />,
-                  ].map((v, key) => (
-                    <button
-                      key={key}
-                      className={` z-20 gap-1 active:scale-95 duration-150 flex-col rounded-md fx `}
-                      onClick={() =>
-                        !key ? setBetcodeLoad(!betcodeLoad) : setBetList([])
-                      }
-                    >
-                      <span
-                        className={`w-6 h-6 rounded-md fx ${
-                          !key
-                            ? !betcodeLoad
-                              ? "bg-c1 text-c2"
-                              : "dark:bg-c4 bg-c4/10"
-                            : ""
-                        }`}
+                <span className="fx text-sm mt-1 gap-3.5">
+                  {[<BsShare key={12} />, <BsTrash key={23} />].map(
+                    (v, key) => (
+                      <button
+                        key={key}
+                        className={` z-20 gap-1 active:scale-95 duration-150 flex-col rounded-md fx `}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          !key ? setShare(true) : setBetList([]);
+                        }}
                       >
-                        {v}
-                      </span>
-                      <span className="text-10">clear All</span>
-                    </button>
-                  ))}
+                        <span
+                          className={`w-6 h-6 rounded-md fx ${
+                            !key
+                              ? "dark:bg-c4 bg-c4/10"
+                              : "text-red-600 bg-red-600/10"
+                          }`}
+                        >
+                          {v}
+                        </span>
+                        <span className="text-10">
+                          {key ? "clear All" : "share code"}
+                        </span>
+                      </button>
+                    )
+                  )}
                 </span>
               )}
               <span className="absolute top-0 left-1/2 font-bold opacity-20 -translate-x-1/2 te text-3xl">
@@ -204,44 +235,35 @@ export default function BetList({ toggle, setToggle }) {
                       <button
                         className={`text-sm min-w-[80px] fx py-1 dark:border-c4/80 border-black/30 border-4 px-3 rounded-md`}
                       >
-                        {stake ? format(stake) : "0.00"}
+                        {stake && parseInt(stake) ? (
+                          format(stake)
+                        ) : (
+                          <span className="opacity-50">min. 100</span>
+                        )}
                       </button>
                     </span>
-                    <span className="text-lg text-c2">{totalOdds}</span>
+                    <span className=" mr-2 text-lg text-c2">{totalOdds}</span>
                   </div>
-                  <div className="gap-1 text-white pt-3 pb-6 bg-black/20 dark:bg-c4/30 flex-col flex px-2 w-full overflow-hidden justify-center">
+                  <div className="gap-1 text-white pt-3 pb-6 bg-black/20 dark:bg-c4/40 flex-col flex px-2 w-full overflow-hidden justify-center">
                     {[
-                      ["+1000", "+500", "+100", "00", 0, ".", "cancel"],
+                      ["+1000", "+500", "+100", "00", 0, ".", "clear"],
                       [1, 2, 3, 4, 5, 6, 7, 8, 9],
                     ].map((buttons, key) => (
                       <div
                         key={key}
-                        className="flex justify-center w-full gap-1"
+                        className="flex justify-center w-full gap-0.5"
                       >
-                        {buttons.map((button, key2) =>
-                          condition(
-                            button,
-                            ["cancel", "*"],
-                            [
-                              <button
-                                key={key2}
-                                className={`py-1.5 bg-red-600 text-lg active:scale-75 duration-150 fx px-3 rounded-md`}
-                                onClick={() => buttonClicked("del")}
-                              >
-                                <BiX />
-                              </button>,
-                              <button
-                                key={key2}
-                                className={`py-1.5 active:scale-75 duration-150 fx bg-black/40 dark:bg-c4/40 rounded-md ${
-                                  button === "." ? "flex-1" : "flex-[2]"
-                                }`}
-                                onClick={() => buttonClicked(button)}
-                              >
-                                {button}
-                              </button>,
-                            ]
-                          )
-                        )}
+                        {buttons.map((button, key2) => (
+                          <button
+                            key={key2}
+                            className={`py-2 active:scale-75 duration-150 fx bg-black/40 dark:bg-c4/40 rounded-md ${
+                              button === "." ? "flex-1" : "flex-[2]"
+                            }`}
+                            onClick={() => buttonClicked(button)}
+                          >
+                            {button}
+                          </button>
+                        ))}
                       </div>
                     ))}
                   </div>
@@ -286,14 +308,18 @@ export default function BetList({ toggle, setToggle }) {
                       />
                     )}
                   </button>
-                  <span
-                    className={`flex absolute left-2 items-center justify-end flex-1 pr-3 z-10 h-full`}
-                  >
-                    <span className="text-xs text-white opacity-60 whitespace-nowrap absolute bottom-[95%] left-0 pr-3">
+                  <span className={`fx absolute left-2 px-3 z-10 pb-0.5`}>
+                    <span className="text-xs text-white whitespace-nowrap absolute bottom-[95%] opacity-75">
                       To Win
                     </span>
                     <span className={`text-xl text-c2`}>{potWin}</span>
                   </span>
+                  <button
+                    onClick={() => setBetcodeLoad(!betcodeLoad)}
+                    className={`fx rounded-xl bg-c4/50 fx px-3 active:scale-90 duration-150 py-2 absolute right-3 z-10`}
+                  >
+                    enter code
+                  </button>
                 </div>
               )}
             </div>
@@ -342,6 +368,7 @@ export default function BetList({ toggle, setToggle }) {
                 >
                   <span className="text-white/70">{v.title} -</span>
                   <span
+                    onClick={() => key === 2 && copy(v.value)}
                     className={`py-0.5 ${condition(
                       key,
                       [0, 1, 2],
@@ -373,6 +400,12 @@ export default function BetList({ toggle, setToggle }) {
           </Link>
         </motion.div>
       </Animated>
+      <ShareCode
+        state={share}
+        variants={variants}
+        getTicket={getTicket}
+        close={() => setShare(false)}
+      />
     </>
   );
 }

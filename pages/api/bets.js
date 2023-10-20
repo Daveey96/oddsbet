@@ -47,7 +47,7 @@ const generateCode = () => {
 };
 
 const placeBet = async (req, res, id) => {
-  const { tid, slip, stake, totalOdds, confirm } = req.body;
+  const { tid, slip, stake, totalOdds } = req.body;
 
   let user = await User.findById(id, "balance");
   if (!user) throw Error("Something went wrong");
@@ -59,12 +59,7 @@ const placeBet = async (req, res, id) => {
   if (!ticket) {
     const code = generateCode();
 
-    let newTicket = await Ticket.create({
-      tid,
-      code,
-      slip,
-      createdAt: new Date(),
-    });
+    let newTicket = await Ticket.create({ tid, code, slip });
     ticket = newTicket;
   }
 
@@ -193,6 +188,20 @@ const getBets = async (req, res, id) => {
   }
 };
 
+const getCode = async (req, res) => {
+  const { tid, slip } = req.body;
+
+  let ticket = await Ticket.findOne({ tid });
+
+  if (!ticket) {
+    const code = generateCode();
+
+    const newTicket = await Ticket.create({ tid, code, slip });
+
+    res.send(newTicket.code);
+  } else res.send(ticket.code);
+};
+
 const loadBet = async (req, res) => {
   const { code } = req.body;
 
@@ -233,13 +242,12 @@ export default async function handler(req, res) {
   const connect = await connectMongo(res);
   if (!connect) throw Error("Server error");
 
-  if (req.method === "POST") return isLoggedIn(req, res, placeBet);
-
-  if (req.method === "GET" && req.query.type === "load")
+  if (req.method === "POST" && req.body.type)
+    return isLoggedIn(req, res, getCode);
+  else if (req.method === "POST") return isLoggedIn(req, res, placeBet);
+  else if (req.method === "GET" && req.query.type === "load")
     return isLoggedIn(req, res, loadBet);
-
-  if (req.method === "GET" && req.query.type === "get")
+  else if (req.method === "GET" && req.query.type === "get")
     return isLoggedIn(req, res, getBets);
-
-  if (req.method === "DELETE") return isLoggedIn(req, res, deleteBet);
+  else if (req.method === "DELETE") return isLoggedIn(req, res, deleteBet);
 }

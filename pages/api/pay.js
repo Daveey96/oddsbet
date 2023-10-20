@@ -1,4 +1,5 @@
 import { Transactions, User, connectMongo, isLoggedIn } from "@/database";
+import axios from "axios";
 
 const deposit = async (req, res, id) => {
   const user = await User.findById(id, "balance");
@@ -31,11 +32,30 @@ const getTransactions = async (req, res, id) => {
   res.send(transactions);
 };
 
+const valiDateAccount = async (req, res) => {
+  const { num, code } = req.query;
+
+  console.log(num, code, `${process.env.BANK_VALIDATION_API_KEY}`);
+  const { data } = await axios.get(
+    `https://nubapi.com/api/verify?account_number=${num}&bank_code=${code}`,
+    {
+      headers: {
+        Authorization: `${process.env.BANK_VALIDATION_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  console.log(data);
+  if (data?.accountName) res.send(data.accountName);
+  else throw Error("Invalid bank Details");
+};
+
 export default async function handler(req, res) {
   const connect = await connectMongo(res);
   if (!connect) throw Error("Server error");
 
   if (req.method === "POST") return isLoggedIn(req, res, deposit);
-
-  if (req.method === "GET") return isLoggedIn(req, res, getTransactions);
+  else if (req.query.type) return isLoggedIn(req, res, valiDateAccount);
+  else if (req.method === "GET") return isLoggedIn(req, res, getTransactions);
 }

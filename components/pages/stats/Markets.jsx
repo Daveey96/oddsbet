@@ -18,13 +18,13 @@ import Error from "@/components/services/Error";
 import { mktDb } from "@/helpers";
 import { Buttons } from "@/components/games/Buttons";
 import Animated, { Modal } from "@/components/global/Animated";
+import ScrrollTo from "@/components/global/ScrrollTo";
 
 const Markets = ({ game, live, head, setInfo }) => {
   const [data, setData] = useState(null);
   const { globalGames } = useContext(Context);
   const [active, setActive] = useState("Main");
   const [closed, setClosed] = useState([]);
-  const scroll = useRef(null);
   const [markets, setMarkets] = useState([
     "Favourites",
     "Main",
@@ -113,16 +113,6 @@ const Markets = ({ game, live, head, setInfo }) => {
     } else setData("error");
   };
 
-  const activate = ({ target }, v) => {
-    setActive(v);
-    scroll.current.scrollTo(
-      target.offsetLeft -
-        scroll.current.offsetWidth / 2 +
-        target.offsetWidth / 2,
-      0
-    );
-  };
-
   const updateFavourites = (v) => {
     if (favourites.includes(v)) {
       let removeValue = favourites.filter((m) => m !== v);
@@ -157,27 +147,23 @@ const Markets = ({ game, live, head, setInfo }) => {
       >
         {typeof data === "object" && data !== null && (
           <>
-            <div
-              ref={scroll}
+            <ScrrollTo
+              id={"mktss"}
               className={`w-full scroll-smooth flex text-xs items-center dark:bg-black no-bars overflow-x-scroll gap-3 pl-8 pt-2 pb-2 overflow-y-hidden whitespace-nowrap bg-white top-[70px] shadow-black/30 dark:shadow-black/50 sticky z-10 ${
                 head && "shadow-md"
               }`}
-            >
-              {markets.map((v, key) => (
-                <button
-                  className={`fx active:scale-75 duration-100 px-5 py-1 relative last:mr-4 rounded-xl ${
+              iClass={markets.map(
+                (v) =>
+                  `fx active:scale-75 duration-100 px-5 py-1 relative last:mr-4 rounded-xl ${
                     v === active
                       ? "dark:bg-c2/5 dark:text-c2 bg-c2 text-white"
                       : "dark:bg-c4/60 bg-c3"
-                  }`}
-                  onClick={(e) => activate(e, v)}
-                  key={key}
-                >
-                  {v === "Specials" ? categories.icons[3] : <></>}
-                  {v}
-                </button>
-              ))}
-            </div>
+                  }`
+              )}
+              clicked={(v) => setActive(v)}
+              list={markets}
+            />
+
             <div className="flex flex-col w-full">
               <div
                 className={`relative empty:after:flex after:hidden after:opacity-80 after:content-["No_markets_available"] after:text-sm aft after:w-full after:justify-center after:top-24 flex-col min-h-[70vh] w-full`}

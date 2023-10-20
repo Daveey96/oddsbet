@@ -1,6 +1,6 @@
-import Image from "next/image";
 import React, { useState } from "react";
 import Svg from "../global/Svg";
+import ScrrollTo from "../global/ScrrollTo";
 
 function List({
   list,
@@ -16,26 +16,28 @@ function List({
   const [active, setActive] = useState(0);
 
   return (
-    <ul
+    <ScrrollTo
       id={id}
+      list={list}
       className={`flex text-sm overflow-x-scroll no-bars gap-3 ${className}`}
+      clicked={(i, key) => {
+        setActive(key);
+        onClick(list[key][v]);
+      }}
+      iClass={list.map(
+        (i, key) =>
+          `fx last-of-type:mr-3 whitespace-nowrap ${iClass} ${
+            active === key ? activeClass : inActiveClass
+          }`
+      )}
     >
       {list.map((i, key) => (
-        <li
-          onClick={() => {
-            setActive(key);
-            onClick(list[key][v]);
-          }}
-          className={`fx last-of-type:mr-3 whitespace-nowrap ${iClass} ${
-            active === key ? activeClass : inActiveClass
-          }`}
-          key={key}
-        >
+        <React.Fragment key={key}>
           {icon && <Svg className={"mt-0.5"} id={i.id} size={11} />}
           <>{i.item}</>
-        </li>
+        </React.Fragment>
       ))}
-    </ul>
+    </ScrrollTo>
   );
 }
 

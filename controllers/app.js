@@ -11,9 +11,17 @@ const deposit = (details) =>
 
 const getTransactions = () =>
   clientAsync(async () => {
-    const { data } = await axios.get("/api/pay?type=transactions");
+    const { data } = await axios.get("/api/pay");
     return data;
   });
+
+const valiDateAccount = (num, code) =>
+  clientAsync(async () => {
+    const { data } = await axios.get(
+      `/api/pay?type=validate&num=${num}&code=${code}`
+    );
+    return data;
+  }, true);
 
 const getVouchers = () =>
   clientAsync(async () => {
@@ -25,4 +33,5 @@ export const appController = {
   deposit,
   getTransactions,
   getVouchers,
+  valiDateAccount,
 };

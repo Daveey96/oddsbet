@@ -190,6 +190,21 @@ export default function Auth() {
           >
             {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
           </button>
+          <div className="fx w-full mt-4 gap-4">
+            <span className="flex-1 h-px flex bg-white "></span>
+            <span>OR</span>
+            <span className="flex-1 h-px flex bg-white "></span>
+          </div>
+          <div>
+            {["bg-white", "bg-blue-700"].map((className, key) => (
+              <button
+                key={key}
+                className={`${className} flex-1 rounded-xl py-2 fx`}
+              >
+                {key ? <>Googl</> : <>Facebo</>}
+              </button>
+            ))}
+          </div>
         </form>
         <Token
           handleSubmit={handleSubmit}

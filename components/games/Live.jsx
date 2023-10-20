@@ -18,8 +18,8 @@ export default function Live() {
     (games === null || games === "error") && setGames("loading");
 
     let data = await apiController.getMatches(1, true);
-    console.log(data);
 
+    console.log(data);
     if (data) {
       setGames(
         data.filter(
@@ -30,9 +30,11 @@ export default function Live() {
     } else setGames("error");
   };
 
-  useEffect(() => {
-    games === null && getGames();
-  }, []);
+  console.log(games);
+
+  // useEffect(() => {
+  //   games === null && getGames();
+  // }, []);
 
   const changeSport = async (id) => {
     setLoading(true);
