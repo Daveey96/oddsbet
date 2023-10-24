@@ -1,9 +1,11 @@
 import axios from "axios";
 import { clientAsync } from "@/helpers/asyncHandler";
 
-const getGlobalGames = (sportId = 1) => {
+const getEvents = (sportId = 1, isLive) => {
   return clientAsync(async () => {
-    const { data } = await axios.get(`/api/rapid?id=${sportId}&type=global`);
+    const { data } = await axios.get(
+      `/api/rapid?id=${sportId}${isLive ? "&live=live" : ""}&type=events`
+    );
     return data;
   }, false);
 };
@@ -42,7 +44,7 @@ const getStats = (team_1, team_2, date) => {
 export const apiController = {
   getMatches,
   getMatch,
-  getGlobalGames,
+  getEvents,
   getStats,
   getLogo,
 };

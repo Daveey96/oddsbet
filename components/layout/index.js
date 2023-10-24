@@ -40,6 +40,9 @@ export default function Layout({ children }) {
       setUser(data.user);
     };
 
+    if (localStorage.getItem("load") === "loading")
+      localStorage.setItem("load", "");
+
     setFavSport(localStorage.getItem("favSport") || 0);
     setHint(localStorage.getItem("showHints") || true);
 

@@ -126,7 +126,7 @@ export default function Index() {
                 {isVisible ? <BsEyeFill /> : <BsEyeSlashFill />}
               </button>
             </div>
-            <div className="pb-6 fx pt-4 w-full text-center text-green-600 dark:text-green-500 text-3xl ">
+            <div className="pb-7 fx pt-8 w-full text-center text-green-600 dark:text-green-500 text-3xl ">
               {isVisible ? (
                 <>
                   <Naira /> {format(user.balance.toString())}
@@ -139,7 +139,7 @@ export default function Index() {
               {["Deposit", "Withdraw"].map((item, key) => (
                 <Link
                   key={key}
-                  className={`flex-1 active:scale-75 duration-150 text-center rounded-t-xl shadow-lg shadow-black/40 dark:rounded-b-none rounded-b-xl py-2 ${
+                  className={`flex-1 active:scale-75 duration-150 text-center rounded-t-2xl shadow-lg shadow-black/40 dark:rounded-b-none rounded-b-2xl py-2.5 ${
                     !key
                       ? "dark:from-c1/75 from-c1 to-c2 dark:to-c2/75 text-white bg-gradient-to-r"
                       : "dark:bg-white/5 bg-c4/40 text-white"

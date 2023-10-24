@@ -9,6 +9,7 @@ import { BsCaretLeftFill, BsInfoCircleFill, BsX } from "react-icons/bs";
 import { Skeleton } from "@/components/services/Loaders";
 import { Curtain, Modal } from "@/components/global/Animated";
 import { categories } from "@/components/sliders/Slider";
+import { addZero, condition, weekDays } from "@/helpers";
 
 export const Animate = ({ children, className }) => (
   <motion.div
@@ -25,8 +26,8 @@ export default function Stats() {
   const { game, setGame } = useContext(Context);
   const [active, setActive] = useState(0);
   const [head, setHead] = useState(false);
-  const [time, setTime] = useState(null);
   const [info, setInfo] = useState(null);
+  let time = game && new Date(game.time);
 
   const shadow = useMemo(
     () => (active ? "shadow-lg shadow-black/50" : ""),
@@ -68,7 +69,7 @@ export default function Stats() {
       <Curtain
         id={"scontainer"}
         sibling={
-          <div className="w-[95%] relative rounded-xl mt-9 dark:bg-c4/80 bg-c3 fx ">
+          <div className="w-[95%] relative rounded-xl mt-12 dark:bg-c4/80 bg-c3 fx ">
             {[0, 1].map((key) => (
               <span
                 key={key}
@@ -89,9 +90,11 @@ export default function Stats() {
                 </motion.span>
               </span>
             ))}
-            <span className="flex-1 text-green-500 fx order-2 gap-5">
-              {"60'"}
-            </span>
+            {time && (
+              <span className="flex-1 text-sm font-bold text-c2 relative fx flex-col order-2">
+                {addZero(time.getHours())}:{addZero(time.getMinutes())}
+              </span>
+            )}
           </div>
         }
         siblingState={head && game}
@@ -121,9 +124,27 @@ export default function Stats() {
                 </span>
               </span>
             ))}
-            <span className="flex-1 text-c2 relative text-sm fx order-2 gap-5">
-              {game?.time}
-            </span>
+            {time && (
+              <span className="flex-1 relative text-xs fx flex-col order-2">
+                <span className="opacity-50">
+                  {condition(
+                    time.getDate(),
+                    [new Date().getDate(), new Date().getDate() + 1, "*"],
+                    [
+                      "",
+                      "Tomorrow",
+                      `${weekDays[time.getDay()].slice(
+                        0,
+                        3
+                      )} ${time.getDate()}/${time.getMonth() + 1}`,
+                    ]
+                  )}
+                </span>
+                <span className="font-bold text-c2 text-center text-lg w-full">
+                  {addZero(time.getHours())}:{addZero(time.getMinutes())}
+                </span>
+              </span>
+            )}
             {game?.rocketOdds && (
               <span className="fx text-10 bottom-[105%] gap-1 text-orange-500 rounded-xl bg-orange-500/10 py-0.5 px-2 absolute">
                 {categories.icons[2]} rocket odds
@@ -152,7 +173,6 @@ export default function Stats() {
         {!active ? (
           <Markets
             head={head}
-            setTime={(t) => setTime(t)}
             key={12}
             game={game}
             setInfo={(i) => setInfo(i)}

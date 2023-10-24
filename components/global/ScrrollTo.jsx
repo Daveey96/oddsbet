@@ -3,7 +3,7 @@ import React, { useRef } from "react";
 function ScrrollTo({ id, clicked, className, iClass, list, children }) {
   const scroll = useRef(null);
   const activate = ({ target }, v, key) => {
-    clicked(v, key);
+    clicked && clicked(v, key);
     scroll.current.scrollTo(
       target.offsetLeft -
         scroll.current.offsetWidth / 2 +
@@ -13,10 +13,14 @@ function ScrrollTo({ id, clicked, className, iClass, list, children }) {
   };
 
   return (
-    <ul id={id} ref={scroll} className={className}>
+    <ul
+      id={id}
+      ref={scroll}
+      className={`overflow-x-scroll no-bars scroll-smooth ${className}`}
+    >
       {list.map((v, key) => (
         <li
-          className={iClass[key]}
+          className={iClass && iClass[key]}
           onClick={(e) => activate(e, v, key)}
           key={key}
         >

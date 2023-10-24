@@ -5,7 +5,7 @@ import { condition, mktDb } from "@/helpers";
 import { BsCaretUpFill } from "react-icons/bs";
 import { motion } from "framer-motion";
 
-const Visible = ({ active, odds, locked, tags, addGame, game }) => {
+const Visible = ({ active, odds, locked, tags, addGame, game, live }) => {
   const [visible, setVisible] = useState(odds && parseInt(odds.length / 2));
   const [open, setOpen] = useState(false);
 

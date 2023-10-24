@@ -149,7 +149,7 @@ const Markets = ({ game, live, head, setInfo }) => {
           <>
             <ScrrollTo
               id={"mktss"}
-              className={`w-full scroll-smooth flex text-xs items-center dark:bg-black no-bars overflow-x-scroll gap-3 pl-8 pt-2 pb-2 overflow-y-hidden whitespace-nowrap bg-white top-[70px] shadow-black/30 dark:shadow-black/50 sticky z-10 ${
+              className={`w-full scroll-smooth flex text-xs items-center dark:bg-black no-bars overflow-x-scroll gap-3 pl-8 pt-2 pb-2 overflow-y-hidden whitespace-nowrap bg-white top-[85px] shadow-black/30 dark:shadow-black/50 sticky z-10 ${
                 head && "shadow-md"
               }`}
               iClass={markets.map(
@@ -262,7 +262,7 @@ const Markets = ({ game, live, head, setInfo }) => {
                 onClick={() => {
                   document.getElementById("scontainer").scrollTo(0, 0);
                 }}
-                className="w-full duration-200 active:scale-75 bg-c5 dark:bg-c4/50 text-c2 gap-2 text-sm pb-20 pt-5 rounded-t-3xl fx mt-8"
+                className="w-full duration-200 active:scale-75 bg-c5 dark:bg-c4/50 dark:text-white/30 text-black/30 gap-2 text-sm pb-20 pt-5 rounded-t-3xl fx mt-8"
               >
                 Back to top <BsChevronDoubleUp />
               </span>

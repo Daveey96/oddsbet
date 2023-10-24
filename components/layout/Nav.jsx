@@ -100,11 +100,11 @@ function Nav() {
                 {user?.id ? (
                   <Link
                     href={"/profile/deposit"}
-                    className={`fx gap-1 pt-1 relative text-base pl-4 pr-3 rounded-2xl z-30 backdrop-blur-sm " ${
-                      user.balance < 100 ? "text-red-600" : "text-green-600"
+                    className={`fx gap-1 pt-0.5 relative text-lg pl-4 pr-3 rounded-2xl z-30 backdrop-blur-sm " ${
+                      user.balance < 100 ? "text-red-600" : "text-c2"
                     }`}
                   >
-                    <BiWallet className="opacity-60" />
+                    <Naira className={"mt-px"} />
                     <span className="">{format(user.balance.toString())}</span>
                   </Link>
                 ) : (

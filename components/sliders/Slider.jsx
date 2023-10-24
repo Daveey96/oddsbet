@@ -9,6 +9,7 @@ import {
   arrange,
   condition,
   dateDifference,
+  isArray,
   mainLeagues,
   weekDays,
 } from "@/helpers";
@@ -17,6 +18,7 @@ import Error from "../services/Error";
 import { apiController } from "@/controllers";
 import { motion } from "framer-motion";
 import { alertService } from "@/services";
+import ScrrollTo from "../global/ScrrollTo";
 
 export const categories = {
   icons: [
@@ -163,13 +165,36 @@ function Slider() {
 
     const favSport = parseInt(localStorage.getItem("favSport") || 0) + 1;
 
-    let data = globalGames.current[favSport]
-      ? globalGames.current[favSport]
-      : await apiController.getGlobalGames(favSport);
+    if (isArray(globalGames.current[favSport]))
+      filterEvents(globalGames.current[favSport]);
+    else if (localStorage.getItem("load") === "loading") {
+      let z = setInterval(() => {
+        if (localStorage.getItem("load") !== "loading") {
+          if (localStorage.getItem("load") === "error") setGames("error");
+          else filterEvents(globalGames.current[favSport]);
 
-    if (data) {
-      if (!globalGames.current[favSport]) globalGames.current[favSport] = data;
+          clear();
+        }
+      }, 1000);
 
+      function clear() {
+        clearInterval(z);
+      }
+    } else {
+      localStorage.setItem("load", "loading");
+      const data = await apiController.getEvents(favSport);
+
+      if (data) {
+        localStorage.setItem("load", "");
+        globalGames.current[favSport] = data;
+        filterEvents(data);
+      } else {
+        localStorage.setItem("load", "error");
+        setGames("error");
+      }
+    }
+
+    function filterEvents(data) {
       let l = "";
       let arr = [];
 
@@ -196,10 +221,6 @@ function Slider() {
       });
       leagues.current = arr;
       setGames(todayGames);
-      return true;
-    } else {
-      setGames("error");
-      return false;
     }
   };
 
@@ -225,9 +246,11 @@ function Slider() {
 
   return (
     <>
-      <div
-        ref={div}
-        className="w-screen scroll-smooth no-bars pr-7 whitespace-nowrap overflow-x-scroll overflow-y-hidden md:mt-14 gap-3 flex items-center justify-start pl-8"
+      <ScrrollTo
+        id={"scrolltopslide"}
+        list={categories.text}
+        iClass={categories.text.map(() => "flex")}
+        className="w-screen scroll-smooth no-bars pr-7 whitespace-nowrap overflow-x-scroll overflow-y-hidden md:mt-14 flex items-center pl-8"
       >
         {categories.text.map((txt, key) => (
           <button
@@ -238,13 +261,13 @@ function Slider() {
             }}
             className={`${
               key === active ? `dark:bg-c4/50 bg-c3/60` : ""
-            } fx gap-1.5 last-of-type:mr-6 active:scale-90 rounded-t-2xl duration-150 pl-3.5 pr-5 pt-2 pb-1.5 mt-1.5 relative text-xs`}
+            } fx gap-1.5 last-of-type:mr-6 active:scale-90 rounded-t-2xl duration-150 pl-4 pr-6 pt-2.5 pb-2 mt-1.5 relative text-xs`}
           >
             {categories.icons[key]}
             {txt}
           </button>
         ))}
-      </div>
+      </ScrrollTo>
       <Retry
         state={games}
         loading={
@@ -287,7 +310,7 @@ function Slider() {
           />
         }
       >
-        {typeof games === "object" && games && games.length > 0 ? (
+        {isArray(games) && games.length > 0 ? (
           <div className="from-c3/60 to-transparent bg-gradient-to-b w-full flex flex-col dark:from-c4 dark:to-c4">
             <span
               ref={span}
@@ -360,11 +383,12 @@ function Slider() {
                       <span className="order-2 flex-1  flex items-start px-6 flex-col text-sm text-c2">
                         <span className=" dark:text-white text-sm">
                           {condition(
-                            dateDifference(
-                              new Date().toISOString(),
-                              g.starts.split("T")[0]
-                            ),
-                            [0, 1, "*"],
+                            new Date(g.starts).getDate(),
+                            [
+                              new Date().getDate(),
+                              new Date().getDate() + 1,
+                              "*",
+                            ],
                             [
                               "Today",
                               "Tomorrow",

@@ -73,14 +73,6 @@ export const getDate = (d = 0) => {
   };
 };
 
-export const dateDifference = (
-  date_1 = "2023-04-28",
-  date_2 = "2023-04-29"
-) => {
-  const diff = new Date(date_2).getTime() - new Date(date_1).getTime();
-  return Math.ceil(diff / (1000 * 3600 * 24));
-};
-
 export const format = (v) => {
   let f = v.toString().split(".");
   if (f[0].length < 4) return f.join(".");
@@ -155,8 +147,9 @@ export const arrange = (games, query = "p") => {
   return g;
 };
 
-export const isArray = (v) =>
-  v === null || typeof v === "string" ? false : true;
+export const isArray = (v) => v && typeof v === "object";
+
+export const addZero = (v) => (v.toString().length === 1 ? `0${v}` : v);
 
 export const mktDb = (v, g) => {
   let mkt = [

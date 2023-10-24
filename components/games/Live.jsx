@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { sports } from ".";
 import Header from "./Header";
 import Retry from "../services/Retry";
-import Game from "./Game";
+import Game, { LiveGame } from "./Game";
 import { apiController } from "@/controllers";
 import { Context } from "../layout";
 import Error from "../services/Error";
 import { Skeleton } from "../services/Loaders";
+import { isArray } from "@/helpers";
 
 export default function Live() {
   const [sport, setSport] = useState(1);
@@ -15,32 +16,25 @@ export default function Live() {
   const { setLoading } = useContext(Context);
 
   const getGames = async (id) => {
-    (games === null || games === "error") && setGames("loading");
+    setGames("loading");
 
-    let data = await apiController.getMatches(1, true);
+    let data = await apiController.getEvents(1, true);
 
     console.log(data);
-    if (data) {
-      setGames(
-        data.filter(
-          (g) =>
-            g?.period_results === undefined && g.resulting_unit === "Regular"
-        )
-      );
-    } else setGames("error");
+    data ? setGames(data) : setGames("error");
   };
+
+  useEffect(() => {
+    games === null && getGames();
+  }, []);
 
   console.log(games);
 
-  // useEffect(() => {
-  //   games === null && getGames();
-  // }, []);
-
   const changeSport = async (id) => {
-    setLoading(true);
-    setSport(id);
-    await getGames(id);
-    setLoading(false);
+    // setLoading(true);
+    // setSport(id);
+    // await getGames(id);
+    // setLoading(false);
   };
 
   return (
@@ -109,21 +103,20 @@ export default function Live() {
             </div>
             <Error
               className={`w-full h-full md:rounded-b-2xl absolute inset-0 z-20 dark:bg-c4/40`}
-              refresh={getGames}
+              refresh={() => getGames()}
               type
             />
           </div>
         }
       >
-        {typeof games === "object" && games && games.length > 0 ? (
+        {isArray(games) && games.length > 0 ? (
           <div
             className={`flex flex-col relative aft after:bg-c2/75 after:blur-2xl after:z-0 after:rounded-full after:h-24 after:w-24 bef before:blur-2xl before:left-5 before:bg-c1 before:bottom-10 before:z-0 before:rounded-full before:h-28 before:w-28 items-center w-full gap-px bg-black/40`}
           >
             {games.slice(0, 5).map((game, key) => (
-              <Game
+              <LiveGame
                 key={key}
                 className={"last-of-type:pb-12 bg-c4/50 text-white pb-3"}
-                isLive={true}
                 game={game}
                 mkt={mkt}
               />
@@ -155,7 +148,7 @@ export default function Live() {
           </div>
         )}
       </Retry>
-      {games && typeof games === "object" && games.length > 5 && (
+      {isArray(games) && games.length > 5 && (
         <button className="absolute z-20 left-1/2 -translate-x-1/2 active:scale-90 duration-200 bottom-0 bg-black/25 text-[12px] pt-1.5 pb-1 rounded-t-2xl px-5 ">
           view more <span className="text-c2">({games.length - 5})</span>
         </button>

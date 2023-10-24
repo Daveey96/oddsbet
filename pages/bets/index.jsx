@@ -44,12 +44,12 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
   return (
     <div className="flex w-full items-center flex-col">
       <div
-        className={`w-[95%] cursor-pointer active:opacity-75 relative gap-1 fx ${
-          active === index ? "h-10 rounded-lg" : "rounded-2xl"
+        className={`w-full cursor-pointer active:opacity-75 relative gap-1 fx ${
+          active === index ? "h-10" : ""
         }`}
         onClick={() => (active === index ? onClick(null) : onClick(index))}
       >
-        <div className="w-1/5 rounded-l-xl shadow-md dark:shadow-none fx flex-col items-center relative h-full z-10 overflow-hidden dark:bg-c4/40 bg-c5">
+        <div className="w-1/5 shadow-md dark:shadow-none fx flex-col items-center relative h-full z-10 overflow-hidden dark:bg-c4/40 bg-c5">
           <span
             className={`z-10 text-c2 text-lg fx ${
               active === index
@@ -61,7 +61,7 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
           </span>
           <TicketDots right active={active === index} />
         </div>
-        <div className="flex-1  min-h-[4.5rem] rounded-r-xl shadow-md dark:shadow-none px-5 duration-300 items-center relative flex gap-2 py-1 flex-col z-10 dark:bg-c4/70 bg-c3 ">
+        <div className="flex-1 min-h-[4.5rem] shadow-md dark:shadow-none px-5 duration-300 items-center relative flex gap-2 py-1 flex-col z-10 dark:bg-c4/70 bg-c3 ">
           <span
             className={`flex flex-1 w-full gap-1 justify-end items-center ${
               active === index ? "h-full items-center" : "mt-1"
@@ -186,20 +186,6 @@ const BetSlip = ({ v, active, index, onClick, getBets }) => {
 const DateList = ({ setDate }) => {
   const container = useRef(null);
   const cDate = useRef(null);
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "October",
-    "Nov",
-    "Dec",
-  ];
 
   const returnDate = () => {
     let dateArr = [];
@@ -234,8 +220,8 @@ const DateList = ({ setDate }) => {
 
   return (
     <>
-      <span className="mt-5 text-c2 w-full text-center">
-        {months[new Date().getMonth()]}
+      <span className="mt-5 dark:text-c2 w-full text-center">
+        {new Date().toUTCString().split(" ")[2]}
       </span>
       <div
         ref={container}
@@ -245,8 +231,8 @@ const DateList = ({ setDate }) => {
           <button
             className={`from-transparent relative active:scale-110 duration-200 bg-gradient-to-b rounded-2xl gap-2 w-14 h-14 ${
               active === dates.split(" ")[1]
-                ? "dark:to-c1/75 to-c2/50"
-                : "dark:to-black/25 to-c3"
+                ? "dark:to-c1/75 to-c2/40"
+                : "dark:to-black/25 to-c4/20"
             }`}
             key={key}
             ref={dates.split(" ")[1] === currentDate.toString() ? cDate : null}
@@ -303,12 +289,16 @@ function Index() {
 
   return (
     <>
-      <div className={`bg-c4/80 pb-3 flex flex-col pt-5 ${!head && "z-20"}`}>
+      <div
+        className={`dark:bg-c4 bg-c3 pb-3 flex flex-col pt-5 ${
+          !head && "z-20"
+        }`}
+      >
         <DateList setDate={(d) => setDate(d)} />
       </div>
       <div
         className={`top-12 aft z-10 after:-z-[1] after:duration-150 sticky after:h-32 after:bottom-0 after:inset-x-0 w-full ${
-          head && "after:bg-c4"
+          head && "after:bg-c4 z-30"
         }`}
       >
         <div
@@ -319,10 +309,10 @@ function Index() {
               key={key}
               className={`px-5 py-2 mr-4 whitespace-nowrap gap-1 fx active:scale-90 relative duration-150 rounded-3xl ${
                 active === key
-                  ? "text-c2 bg-c2/5"
+                  ? "dark:text-c2 text-white bg-c2 dark:bg-c2/5"
                   : head
                   ? "dark:text-white/30 text-black/30 bg-black/20"
-                  : "bg-c4/70"
+                  : "dark:bg-c4/70 bg-c5"
               }`}
               onClick={() => setActive(key)}
             >
@@ -331,7 +321,7 @@ function Index() {
           ))}
         </div>
       </div>
-      <div className="flex mb-7 items-center flex-col gap-4 w-full">
+      <div className="flex mb-7 mt-5 items-center flex-col gap-2 w-full">
         <Retry
           state={activeBets}
           loading={

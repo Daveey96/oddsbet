@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import Retry from "../services/Retry";
 import { BiFootball } from "react-icons/bi";
-import { getDate, mktDb } from "@/helpers";
+import { getDate, isArray, mktDb } from "@/helpers";
 import { Context } from "../layout";
 import Header from "./Header";
 import GameList from "./GameList";
@@ -17,11 +17,11 @@ export const sports = [
     id: 1,
     item: "soccer",
     markets: [
-      { item: "1X2", v: "1X2" },
-      { item: "1X2 - 1st half", v: "01X2" },
-      { item: "Double Chance", v: "DB*" },
-      { item: "Over | Under", v: "OU" },
-      { item: "GG", v: "GG*" },
+      { item: "1X2", v: "1X2", live: true },
+      { item: "1st half 1X2", v: "01X2" },
+      { item: "Double Chance", v: "DB*", live: true },
+      { item: "Over | Under", v: "OU", live: true },
+      { item: "GG", v: "GG*", live: true },
       { item: "First Goal", v: "FTTS*" },
       { item: "DNB", v: "DNB*" },
     ],
@@ -52,7 +52,9 @@ export default function GameLayout() {
   const { globalGames, setLoading } = useContext(Context);
   const [sport, setSport] = useState(1);
   const [mkt, setMkt] = useState(sports[sport - 1].markets[0].v);
-  const [games, setGames] = useState([null]);
+  const [games, setGames] = useState(null);
+
+  const events = useMemo(() => (isArray(games) ? games : [games]), [games]);
 
   const group = (data) => {
     let genArray = [];
@@ -76,31 +78,34 @@ export default function GameLayout() {
     setGames(genArray);
   };
 
-  const getGames = async (id, load) => {
-    !load && setGames(["loading"]);
+  const getGames = async (id) => {
+    setGames("loading");
 
-    if (globalGames.current[id]) {
-      group(globalGames.current[id]);
-      if (load) {
-        return true;
+    if (isArray(globalGames.current[id])) group(globalGames.current[id]);
+    else if (localStorage.getItem("load") === "loading") {
+      let z = setInterval(() => {
+        if (localStorage.getItem("load") !== "loading") {
+          if (localStorage.getItem("load") === "error") setGames("error");
+          else group(globalGames.current[id]);
+
+          clear();
+        }
+      }, 1000);
+
+      function clear() {
+        clearInterval(z);
       }
     } else {
-      // if (!window.navigator.onLine) {
-      //   if (load) return false;
-      //   else setGames(["error"]);
-      //   return;
-      // }
-      console.log("yes1");
-      const data = await apiController.getGlobalGames(id);
-      console.log("yes2");
+      localStorage.setItem("load", "loading");
+      const data = await apiController.getEvents(id);
 
       if (data) {
+        localStorage.setItem("load", "");
         globalGames.current[id] = data;
         group(data);
-        if (load) return true;
       } else {
-        if (load) return false;
-        else setGames(["error"]);
+        localStorage.setItem("load", "error");
+        setGames("error");
       }
     }
   };
@@ -118,7 +123,7 @@ export default function GameLayout() {
 
   useEffect(() => {
     let gamesContainer = document.getElementById("notLive");
-    inView(gamesContainer, () => games[0] === null && getGames(1));
+    inView(gamesContainer, () => games === null && getGames(1));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -130,8 +135,8 @@ export default function GameLayout() {
         title={"Games"}
         setMkt={(v) => setMkt(v)}
       />
-      {games.length ? (
-        games.map((v, key) => (
+      {events.length ? (
+        events.map((v, key) => (
           <Retry
             state={v}
             key={key}
@@ -143,7 +148,7 @@ export default function GameLayout() {
                   <div
                     key={key1}
                     className={`flex z-[1] rounded-inh overflow-hidden w-full flex-col px-3 pt-3 last-of-type:pb-10 md:last-of-type:rounded-b-2xl pb-3 dark:bg-c4 bg-white ${
-                      key === games.length - 1 && "last-of-type:rounded-b-2xl"
+                      key === events.length - 1 && "last-of-type:rounded-b-2xl"
                     }`}
                   >
                     <Skeleton className="w-[46%] opacity-50 rounded-md leading-[14px] mb-1 text-[12px]"></Skeleton>
@@ -190,7 +195,7 @@ export default function GameLayout() {
                 </div>
                 <Error
                   className={`w-full bg-white h-full md:rounded-b-2xl absolute inset-0 z-20 ${
-                    key === games.length - 1 && "rounded-b-2xl"
+                    key === events.length - 1 && "rounded-b-2xl"
                   } dark:bg-c4`}
                   refresh={() => getGames(1)}
                   type
@@ -220,7 +225,7 @@ export default function GameLayout() {
               key={sport}
               title={v?.title}
               date={v?.date}
-              last={key === games.length - 1}
+              last={key === events.length - 1}
               games={v?.games}
               sport={sport}
             />

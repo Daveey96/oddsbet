@@ -10,6 +10,7 @@ import { userController } from "@/controllers";
 import { alertService, overlayService } from "@/services";
 import { Context } from "../layout";
 import Error from "../services/Error";
+import Image from "next/image";
 
 export default function Auth() {
   const { setUser } = useContext(Context);
@@ -22,7 +23,7 @@ export default function Auth() {
   const [disabled, setDisabled] = useState(true);
 
   const [forgotPass, setForgotPass] = useState(null);
-  const [currentStage, setCurrentStage] = useState(null);
+  const [currentStage, setCurrentStage] = useState(0);
   const [buttonText, setbuttonText] = useState("verify");
 
   const activePage = useMemo(() => {
@@ -140,11 +141,11 @@ export default function Auth() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email, password]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      backdrop && getCurrentStage();
-    }, 1000);
-  }, [backdrop]);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     backdrop && getCurrentStage();
+  //   }, 1000);
+  // }, [backdrop]);
 
   return (
     <Retry
@@ -190,18 +191,27 @@ export default function Auth() {
           >
             {buttonText} {buttonText.slice(-3) === "ing" && <DotLoader />}
           </button>
-          <div className="fx w-full mt-4 gap-4">
-            <span className="flex-1 h-px flex bg-white "></span>
+          <div className="fx w-full mt-14 gap-4">
+            <span className="flex-1 h-px flex bg-white opacity-10 "></span>
             <span>OR</span>
-            <span className="flex-1 h-px flex bg-white "></span>
+            <span className="flex-1 h-px flex bg-white opacity-10 "></span>
           </div>
-          <div>
-            {["bg-white", "bg-blue-700"].map((className, key) => (
+          <div className="flex gap-3 w-full">
+            {["Google", "Facebook"].map((v, key) => (
               <button
                 key={key}
-                className={`${className} flex-1 rounded-xl py-2 fx`}
+                className={`${
+                  key ? "bg-blue-700/50 gap-2" : "bg-white/10 gap-1"
+                } flex-1 active:scale-90 duration-200 rounded-lg py-2.5 pl-6 flex items-center`}
               >
-                {key ? <>Googl</> : <>Facebo</>}
+                <Image
+                  src={`/${v.toLowerCase()}.svg`}
+                  width={key ? 20 : 28}
+                  className="mb-0.5"
+                  height={20}
+                  alt=""
+                />
+                <span className="text-sm">{v}</span>
               </button>
             ))}
           </div>

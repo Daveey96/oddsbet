@@ -19,74 +19,11 @@ const apiII_options = {
   },
 };
 
-const getMatches = async (req, res) => {
-  const { id, live } = req.query;
+const sortSpecials = async (events, specialsData) => {
+  let specials = events.filter((g) => g.resulting_unit !== "Regular");
+  let non_specials = events.filter((g) => g.resulting_unit === "Regular");
 
-  const options = {
-    url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets",
-    params: {
-      sport_id: id.toString(),
-      is_have_odds: "true",
-      event_type: live ? "live" : "prematch",
-    },
-    ...apiII_options,
-  };
-  const options2 = {
-    url: "https://sofascore.p.rapidapi.com/tournaments/get-live-events",
-    params: { sport: "football" },
-    ...apiI_options,
-  };
-
-  const matches = await axios.request(options2);
-
-  if (matches.data?.events?.length > 0) {
-    const { data } = await axios.request(options);
-
-    // matches.data.events.forEach((event) => {
-
-    // });
-    res.send(matches);
-  }
-};
-
-const getEvents = async (res, id) => {
-  const params = {
-    sport_id: id.toString(),
-    is_have_odds: "true",
-    event_type: "prematch",
-  };
-  const options = {
-    ...apiII_options,
-    url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets",
-    params,
-  };
-  const options2 = {
-    ...apiII_options,
-    url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/special-markets",
-    params,
-  };
-
-  const { data } = await axios.request(options);
-  if (!data) throw Error("No Internet Connection");
-
-  const specialsData = await axios.request(options2);
-  if (!specialsData) throw Error("No Internet Connection");
-
-  let events = data.events
-    .filter(
-      (g) =>
-        g.starts.includes(getDate().isoString) ||
-        g.starts.includes(getDate(1).isoString) ||
-        g.starts.includes(getDate(2).isoString) ||
-        g.starts.includes(getDate(3).isoString) ||
-        g.starts.includes(getDate(4).isoString)
-    )
-    .filter((v) => !v.period_results);
-
-  let specials = events.filter((g) => g.parent_id !== null);
-  let non_specials = events.filter((g) => g.parent_id === null);
-
-  await specialsData.data.specials
+  await specialsData.specials
     .filter((v) => v.category === "Team Props")
     .forEach((elem) => {
       for (let i = 0; i < non_specials.length; i++) {
@@ -118,41 +55,142 @@ const getEvents = async (res, id) => {
     }
   });
 
-  let i = Math.floor(non_specials.length / 10);
-  let arr = [];
-
-  while (i > 0) {
-    let num = Math.floor(Math.random() * non_specials.length);
-    if (!arr.includes(num)) arr.push(num);
-    i--;
-  }
-
-  arr.forEach(
-    (num) => (non_specials[num].rocketOdds = Math.floor(Math.random() * 2) + 3)
-  );
-
-  let d = await Games.create({
-    id,
-    data: non_specials,
-    date: new Date().toISOString().split("T")[0],
-  });
-
-  res.send(d.data);
+  return non_specials;
 };
 
-const getGlobalGames = async (req, res) => {
-  const { id } = req.query;
-  const games = await Games.findOne({ id });
+const remove = (events) =>
+  events.filter((v) =>
+    Math.sign(new Date().getTime() - new Date(v.starts).getTime()) === 1
+      ? false
+      : true
+  );
 
-  if (games) {
-    const date = new Date().toISOString().split("T")[0];
+const getEvents = async (req, res) => {
+  const { id, live, since } = req.query;
 
-    if (date === games.date) res.send(games.data);
-    else {
-      await Games.deleteOne({ id });
-      await getEvents(res, id);
+  let params = {
+    sport_id: id.toString(),
+    is_have_odds: "true",
+    event_type: live ? "live" : "prematch",
+  };
+  let options = {
+    ...apiII_options,
+    url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/markets",
+    params,
+  };
+  let optionsSpecial = {
+    ...apiII_options,
+    url: "https://pinnacle-odds.p.rapidapi.com/kit/v1/special-markets",
+    params,
+  };
+
+  console.log("yes", live);
+  if (live === "live") {
+    if (since) {
+      optionsSpecial.params.since = since;
+      options.params.since = since;
     }
-  } else await getEvents(res, id);
+    const options2 = {
+      url: "https://sofascore.p.rapidapi.com/tournaments/get-live-events",
+      params: { sport: "football" },
+      ...apiI_options,
+    };
+
+    const matches = await axios.request(options2);
+
+    if (matches.data?.events?.length > 0) {
+      const { data } = await axios.request(options);
+      const specials = await axios.request(optionsSpecial);
+
+      const events = await sortSpecials(data.events, specials.data);
+
+      let matchs = [];
+
+      const confirm = (slug, team) => {
+        let l = slug.split("-");
+        let i = 0;
+
+        l.forEach((m) => {
+          if (team.toLowerCase().includes(m)) i++;
+        });
+
+        return i === l.length;
+      };
+
+      matches.data.events.forEach((event) => {
+        for (let i = 0; i < events.length; i++) {
+          let { home, away } = events[i];
+          if (confirm(event.slug, home + away)) {
+            matchs.push({
+              ...event,
+              pinnacle_id: events[i].event_id,
+              periods: events[i].periods,
+            });
+            break;
+          }
+        }
+      });
+
+      res.send(matchs);
+    }
+
+    res.send([]);
+  } else {
+    const games = await Games.findOne({ id });
+
+    if (games) {
+      const date = new Date(games.updatedAt).getDate();
+
+      console.log(date, new Date().getDate(), games.updatedAt);
+      if (date === new Date().getDate()) return res.send(remove(games.data));
+    }
+
+    console.log("yes");
+    const specials = await axios.request(optionsSpecial);
+    console.log("yesz");
+    const { data } = await axios.request(options);
+    console.log("yesz2333");
+
+    const events = await sortSpecials(
+      data.events.filter((v) => !v.period_results),
+      specials.data
+    );
+
+    let i = Math.floor(events.length / 10);
+    let arr = [];
+
+    while (i > 0) {
+      let num = Math.floor(Math.random() * events.length);
+      if (!arr.includes(num)) arr.push(num);
+      i--;
+    }
+
+    arr.forEach(
+      (num) => (events[num].rocketOdds = Math.floor(Math.random() * 2) + 3)
+    );
+
+    if (games) {
+      let mgames = remove(games.data);
+
+      events.forEach((event) => {
+        for (let i = 0; i < mgames.length; i++) {
+          if (v.event_id === event.event_id) {
+            mgames[i] = { ...mgames[i], periods: event.periods };
+            break;
+          } else if (i === mgames.length - 1) mgames.push(event);
+        }
+      });
+
+      games.data = mgames;
+      await games.save();
+
+      res.send(games.data);
+    } else {
+      let d = await Games.create({ id, data: remove(events) });
+
+      res.send(d.data);
+    }
+  }
 };
 
 export const getMatch = async (req, res) => {
@@ -270,15 +308,10 @@ const getStats = async (req, res) => {
 };
 
 export default async function handler(req, res) {
-  if (req.query.type === "matches") return serverAsync(req, res, getMatches);
-
-  if (req.query.type === "match") return serverAsync(req, res, getMatch);
-
-  if (req.query.type === "global") return serverAsync(req, res, getGlobalGames);
-
-  if (req.query.type === "specials") return serverAsync(req, res, getSpecials);
-
-  if (req.query.type === "stats") return serverAsync(req, res, getStats);
-
-  if (req.query.type === "logo") return serverAsync(req, res, getTeamLogo);
+  if (req.query.type === "events") return serverAsync(req, res, getEvents);
+  else if (req.query.type === "match") return serverAsync(req, res, getMatch);
+  else if (req.query.type === "specials")
+    return serverAsync(req, res, getSpecials);
+  else if (req.query.type === "stats") return serverAsync(req, res, getStats);
+  else if (req.query.type === "logo") return serverAsync(req, res, getTeamLogo);
 }

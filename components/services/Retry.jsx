@@ -1,9 +1,9 @@
 import { condition } from "@/helpers";
-import React from "react";
+import React, { useEffect } from "react";
 
 function Retry({ children, loading, error, state, getState }) {
   useEffect(() => {
-    state === null && getState();
+    state === null && getState && getState();
   }, [state]);
 
   return (

@@ -157,7 +157,7 @@ export default function BetList({ toggle, setToggle }) {
             animate={{ y: "0%", opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ ease: "anticipate" }}
-            className={`z-[26] dark:bg-black text-white bg-c4 max-h-[80vh] pb-12 absolute inset-x-0 w-full bottom-0 fx flex-col ${
+            className={`z-[26] dark:bg-black text-white bg-c4 max-h-[80vh] pb-12 fixed inset-x-0 w-full -bottom-1 fx flex-col ${
               !betList.length && "rounded-t-[2rem]"
             }`}
           >
@@ -288,7 +288,7 @@ export default function BetList({ toggle, setToggle }) {
                 />
               </Animated>
               {betList.length > 0 && (
-                <div className="fx aft pb-1 after:bottom-[95%] after:h-8 after:from-transparent dark:after:to-black after:to-c4 after:bg-gradient-to-b after:inset-x-0 relative gap-4 z-10 pt-2 w-full ">
+                <div className="fx aft pb-4 after:bottom-[95%] after:h-8 after:from-transparent dark:after:to-black after:to-c4 after:bg-gradient-to-b after:inset-x-0 relative gap-4 z-10 pt-2 w-full ">
                   <button
                     onClick={() => betList.length > 0 && submitBetSlip()}
                     disabled={

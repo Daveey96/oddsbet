@@ -31,12 +31,13 @@ const ticketSchema = new Schema({
   ],
 });
 
-const gameSchema = new Schema({
-  id: Number,
-  data: Array,
-  date: String,
-  type: Boolean,
-});
+const gameSchema = new Schema(
+  {
+    id: Number,
+    data: Array,
+  },
+  { timestamps: true }
+);
 
 const activeBetsSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User" },

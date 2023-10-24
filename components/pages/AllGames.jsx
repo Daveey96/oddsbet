@@ -13,9 +13,10 @@ import Game from "../games/Game";
 import Retry from "../services/Retry";
 import Image from "next/image";
 import { Curtain } from "../global/Animated";
-import { arrange } from "@/helpers";
+import { arrange, isArray } from "@/helpers";
 import DropDown from "../global/DropDown";
 import { CircularLoader } from "../services/Loaders";
+import ScrrollTo from "../global/ScrrollTo";
 
 function AllGames() {
   const { open, setOpen, globalGames } = useContext(Context);
@@ -27,6 +28,7 @@ function AllGames() {
   const [searchLoad, setSearchLoad] = useState(false);
   const [market, setMarket] = useState("1X2");
   const [sort, setSort] = useState("st");
+  const [head, setHead] = useState(false);
 
   const getGames = () => {
     let g = globalGames.current[activeSport].filter(
@@ -66,17 +68,25 @@ function AllGames() {
     setTimeout(() => games === null && getGames(), 500);
   }, [games]);
 
+  useEffect(() => {
+    if (open) {
+      const cont = document.getElementById("allgames");
+      cont.scrollTop > 100 ? setHead(true) : setHead(false);
+
+      cont.addEventListener("scroll", (e) => {
+        e.target.scrollTop > 100 ? setHead(true) : setHead(false);
+      });
+    }
+  }, [open]);
+
   const details = [
     [
-      { text: "popularity", v: "p" },
-      { text: "start time", v: "st" },
+      { text: "today", v: "p" },
+      { text: "tomorrow", v: "st" },
     ],
     [
-      { text: "1X2", v: "1X2" },
-      { text: "1st Half - 1X2", v: "01X2" },
-      { text: "Over Under", v: "OU" },
-      { text: "Home O|U", v: "HOU" },
-      { text: "Away O|U", v: "AOU" },
+      { text: "popularity", v: "p" },
+      { text: "time", v: "st" },
     ],
   ];
 
@@ -86,22 +96,7 @@ function AllGames() {
       setState={() => setOpen(null)}
       className="dark:bg-c4 pb-12 bg-white z-[23] overflow-y-scroll overflow-x-hidden"
     >
-      <header className="fx gap-5 mb-3 sticky w-full pt-7 dark:bg-c4 bg-white top-0 z-10">
-        {[0, 1].map((key) => (
-          <button
-            key={key}
-            className={`text-11 fx rounded-full w-4 h-4 dark:border-none dark:bg-black/20 border-black/40 border-2 ${
-              key ? "order-3" : ""
-            }`}
-          >
-            {!key ? <BsCaretLeftFill /> : <BsCaretRightFill />}
-          </button>
-        ))}
-        <h3 className="font-bold fx dark:font-normal text-base">
-          {open?.title?.split(" ")[0]}
-        </h3>
-      </header>
-      <div className="fx mt-2 gap-2">
+      <header className="fx pt-14 bg-black/40 gap-2">
         {sports.map((v, key) => (
           <span
             key={key}
@@ -116,46 +111,67 @@ function AllGames() {
             <span className="">{v.item.slice(0, 6)}</span>
           </span>
         ))}
-      </div>
-      <div className="fx gap-3 pr-1 pt-2 w-full pb-1 dark:bg-c4 bg-white rounded-b-2xl sticky z-10 top-[50px]">
-        <div
-          className={`fx h-7 bg-c3 dark:bg-black duration-150 gap-1 px-3 rounded-2xl`}
-        >
-          <input
-            type="text"
-            ref={input}
-            className={`py-1 peer order-2 w-14 duration-150`}
-            placeholder="Search"
-            value={value}
-            onChange={({ target }) => typing(target.value)}
-          />
-          <span className="translate-y-px duration-150 order-1 fx relative peer-focus:text-c2">
-            <BiSearchAlt className={searchLoad ? "opacity-0" : ""} />
-            {searchLoad && (
-              <CircularLoader
-                depth={2}
-                size={12}
-                className={"mr-1 absolute"}
-                color
-              />
-            )}
-          </span>
-        </div>
-        {details.map((v, key) => (
-          <DropDown
-            ngClass={"right-0 mt-2 py-2 px-4 rounded-xl bg-black gap-1"}
-            changed={(key2) => changed(v[key2].v, key)}
-            className="fx gap-1 z-30 text-c2 bg-c2/5 rounded-3xl py-1.5 px-3"
-            iClass="text-c2 bg-black whitespace-nowrap rounded-3xl pt-2 pb-2.5"
-            item={<BsCaretDownFill className=" text-c2 text-9 mt-0.5" />}
-            key={key}
+      </header>
+      <div
+        className={`fx flex-col gap-3 pr-1 pt-2 w-full pb-1 bg-white sticky z-10 top-[50px] ${
+          head ? "dark:bg-transparent after:absolute" : "dark:bg-black/40"
+        }`}
+      >
+        <div className="flex gap-2">
+          <div
+            className={`fx h-7 bg-c3 dark:bg-black duration-150 gap-1 px-3 rounded-2xl`}
           >
-            {v.map((v2, key) => (
-              <React.Fragment key={key}>{v2.text}</React.Fragment>
-            ))}
-          </DropDown>
-        ))}
+            <input
+              type="text"
+              ref={input}
+              className={`py-1 peer order-2 w-14 duration-150`}
+              placeholder="Search"
+              value={value}
+              onChange={({ target }) => typing(target.value)}
+            />
+            <span className="translate-y-px duration-150 order-1 fx relative peer-focus:text-c2">
+              <BiSearchAlt className={searchLoad ? "opacity-0" : ""} />
+              {searchLoad && (
+                <CircularLoader
+                  depth={2}
+                  size={12}
+                  className={"mr-1 absolute"}
+                  color
+                />
+              )}
+            </span>
+          </div>
+          {details.map((v, key) => (
+            <DropDown
+              ngClass={"right-0 py-2 px-4 rounded-xl bg-black gap-1"}
+              changed={(key2) => changed(v[key2].v, key)}
+              className="fx gap-1 z-30 text-c2 bg-c2/5 rounded-3xl py-1.5 px-3"
+              iClass="text-c2 bg-black whitespace-nowrap rounded-3xl pt-2 pb-2.5"
+              item={<BsCaretDownFill className=" text-c2 text-9 mt-0.5" />}
+              key={key}
+            >
+              {v.map((v2, key) => (
+                <React.Fragment key={key}>{v2.text}</React.Fragment>
+              ))}
+            </DropDown>
+          ))}
+        </div>
+        <ScrrollTo
+          id={"allscroll"}
+          list={sports[0].markets}
+          className="flex py-2 w-full gap-3"
+        >
+          {sports[0].markets.map((v, key) => (
+            <span
+              key={key}
+              className="py-1.5 whitespace-nowrap flex rounded-2xl bg-black/40 px-4"
+            >
+              {v.item}
+            </span>
+          ))}
+        </ScrrollTo>
       </div>
+
       <Retry
         state={games}
         loading={
@@ -215,14 +231,25 @@ function AllGames() {
           </div>
         }
       >
-        {typeof games !== String &&
-          games !== null &&
-          arrange(games, sort).map((game) => (
-            <React.Fragment key={game.event_id}>
-              <Game game={game} mkt={market} last={false} margin={false} />
-              <hr className="w-full dark:border-black h-px bg-c3 dark:bg-black last-of-type:hidden last-of-type:mb-52 fx" />
-            </React.Fragment>
-          ))}
+        {isArray(games) && (
+          <>
+            <div className="flex bg-black justify-end">
+              <span className="flex w-1/2">
+                {["1", "x", "2"].map((v, key) => (
+                  <span key={key} className="flex-1 py-1">
+                    {v}
+                  </span>
+                ))}
+              </span>
+            </div>
+            {arrange(games, sort).map((game) => (
+              <React.Fragment key={game.event_id}>
+                <Game game={game} mkt={market} last={false} margin={false} />
+                <hr className="w-full dark:border-black h-px bg-c3 dark:bg-black last-of-type:hidden last-of-type:mb-52 fx" />
+              </React.Fragment>
+            ))}
+          </>
+        )}
       </Retry>
     </Curtain>
   );

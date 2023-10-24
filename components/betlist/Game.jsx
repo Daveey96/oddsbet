@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Svg from "../global/Svg";
 import { BiTrashAlt } from "react-icons/bi";
 import { Context } from "../layout";
-import { weekDays } from "@/helpers";
+import { addZero, weekDays } from "@/helpers";
 
 export default function Game({ v, index, deleteGame, setToggle }) {
   const x = useMotionValue(0);
@@ -38,8 +38,6 @@ export default function Game({ v, index, deleteGame, setToggle }) {
     setToggle(false);
   };
 
-  const addZero = (v) => (v.toString().length === 1 ? `0${v}` : v);
-
   return (
     <>
       <span className="w-[100%] h-[2px] bg-c4/50 rounded-2xl fx mx-auto"></span>
@@ -59,7 +57,7 @@ export default function Game({ v, index, deleteGame, setToggle }) {
         >
           <div className="w-full overflow-hidden mb-0.5 relative pr-4 shadow shadow-black/50 dark:shadow-none flex">
             <span className="fx text-white/40 py-3.5 bg-black/20 dark:bg-c4/30 px-2.5 flex-col">
-              {date.getDay() === new Date().getDay()
+              {date.getDate() === new Date().getDate()
                 ? "Today"
                 : weekDays[date.getDay()].slice(0, 3)}
               <span className="text-white/80">

@@ -78,8 +78,8 @@ export default function Tab() {
                 className={`${
                   pathName === link.path ? " fill-c2 " : "fill-white/20"
                 } `}
-                width={"20px"}
-                height={"20px"}
+                width={"22px"}
+                height={"22px"}
                 viewBox={"0 0 24 24"}
               >
                 {link.svgPath}
